@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -21,11 +22,15 @@ public class Produto {
 
     private String nome;
     private BigDecimal preco;
+    private boolean produtoAtivo;
+    private String descricao;
+    private LocalDate dataValidade;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "promocao_id", nullable = true)
     private Promocao promocao;
 
+    @Transient
     public BigDecimal getPreco(){
         if(promocao != null &&  promocao.promocaoEstaAtiva()){
             return preco.multiply(BigDecimal.ONE.subtract(promocao.getTaxaDeDesconto()));

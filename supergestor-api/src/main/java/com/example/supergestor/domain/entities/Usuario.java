@@ -26,6 +26,10 @@ public class Usuario implements UserDetails {
 
     private String name;
 
+    @Lob
+    @Column(name = "foto_perfil")
+    private byte[] foto;
+
     @Column(unique = true, nullable = false)
     private String username;
 
@@ -43,6 +47,10 @@ public class Usuario implements UserDetails {
     @OneToOne(mappedBy = "usuario")
     @ToString.Exclude
     private Funcionario funcionario;
+
+    @OneToOne(mappedBy = "usuario")
+    @ToString.Exclude
+    private Cliente cliente;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

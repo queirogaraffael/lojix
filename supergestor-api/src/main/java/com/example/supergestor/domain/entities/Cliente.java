@@ -3,28 +3,24 @@ package com.example.supergestor.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-public class Funcionario {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Cliente {
 
     @Id
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nome;
-    private String cargo;
-    private BigDecimal salario;
+    private LocalDate tempoFidelidade;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    @ToString.Exclude
+    @JoinColumn(name = "user_id", nullable = true)
     private Usuario usuario;
 }
