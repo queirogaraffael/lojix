@@ -19,7 +19,7 @@ public class Cliente {
     private Long id;
     private LocalDate tempoFidelidade;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
     private Usuario usuario;
 }
