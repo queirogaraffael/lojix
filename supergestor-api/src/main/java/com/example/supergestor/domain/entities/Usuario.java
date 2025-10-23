@@ -2,6 +2,7 @@ package com.example.supergestor.domain.entities;
 
 import com.example.supergestor.domain.enums.UserRole;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +25,7 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotNull
     private String name;
 
     @Lob
@@ -39,6 +41,7 @@ public class Usuario implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @NotNull
     private String password;
 
     @Enumerated(EnumType.STRING)
