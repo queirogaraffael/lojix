@@ -19,12 +19,11 @@ public class Funcionario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
     private String cargo;
     private BigDecimal salario;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private Usuario usuario;
 }

@@ -17,10 +17,9 @@ public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome;
     private LocalDate tempoFidelidade;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id", nullable = false)
     private Usuario usuario;
 }
