@@ -22,7 +22,9 @@ public class Funcionario {
     private String cargo;
     private BigDecimal salario;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    private boolean ativo = true;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private Usuario usuario;
