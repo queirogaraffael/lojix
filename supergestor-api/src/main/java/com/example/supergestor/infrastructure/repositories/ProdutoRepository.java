@@ -7,9 +7,11 @@ import com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,4 +49,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     )
     Page<ProdutoResponseDTO> findAllPageable(@Param("ativo") boolean ativo, Pageable pageable);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE Produto p SET p.produtoAtivo = :produtoAtivo WHERE p.id = :id")
+    void desativarProduto(@Param("id") Long id, @Param("produtoAtivo") boolean produtoAtivo);
 }

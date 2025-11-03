@@ -26,16 +26,7 @@ public class Produto {
     private String descricao;
     private LocalDate dataValidade;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "promocao_id", nullable = true)
     private Promocao promocao;
-
-    @Transient
-    public BigDecimal getPreco(){
-        if(promocao != null &&  promocao.promocaoEstaAtiva()){
-            return preco.multiply(BigDecimal.ONE.subtract(promocao.getTaxaDeDesconto()));
-        }
-
-        return preco;
-    }
 }
