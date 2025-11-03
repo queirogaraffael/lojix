@@ -32,15 +32,10 @@ public class Promocao {
     private LocalDate inicio;
     private LocalDate fim;
 
+    private Boolean ativada;
+
     @OneToMany(mappedBy = "promocao")
     @ToString.Exclude
     private Set<Produto> produtos = new HashSet<>();
-
-    @Transient
-    public boolean promocaoEstaAtiva() {
-        LocalDate hoje = LocalDate.now();
-        return (inicio.isEqual(hoje) || inicio.isBefore(hoje))
-                && (fim.isEqual(hoje) || fim.isAfter(hoje));
-    }
 
 }
