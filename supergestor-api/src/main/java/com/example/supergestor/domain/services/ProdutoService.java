@@ -1,6 +1,8 @@
 package com.example.supergestor.domain.services;
 
+import com.example.supergestor.domain.entities.Categoria;
 import com.example.supergestor.domain.entities.Produto;
+import com.example.supergestor.infrastructure.repositories.CategoriaRepository;
 import com.example.supergestor.infrastructure.repositories.ProdutoRepository;
 import com.example.supergestor.shared.dtos.produtos.ProdutoRequestDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO;
@@ -17,15 +19,21 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final ProdutoMapper produtoMapper;
+    private final CategoriaRepository categoriaRepository;
 
-
-    public ProdutoService(ProdutoRepository produtoRepository, ProdutoMapper produtoMapper) {
+    public ProdutoService(ProdutoRepository produtoRepository, ProdutoMapper produtoMapper, CategoriaRepository categoriaRepository) {
         this.produtoRepository = produtoRepository;
         this.produtoMapper = produtoMapper;
+        this.categoriaRepository = categoriaRepository;
     }
 
-    public ProdutoResponseDTO createProduto(ProdutoRequestDTO produtoRequestDTO){
+    public ProdutoResponseDTO createProduto(Long idCategoria, ProdutoRequestDTO produtoRequestDTO){
         Produto produto = produtoMapper.toEntity(produtoRequestDTO);
+
+        Categoria categoria = categoriaRepository.findById(idCategoria).orElseThrow(()-> new ResourceNotFoundException("Categoria não encontrada"));
+
+        produto.setCategoria(categoria);
+
         Produto produtoSaved = produtoRepository.save(produto);
         return produtoMapper.toResponse(produtoSaved);
     }

@@ -28,7 +28,7 @@ public class Produto {
     private Promocao promocao;
 
     @ManyToOne
-    @JoinColumn(name = "categoria_id")
+    @JoinColumn(name = "categoria_id", nullable = false)
     @ToString.Exclude
     private Categoria categoria;
 }
