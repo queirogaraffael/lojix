@@ -6,11 +6,9 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Funcionario {
 

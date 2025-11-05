@@ -1,17 +1,14 @@
 package com.example.supergestor.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Produto {
@@ -26,7 +23,12 @@ public class Produto {
     private String descricao;
     private LocalDate dataValidade;
 
-    @ManyToOne
+    @ManyToOne // carrega por podrao, mesmo que você coloque LAZY
     @JoinColumn(name = "promocao_id", nullable = true)
     private Promocao promocao;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    @ToString.Exclude
+    private Categoria categoria;
 }
