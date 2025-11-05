@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @NoArgsConstructor
