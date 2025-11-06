@@ -1,0 +1,29 @@
+.clientes-container {
+    width: 100%;
+  }
+  
+  .clientes-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .clientes-tabela th,
+  .clientes-tabela td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+  }
+  
+  .clientes-tabela th {
+    background-color: #f4f6f8;
+    font-weight: 600;
+  }
+  
+  .clientes-tabela tbody tr:last-child td {
+    border-bottom: none;
+  }

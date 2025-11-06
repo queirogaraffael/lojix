@@ -19,7 +19,7 @@ export const mockProdutos = [
     tipo: 'Bebidas',
     descricao: 'Refrigerante sabor cola.',
     dataValidade: '2025-12-31',
-    promocaoId: 'p1', // Associado à promo de 10%
+    promocaoId: 'p1',
   },
   {
     id: 'prod2',
@@ -28,7 +28,7 @@ export const mockProdutos = [
     tipo: 'Limpeza',
     descricao: 'Sabão para roupas brancas.',
     dataValidade: '2026-10-20',
-    promocaoId: null, // Sem promoção
+    promocaoId: null,
   },
   {
     id: 'prod3',
@@ -37,7 +37,7 @@ export const mockProdutos = [
     tipo: 'Padaria',
     descricao: 'Pão integral.',
     dataValidade: '2025-11-15',
-    promocaoId: 'p2', // Associado à promo de 40%
+    promocaoId: 'p2',
   },
 ];
 
@@ -58,4 +58,19 @@ export const mockFuncionarios = [
   },
 ];
 
-export const mockClientes = [];
+export const mockClientes = [
+  {
+    id: 'c1',
+    nome: 'Maria Souza',
+    cpf: '333.333.333-33',
+    idade: 45,
+    dataCadastro: '2022-05-10',
+  },
+  {
+    id: 'c2',
+    nome: 'João Pereira',
+    cpf: '444.444.444-44',
+    idade: 32,
+    dataCadastro: '2024-01-15',
+  },
+];
