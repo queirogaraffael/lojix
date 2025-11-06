@@ -1,0 +1,32 @@
+.produtos-container {
+    width: 100%;
+  }
+  
+  .produtos-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .produtos-tabela th,
+  .produtos-tabela td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .produtos-tabela th {
+    background-color: #f4f6f8;
+    font-weight: 600;
+  }
+  
+  .produtos-tabela tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .produtos-tabela tbody tr:hover {
+    background-color: #f9f9f9;
+  }
