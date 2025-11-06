@@ -4,6 +4,7 @@ import { Login } from './pages/Login/Login';
 import { Layout } from './components/Layout/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Dashboard } from './pages/Dashboard/Dashboard';
+import { Produtos } from './pages/Produtos/Produtos';
 import './App.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Layout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/produtos" element={<Produtos />} />
               </Routes>
             </Layout>
           </ProtectedRoute>
