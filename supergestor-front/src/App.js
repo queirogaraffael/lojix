@@ -6,6 +6,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { Dashboard } from './pages/Dashboard/Dashboard';
 import { Produtos } from './pages/Produtos/Produtos';
 import { Funcionarios } from './pages/Funcionarios/Funcionarios';
+import { Promocoes } from './pages/Promocoes/Promocoes';
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/produtos" element={<Produtos />} />
                 <Route path="/funcionarios" element={<Funcionarios />} />
+                <Route path="/promocoes" element={<Promocoes />} />
               </Routes>
             </Layout>
           </ProtectedRoute>

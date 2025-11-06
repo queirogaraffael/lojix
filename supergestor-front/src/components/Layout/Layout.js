@@ -21,6 +21,7 @@ export const Layout = ({ children }) => {
           <NavLink to="/">Dashboard</NavLink>
           <NavLink to="/produtos">Produtos</NavLink>
           <NavLink to="/funcionarios">Funcionários</NavLink>
+          <NavLink to="/promocoes">Promoções</NavLink>
         </div>
         <div className="navbar-user">
           <span>Olá, {user?.username}</span>
