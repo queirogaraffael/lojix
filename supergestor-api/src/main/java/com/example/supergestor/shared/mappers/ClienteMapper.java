@@ -14,7 +14,7 @@ public interface ClienteMapper {
     @Mapping(target = "usuarioResponseDTO.username", source = "usuario.username")
     @Mapping(target = "usuarioResponseDTO.email", source = "usuario.email")
     @Mapping(target = "usuarioResponseDTO.cpf", source = "usuario.cpf")
-    ClienteResponseDTO entityToRespondeDTO(Cliente cliente);
+    ClienteResponseDTO entityToResponseDTO(Cliente cliente);
 
 
     @Mapping(source = "usuarioRequestDTO.nome", target = "usuario.nome")
