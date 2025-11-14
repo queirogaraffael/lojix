@@ -26,7 +26,7 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> 
                     "f.id, " +
                     "f.cargo, " +
                     "f.salario, " +
-                    "new com.example.supergestor.shared.dtos.funcionario.UsuarioResponseDTO(" +
+                    "new com.example.supergestor.shared.dtos.usuario.UsuarioResponseDTO(" +
                     "u.id, u.name, u.username, u.email, u.cpf" +
                     ")" +
                     ") " +

@@ -53,7 +53,6 @@ public class ClienteService {
     @Transactional(readOnly = true)
     public ClienteResponseDTO getClienteById(Long id){
         Cliente cliente = clienteRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Usuario com id " + id + " nao encontrado"));
-
         return clienteMapper.entityToResponseDTO(cliente);
     }
 
