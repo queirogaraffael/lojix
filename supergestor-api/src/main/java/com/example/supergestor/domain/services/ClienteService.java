@@ -1,6 +1,7 @@
 package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Cliente;
+import com.example.supergestor.domain.enums.UserRole;
 import com.example.supergestor.infrastructure.repositories.ClienteRepository;
 import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.cliente.ClienteRequestDTO;
@@ -40,6 +41,8 @@ public class ClienteService {
         }
 
         Cliente cliente = clienteMapper.toEntity(clienteRequestDTO);
+
+        cliente.getUsuario().setRole(UserRole.CLIENTE);
 
         Cliente clienteSalvo = clienteRepository.save(cliente);
 

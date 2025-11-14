@@ -1,6 +1,7 @@
 package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Funcionario;
+import com.example.supergestor.domain.enums.UserRole;
 import com.example.supergestor.infrastructure.repositories.FuncionarioRepository;
 import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioRequestDTO;
@@ -38,6 +39,8 @@ public class FuncionarioService {
         }
 
         Funcionario funcionario = funcionarioMapper.toEntity(funcionarioRequestDTO);
+
+        funcionario.getUsuario().setRole(UserRole.FUNCIONARIO);
 
         Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
 
