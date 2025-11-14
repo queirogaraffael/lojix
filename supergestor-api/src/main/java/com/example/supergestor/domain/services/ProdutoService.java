@@ -48,6 +48,15 @@ public class ProdutoService {
         return produtoRepository.findAllPageable(true, pageable);
     }
 
+    public Page<ProdutoResponseDTO> getProdutosPaginadosByCategoriaId(Long idCategoria, int page, int size){
+
+        Categoria categoria = categoriaRepository.findById(idCategoria).orElseThrow(()-> new ResourceNotFoundException("Categoia com id " + idCategoria + " não encontrada"));
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return produtoRepository.findPageableByCategoriaId(categoria.getId(), true,  pageable);
+    }
+
     public ProdutoResponseDTO updateProdutoById(Long idProduto, ProdutoUpdateDTO produtoUpdate){
         Produto produto = produtoRepository.findById(idProduto).orElseThrow(()-> new ResourceNotFoundException("Produto com id: " + idProduto + " não encontrado."));
         produtoMapper.updateProdutoFromDTO(produtoUpdate, produto);

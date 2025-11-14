@@ -52,4 +52,28 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     @Modifying
     @Query("UPDATE Produto p SET p.produtoAtivo = :produtoAtivo WHERE p.id = :id")
     void desativarProduto(@Param("id") Long id, @Param("produtoAtivo") boolean produtoAtivo);
+
+    @Query(
+            value = "SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO( " +
+                    "p.id, " +
+                    "p.nome, " +
+                    "p.preco, " +
+                    "p.descricao, " +
+                    "p.dataValidade, " +
+                    "p.promocao.id, " +
+                    "p.categoria.id ) " +
+                    "FROM Produto p " +
+                    "JOIN p.categoria c " +
+                    "WHERE p.produtoAtivo = :produtoAtivo " +
+                    "AND c.id = :idCategoria",
+            countQuery = "SELECT count(p) FROM Produto p JOIN p.categoria c " +
+                    "WHERE p.produtoAtivo = :produtoAtivo " +
+                    "AND c.id = :idCategoria"
+    )
+    Page<ProdutoResponseDTO> findPageableByCategoriaId(
+            @Param("idCategoria") Long idCategoria,
+            @Param("produtoAtivo") boolean produtoAtivo,
+            Pageable pageable
+    );
+
 }
