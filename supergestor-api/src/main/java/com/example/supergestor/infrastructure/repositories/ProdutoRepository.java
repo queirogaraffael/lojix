@@ -20,18 +20,18 @@ import java.util.Optional;
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
-    @Query("SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO(" +
+    @Query("SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO( " +
             "p.id, " +
             "p.nome, " +
             "p.preco, " +
             "p.descricao, " +
             "p.dataValidade, " +
-            "new com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO(" +
-            "pr.id, pr.nome, pr.taxaDeDesconto)" +
-            ") " +
-            "FROM Produto p LEFT JOIN p.promocao pr " +
+            "p.promocao.id, " +
+            "p.categoria.id ) " +
+            "FROM Produto p " +
             "WHERE p.id = :id AND p.produtoAtivo = :ativo")
-    Optional<ProdutoResponseDTO> findProdutoById(@Param("id") Long id, @Param("ativo") boolean ativo);
+    Optional<ProdutoResponseDTO> findProdutoById(@Param("id") Long id,
+                                                 @Param("ativo") boolean ativo);
 
     @Query(
             value = "SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO(" +
@@ -40,10 +40,9 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
                     "p.preco, " +
                     "p.descricao, " +
                     "p.dataValidade, " +
-                    "new com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO(" +
-                    "pr.id, pr.nome, pr.taxaDeDesconto)" +
-                    ") " +
-                    "FROM Produto p LEFT JOIN p.promocao pr " +
+                    "p.promocao.id, " +
+                    "p.categoria.id ) " +
+                    "FROM Produto p " +
                     "WHERE p.produtoAtivo = :ativo",
             countQuery = "SELECT count(p) FROM Produto p WHERE p.produtoAtivo = :ativo"
     )

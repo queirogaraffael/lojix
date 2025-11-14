@@ -23,7 +23,7 @@ public class Produto {
     private String descricao;
     private LocalDate dataValidade;
 
-    @ManyToOne // carrega por podrao, mesmo que você coloque LAZY
+    @ManyToOne
     @JoinColumn(name = "promocao_id", nullable = true)
     private Promocao promocao;
 
