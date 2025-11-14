@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class FuncionarioResponseDTO {
 
+    private Long id;
     private String cargo;
     private BigDecimal salario;
     private UsuarioResponseDTO usuarioResponseDTO;

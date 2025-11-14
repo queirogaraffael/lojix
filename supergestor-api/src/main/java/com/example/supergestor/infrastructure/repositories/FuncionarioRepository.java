@@ -23,6 +23,7 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> 
 
     @Query(
             value = "SELECT new com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO(" +
+                    "f.id, " +
                     "f.cargo, " +
                     "f.salario, " +
                     "new com.example.supergestor.shared.dtos.funcionario.UsuarioResponseDTO(" +
