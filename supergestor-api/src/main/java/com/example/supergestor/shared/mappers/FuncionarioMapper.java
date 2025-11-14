@@ -13,7 +13,7 @@ import org.mapstruct.NullValueCheckStrategy;
 
 @Mapper(
         componentModel = "spring",
-        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, uses = Base64Converter.class
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, uses = {Base64Converter.class, UsuarioMapper.class}
 )
 public interface FuncionarioMapper {
 
@@ -33,6 +33,7 @@ public interface FuncionarioMapper {
     @Mapping(source = "usuarioRequestDTO.cpf",      target = "usuario.cpf")
     Funcionario toEntity(FuncionarioRequestDTO funcionarioRequestDTO);
 
+    @Mapping(source = "usuarioUpdateDTO", target = "usuario")
     void updateFuncionarioFromDTO(FuncionarioUpdateDTO dto, @MappingTarget Funcionario funcionario);
 
     @Mapping(target = "id", source = "funcionario.id")
