@@ -26,7 +26,10 @@ public class PromocaoService {
     public PromocaoResponseDTO createPromocao(PromocaoRequestDTO promocaoRequestDTO){
         Promocao promocao = promocaoMapper.toEntity(promocaoRequestDTO);
         promocao.setAtivada(true);
-        return promocaoMapper.toResponseDTO(promocao);
+
+        Promocao promocaoSalva = promocaoRepository.save(promocao);
+
+        return promocaoMapper.toResponseDTO(promocaoSalva);
     }
 
     public void desativarPromocaoById(Long idPromocao){
