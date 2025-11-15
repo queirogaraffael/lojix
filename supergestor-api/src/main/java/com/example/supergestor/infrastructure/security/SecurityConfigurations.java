@@ -35,11 +35,8 @@ public class SecurityConfigurations {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 
-                        // Endpoints públicos do UserController
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-
-                        // Endpoints públicos do LoginController
-                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        // Endpoints públicos de login
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
 
                         // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()

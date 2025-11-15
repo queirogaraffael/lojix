@@ -6,9 +6,11 @@ import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -29,6 +31,8 @@ public class FuncionarioController {
     @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<FuncionarioResponseDTO> createFuncionario(
             @RequestBody FuncionarioRequestDTO funcionarioRequestDTO
@@ -48,6 +52,8 @@ public class FuncionarioController {
     @ApiResponse(responseCode = "200", description = "Funcionário encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<FuncionarioResponseDTO> getFuncionarioById(@PathVariable Long id) {
         return ResponseEntity.ok(funcionarioService.getFuncionarioById(id));
@@ -56,6 +62,8 @@ public class FuncionarioController {
     @Operation(summary = "Listar funcionários ativos", description = "Retorna funcionários ativos de forma paginada")
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
     public ResponseEntity<Page<FuncionarioResponseDTO>> getFuncionariosAtivosPaginados(
             @RequestParam(defaultValue = "0") int page,
@@ -69,6 +77,8 @@ public class FuncionarioController {
     @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
     public ResponseEntity<FuncionarioResponseDTO> updateFuncionario(
             @PathVariable Long id,
@@ -81,6 +91,8 @@ public class FuncionarioController {
     @ApiResponse(responseCode = "204", description = "Funcionário desligado com sucesso")
     @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{id}/desligar")
     public ResponseEntity<Void> desligarFuncionarioById(@PathVariable Long id) {
         funcionarioService.desligarFuncionarioById(id);

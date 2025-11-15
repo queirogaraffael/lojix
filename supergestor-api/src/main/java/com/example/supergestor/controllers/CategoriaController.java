@@ -6,9 +6,11 @@ import com.example.supergestor.shared.dtos.categoria.CategoriaResponseDTO;
 import com.example.supergestor.shared.dtos.categoria.CategoriaUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,6 +34,8 @@ public class CategoriaController {
     @ApiResponse(responseCode = "201", description = "Categoria criada com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de validação de negócio")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<CategoriaResponseDTO> criarCategoria(@RequestBody CategoriaRequestDTO categoriaRequestDTO) {
         CategoriaResponseDTO categoriaCriada = categoriaService.criarCategoria(categoriaRequestDTO);
@@ -52,6 +56,8 @@ public class CategoriaController {
     @ApiResponse(responseCode = "200", description = "Categoria encontrada com sucesso")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{idCategoria}")
     public ResponseEntity<CategoriaResponseDTO> getCategoriaById(@PathVariable Long idCategoria) {
         return ResponseEntity.ok(categoriaService.getCategoriaById(idCategoria));
@@ -63,6 +69,8 @@ public class CategoriaController {
     )
     @ApiResponse(responseCode = "200", description = "Categorias retornadas com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
     public ResponseEntity<Page<CategoriaResponseDTO>> getCategoriasPaginados(
             @RequestParam(defaultValue = "0") int page,
@@ -79,6 +87,8 @@ public class CategoriaController {
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{idCategoria}")
     public ResponseEntity<CategoriaResponseDTO> updateCategoria(
             @PathVariable Long idCategoria,

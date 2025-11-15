@@ -6,9 +6,11 @@ import com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -30,6 +32,8 @@ public class ProdutoController {
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/categoria/{idCategoria}")
     public ResponseEntity<ProdutoResponseDTO> createProduto(
             @PathVariable Long idCategoria,
@@ -50,6 +54,8 @@ public class ProdutoController {
     @ApiResponse(responseCode = "200", description = "Produto encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<ProdutoResponseDTO> getProdutoById(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.getProdutoById(id));
@@ -58,6 +64,8 @@ public class ProdutoController {
     @Operation(summary = "Listar produtos paginados", description = "Retorna produtos ativos com paginação")
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
     public ResponseEntity<Page<ProdutoResponseDTO>> getProdutosPaginados(
             @RequestParam(defaultValue = "0") int page,
@@ -70,6 +78,8 @@ public class ProdutoController {
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/categoria/{idCategoria}")
     public ResponseEntity<Page<ProdutoResponseDTO>> getProdutosPaginadosByCategoriaId(
             @PathVariable Long idCategoria,
@@ -84,6 +94,8 @@ public class ProdutoController {
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{idProduto}")
     public ResponseEntity<ProdutoResponseDTO> updateProdutoById(
             @PathVariable Long idProduto,
@@ -96,6 +108,8 @@ public class ProdutoController {
     @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativarProdutoById(@PathVariable Long id) {
         produtoService.desativarProdutoById(id);

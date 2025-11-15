@@ -7,9 +7,11 @@ import com.example.supergestor.shared.dtos.auth.TokenResponseDTO;
 import com.example.supergestor.shared.dtos.usuario.UserContextDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Auth")
@@ -32,10 +34,16 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(data));
     }
 
+    @Operation(summary = "Obter contexto do usuário autenticado", description = "Retorna informações sobre o usuário atualmente logado, como IDs e vínculos.")
+    @ApiResponse(responseCode = "200", description = "Contexto retornado com sucesso")
     @GetMapping("/me")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<UserContextDTO> getUserContext() {
         UserContextDTO context = authService.getUserContext();
         return ResponseEntity.ok(context);
     }
+
 
 }

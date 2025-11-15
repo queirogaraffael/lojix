@@ -5,8 +5,10 @@ import com.example.supergestor.shared.dtos.cliente.ClienteRequestDTO;
 import com.example.supergestor.shared.dtos.cliente.ClienteResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -30,6 +32,8 @@ public class ClienteController {
     @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de validação de negócio")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<ClienteResponseDTO> createCliente(@RequestBody ClienteRequestDTO clienteRequestDTO) {
         ClienteResponseDTO clienteCriado = clienteService.createCliente(clienteRequestDTO);
@@ -50,8 +54,11 @@ public class ClienteController {
     @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> getClienteById(@PathVariable Long id) {
         return ResponseEntity.ok(clienteService.getClienteById(id));
     }
+
 }
