@@ -10,6 +10,7 @@ import com.example.supergestor.shared.dtos.funcionario.FuncionarioUpdateDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.exceptions.UsuarioJaExisteException;
 import com.example.supergestor.shared.mappers.FuncionarioMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
@@ -30,54 +32,83 @@ public class FuncionarioService {
     }
 
     @Transactional
-    public FuncionarioResponseDTO createFuncionario(FuncionarioRequestDTO funcionarioRequestDTO){
+    public FuncionarioResponseDTO createFuncionario(FuncionarioRequestDTO dto) {
 
-        boolean usuarioJaExiste = usuarioRepository.existsByCpf(funcionarioRequestDTO.getUsuarioRequestDTO().getCpf());
+        String cpf = dto.getUsuarioRequestDTO().getCpf();
 
-        if(usuarioJaExiste){
-            throw new UsuarioJaExisteException("Usuario com CPF " + funcionarioRequestDTO.getUsuarioRequestDTO().getCpf() + " já cadastrado.");
+        log.info("Criando funcionário para CPF={}", cpf);
+
+        boolean usuarioJaExiste = usuarioRepository.existsByCpf(cpf);
+
+        if (usuarioJaExiste) {
+            log.warn("Tentativa de cadastrar funcionário com CPF já existente: {}", cpf);
+            throw new UsuarioJaExisteException("Usuario com CPF " + cpf + " já cadastrado.");
         }
 
-        Funcionario funcionario = funcionarioMapper.toEntity(funcionarioRequestDTO);
-
+        Funcionario funcionario = funcionarioMapper.toEntity(dto);
         funcionario.getUsuario().setRole(UserRole.FUNCIONARIO);
 
-        Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
+        Funcionario salvo = funcionarioRepository.save(funcionario);
 
-        return funcionarioMapper.entityToRespondeDTO(funcionarioSalvo);
+        log.info("Funcionário criado com id={} para CPF={}", salvo.getId(), cpf);
+
+        return funcionarioMapper.entityToRespondeDTO(salvo);
     }
 
     @Transactional(readOnly = true)
-    public FuncionarioResponseDTO getFuncionarioById(Long id){
-        Funcionario funcionario = funcionarioRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Funcionario com id " + id + " não encontrado"));
+    public FuncionarioResponseDTO getFuncionarioById(Long id) {
+
+        log.debug("Buscando funcionário id={}", id);
+
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Funcionário não encontrado id={}", id);
+                    return new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
+                });
+
         return funcionarioMapper.entityToRespondeDTO(funcionario);
     }
 
     @Transactional(readOnly = true)
-    public Page<FuncionarioResponseDTO> getFuncionariosAtivosPaginados(int page, int size){
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<FuncionarioResponseDTO> getFuncionariosAtivosPaginados(int page, int size) {
+        log.debug("Listando funcionários ativos page={} size={}", page, size);
 
+        Pageable pageable = PageRequest.of(page, size);
         return funcionarioRepository.findAllPageable(true, pageable);
     }
 
     @Transactional
-    public FuncionarioResponseDTO updateFuncionario(Long id, FuncionarioUpdateDTO funcionarioUpdateDTO){
-        Funcionario funcionario = funcionarioRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Funcionario com id " + id + " não encontrado"));
+    public FuncionarioResponseDTO updateFuncionario(Long id, FuncionarioUpdateDTO dto) {
 
-        funcionarioMapper.updateFuncionarioFromDTO(funcionarioUpdateDTO, funcionario);
+        log.info("Atualizando funcionário id={}", id);
 
-        Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Tentativa de atualizar funcionário inexistente id={}", id);
+                    return new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
+                });
 
-        return funcionarioMapper.entityToRespondeDTO(funcionarioSalvo);
+        funcionarioMapper.updateFuncionarioFromDTO(dto, funcionario);
+
+        Funcionario salvo = funcionarioRepository.save(funcionario);
+
+        log.info("Funcionário id={} atualizado com sucesso", id);
+
+        return funcionarioMapper.entityToRespondeDTO(salvo);
     }
 
     @Transactional
-    public void desligarFuncionarioById(Long id){
+    public void desligarFuncionarioById(Long id) {
 
-        if(!funcionarioRepository.existsById(id)){
+        log.info("Desligando funcionário id={}", id);
+
+        if (!funcionarioRepository.existsById(id)) {
+            log.warn("Tentativa de desligar funcionário inexistente id={}", id);
             throw new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
         }
 
         funcionarioRepository.atualizaStatusFuncionario(id, false);
+
+        log.info("Funcionário id={} desligado com sucesso", id);
     }
 }

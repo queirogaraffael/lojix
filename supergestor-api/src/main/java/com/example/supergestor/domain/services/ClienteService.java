@@ -6,10 +6,10 @@ import com.example.supergestor.domain.repositories.ClienteRepository;
 import com.example.supergestor.domain.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.cliente.ClienteRequestDTO;
 import com.example.supergestor.shared.dtos.cliente.ClienteResponseDTO;
-import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.exceptions.UsuarioJaExisteException;
 import com.example.supergestor.shared.mappers.ClienteMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
@@ -24,7 +25,11 @@ public class ClienteService {
     private final UsuarioRepository usuarioRepository;
 
 
-    public ClienteService(ClienteRepository clienteRepository, ClienteMapper clienteMapper, UsuarioRepository usuarioRepository) {
+    public ClienteService(
+            ClienteRepository clienteRepository,
+            ClienteMapper clienteMapper,
+            UsuarioRepository usuarioRepository
+    ) {
         this.clienteRepository = clienteRepository;
         this.clienteMapper = clienteMapper;
         this.usuarioRepository = usuarioRepository;
@@ -33,10 +38,15 @@ public class ClienteService {
     @Transactional
     public ClienteResponseDTO createCliente(ClienteRequestDTO clienteRequestDTO) {
 
-        boolean usuarioJaExiste = usuarioRepository
-                .existsByCpf(clienteRequestDTO.getUsuarioRequestDTO().getCpf());
+        log.info("Iniciando criação de cliente com CPF {}",
+                clienteRequestDTO.getUsuarioRequestDTO().getCpf());
+
+        boolean usuarioJaExiste =
+                usuarioRepository.existsByCpf(clienteRequestDTO.getUsuarioRequestDTO().getCpf());
 
         if (usuarioJaExiste) {
+            log.warn("Tentativa de cadastro com CPF já existente: {}",
+                    clienteRequestDTO.getUsuarioRequestDTO().getCpf());
             throw new UsuarioJaExisteException(
                     "Usuario com CPF "
                             + clienteRequestDTO.getUsuarioRequestDTO().getCpf()
@@ -50,19 +60,35 @@ public class ClienteService {
 
         Cliente clienteSalvo = clienteRepository.save(cliente);
 
+        log.info("Cliente criado com sucesso. ID: {}", clienteSalvo.getId());
+
         return clienteMapper.entityToResponseDTO(clienteSalvo);
     }
 
     @Transactional(readOnly = true)
     public ClienteResponseDTO getClienteById(Long id){
-        Cliente cliente = clienteRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Usuario com id " + id + " nao encontrado"));
+        log.debug("Buscando cliente pelo ID {}", id);
+
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> {
+            log.error("Cliente com ID {} não encontrado", id);
+            return new ResourceNotFoundException("Usuario com id " + id + " nao encontrado");
+        });
+
+        log.info("Cliente encontrado: ID {}", id);
+
         return clienteMapper.entityToResponseDTO(cliente);
     }
 
     @Transactional(readOnly = true)
     public Page<ClienteResponseDTO> getClientePaginados(int page, int size){
+        log.debug("Listando clientes paginados. page={}, size={}", page, size);
+
         Pageable pageable = PageRequest.of(page, size);
 
-        return clienteRepository.findAllPageable(pageable);
+        Page<ClienteResponseDTO> result = clienteRepository.findAllPageable(pageable);
+
+        log.info("Página de clientes retornada: {} itens", result.getNumberOfElements());
+
+        return result;
     }
 }
