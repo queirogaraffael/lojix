@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -153,5 +154,32 @@ class ClienteControllerTest {
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CLIENTES + "/{id}", nonExistentId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetClientesPaginadosSuccess() throws Exception {
+        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
+        String token = authData.get("token");
+
+        createAndSaveClientePrecondition("cli_pag_1");
+        createAndSaveClientePrecondition("cli_pag_2");
+        createAndSaveClientePrecondition("cli_pag_3");
+
+        mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CLIENTES)
+                        .header("Authorization", "Bearer " + token)
+                        .param("page", "0")
+                        .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.totalPages").value(2));
+
+        mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CLIENTES )
+                        .header("Authorization", "Bearer " + token)
+                        .param("page", "1")
+                        .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.totalElements").value(3));
     }
 }

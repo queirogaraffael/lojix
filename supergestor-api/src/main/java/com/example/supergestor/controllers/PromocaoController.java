@@ -5,6 +5,7 @@ import com.example.supergestor.shared.dtos.promocao.PromocaoRequestDTO;
 import com.example.supergestor.shared.dtos.promocao.PromocaoResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +26,15 @@ public class PromocaoController {
         this.promocaoService = promocaoService;
     }
 
-    @Operation(summary = "Criar nova promoção", description = "Cria uma nova promoção")
-    @ApiResponse(responseCode = "201", description = "Promoção criada com sucesso")
-    @ApiResponse(responseCode = "400", description = "Erro de validação")
-    @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
+    @Operation(
+            summary = "Criar nova promoção",
+            description = "Cria uma nova promoção. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Promoção criada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro de validação"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
+    })
     @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
@@ -46,10 +52,15 @@ public class PromocaoController {
         return ResponseEntity.created(uri).body(promocaoCriada);
     }
 
-    @Operation(summary = "Desativar promoção", description = "Desativa uma promoção pelo ID")
-    @ApiResponse(responseCode = "204", description = "Promoção desativada com sucesso")
-    @ApiResponse(responseCode = "404", description = "Promoção não encontrada")
-    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @Operation(
+            summary = "Desativar promoção",
+            description = "Desativa uma promoção pelo ID. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Promoção desativada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Promoção não encontrada"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
     @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{idPromocao}/desativar")
@@ -58,10 +69,15 @@ public class PromocaoController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Associar promoção a produto", description = "Vincula uma promoção a um produto específico")
-    @ApiResponse(responseCode = "204", description = "Promoção associada com sucesso")
-    @ApiResponse(responseCode = "404", description = "Produto ou promoção não encontrado")
-    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @Operation(
+            summary = "Associar promoção a produto",
+            description = "Vincula uma promoção a um produto específico. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Promoção associada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Produto ou promoção não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
     @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{idPromocao}/associar/{idProduto}")
@@ -73,10 +89,15 @@ public class PromocaoController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Remover promoção de produto", description = "Remove a promoção vinculada de um produto específico")
-    @ApiResponse(responseCode = "204", description = "Promoção removida com sucesso")
-    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
-    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @Operation(
+            summary = "Remover promoção de produto",
+            description = "Remove a promoção vinculada de um produto específico. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Promoção removida com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
     @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/remover/{idProduto}")

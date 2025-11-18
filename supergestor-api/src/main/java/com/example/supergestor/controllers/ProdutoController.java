@@ -27,7 +27,10 @@ public class ProdutoController {
         this.produtoService = produtoService;
     }
 
-    @Operation(summary = "Criar novo produto", description = "Cria um novo produto vinculado a uma categoria")
+    @Operation(
+            summary = "Criar novo produto",
+            description = "Cria um novo produto vinculado a uma categoria. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
     @ApiResponse(responseCode = "201", description = "Produto criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
@@ -50,7 +53,10 @@ public class ProdutoController {
         return ResponseEntity.created(uri).body(produtoCriado);
     }
 
-    @Operation(summary = "Buscar produto por ID", description = "Retorna um produto ativo pelo ID informado")
+    @Operation(
+            summary = "Buscar produto por ID",
+            description = "Retorna um produto ativo pelo ID informado. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
     @ApiResponse(responseCode = "200", description = "Produto encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
@@ -61,7 +67,10 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.getProdutoById(id));
     }
 
-    @Operation(summary = "Listar produtos paginados", description = "Retorna produtos ativos com paginação")
+    @Operation(
+            summary = "Listar produtos paginados",
+            description = "Retorna produtos ativos com paginação. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
@@ -74,7 +83,10 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.getProdutosPaginados(page, size));
     }
 
-    @Operation(summary = "Listar produtos por categoria", description = "Retorna produtos ativos de uma categoria específica")
+    @Operation(
+            summary = "Listar produtos por categoria",
+            description = "Retorna produtos ativos de uma categoria específica. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
@@ -89,7 +101,10 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.getProdutosPaginadosByCategoriaId(idCategoria, page, size));
     }
 
-    @Operation(summary = "Atualizar produto", description = "Atualiza os dados de um produto pelo ID informado")
+    @Operation(
+            summary = "Atualizar produto",
+            description = "Atualiza os dados de um produto pelo ID informado. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
     @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
@@ -104,7 +119,10 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.updateProdutoById(idProduto, produtoUpdateDTO));
     }
 
-    @Operation(summary = "Desativar produto", description = "Desativa um produto pelo ID informado")
+    @Operation(
+            summary = "Desativar produto",
+            description = "Desativa um produto pelo ID informado. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
     @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")

@@ -27,7 +27,10 @@ public class FuncionarioController {
         this.funcionarioService = funcionarioService;
     }
 
-    @Operation(summary = "Criar novo funcionário", description = "Cria um novo funcionário no sistema")
+    @Operation(
+            summary = "Criar novo funcionário",
+            description = "Cria um novo funcionário no sistema. **Role permitido:** ADMIN"
+    )
     @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
@@ -48,7 +51,10 @@ public class FuncionarioController {
         return ResponseEntity.created(uri).body(funcionarioCriado);
     }
 
-    @Operation(summary = "Buscar funcionário por ID", description = "Retorna um funcionário pelo ID informado")
+    @Operation(
+            summary = "Buscar funcionário por ID",
+            description = "Retorna um funcionário pelo ID informado. **Role permitido:** ADMIN"
+    )
     @ApiResponse(responseCode = "200", description = "Funcionário encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
@@ -59,7 +65,10 @@ public class FuncionarioController {
         return ResponseEntity.ok(funcionarioService.getFuncionarioById(id));
     }
 
-    @Operation(summary = "Listar funcionários ativos", description = "Retorna funcionários ativos de forma paginada")
+    @Operation(
+            summary = "Listar funcionários ativos",
+            description = "Retorna funcionários ativos de forma paginada. **Role permitido:** ADMIN"
+    )
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("hasRole('ADMIN')")
@@ -72,7 +81,10 @@ public class FuncionarioController {
         return ResponseEntity.ok(funcionarioService.getFuncionariosAtivosPaginados(page, size));
     }
 
-    @Operation(summary = "Atualizar funcionário", description = "Atualiza os dados de um funcionário pelo ID informado")
+    @Operation(
+            summary = "Atualizar funcionário",
+            description = "Atualiza os dados de um funcionário pelo ID informado. **Role permitido:** ADMIN"
+    )
     @ApiResponse(responseCode = "200", description = "Funcionário atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
@@ -87,7 +99,10 @@ public class FuncionarioController {
         return ResponseEntity.ok(funcionarioService.updateFuncionario(id, funcionarioUpdateDTO));
     }
 
-    @Operation(summary = "Desligar funcionário", description = "Marca o funcionário como desligado no sistema")
+    @Operation(
+            summary = "Desligar funcionário",
+            description = "Marca o funcionário como desligado no sistema. **Role permitido:** ADMIN"
+    )
     @ApiResponse(responseCode = "204", description = "Funcionário desligado com sucesso")
     @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")

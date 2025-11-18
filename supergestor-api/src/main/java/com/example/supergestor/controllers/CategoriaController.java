@@ -19,6 +19,8 @@ import java.net.URI;
 @Tag(name = "Categoria")
 @RestController
 @RequestMapping("/api/categorias")
+@SecurityRequirement(name = "Bearer Authentication")
+@PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
@@ -33,11 +35,11 @@ public class CategoriaController {
     )
     @ApiResponse(responseCode = "201", description = "Categoria criada com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
-    @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de validação de negócio")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
-    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
     @PostMapping
-    public ResponseEntity<CategoriaResponseDTO> criarCategoria(@RequestBody CategoriaRequestDTO categoriaRequestDTO) {
+    public ResponseEntity<CategoriaResponseDTO> criarCategoria(
+            @RequestBody CategoriaRequestDTO categoriaRequestDTO
+    ) {
         CategoriaResponseDTO categoriaCriada = categoriaService.criarCategoria(categoriaRequestDTO);
 
         URI uri = ServletUriComponentsBuilder
@@ -51,28 +53,26 @@ public class CategoriaController {
 
     @Operation(
             summary = "Buscar categoria por ID",
-            description = "Retorna uma categoria específica usando seu ID"
+            description = "Recupera uma categoria pelo seu identificador"
     )
     @ApiResponse(responseCode = "200", description = "Categoria encontrada com sucesso")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/{idCategoria}")
-    public ResponseEntity<CategoriaResponseDTO> getCategoriaById(@PathVariable Long idCategoria) {
-        return ResponseEntity.ok(categoriaService.getCategoriaById(idCategoria));
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoriaResponseDTO> getCategoriaById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(categoriaService.getCategoriaById(id));
     }
 
     @Operation(
             summary = "Listar categorias paginadas",
-            description = "Retorna uma lista paginada de categorias"
+            description = "Retorna categorias de forma paginada"
     )
     @ApiResponse(responseCode = "200", description = "Categorias retornadas com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
-    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
-    public ResponseEntity<Page<CategoriaResponseDTO>> getCategoriasPaginados(
+    public ResponseEntity<Page<CategoriaResponseDTO>> getCategoriasPaginadas(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -87,13 +87,12 @@ public class CategoriaController {
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @PutMapping("/{idCategoria}")
+    @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponseDTO> updateCategoria(
-            @PathVariable Long idCategoria,
+            @PathVariable Long id,
             @RequestBody CategoriaUpdateDTO categoriaUpdateDTO
     ) {
-        return ResponseEntity.ok(categoriaService.updateCategoria(idCategoria, categoriaUpdateDTO));
+        return ResponseEntity.ok(categoriaService.updateCategoria(id, categoriaUpdateDTO));
     }
 }
+

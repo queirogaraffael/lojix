@@ -6,9 +6,13 @@ import com.example.supergestor.domain.repositories.ClienteRepository;
 import com.example.supergestor.domain.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.cliente.ClienteRequestDTO;
 import com.example.supergestor.shared.dtos.cliente.ClienteResponseDTO;
+import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.exceptions.UsuarioJaExisteException;
 import com.example.supergestor.shared.mappers.ClienteMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,11 +53,16 @@ public class ClienteService {
         return clienteMapper.entityToResponseDTO(clienteSalvo);
     }
 
-
     @Transactional(readOnly = true)
     public ClienteResponseDTO getClienteById(Long id){
         Cliente cliente = clienteRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Usuario com id " + id + " nao encontrado"));
         return clienteMapper.entityToResponseDTO(cliente);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ClienteResponseDTO> getClientePaginados(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+
+        return clienteRepository.findAllPageable(pageable);
+    }
 }
