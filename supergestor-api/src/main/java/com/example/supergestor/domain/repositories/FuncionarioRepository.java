@@ -1,4 +1,4 @@
-package com.example.supergestor.infrastructure.repositories;
+package com.example.supergestor.domain.repositories;
 
 import com.example.supergestor.domain.entities.Funcionario;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;

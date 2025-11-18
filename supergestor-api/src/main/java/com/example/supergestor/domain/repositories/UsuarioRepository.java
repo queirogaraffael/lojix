@@ -1,4 +1,4 @@
-package com.example.supergestor.infrastructure.repositories;
+package com.example.supergestor.domain.repositories;
 
 import com.example.supergestor.domain.entities.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;

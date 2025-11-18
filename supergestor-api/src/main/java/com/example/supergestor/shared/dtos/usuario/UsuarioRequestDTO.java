@@ -14,7 +14,6 @@ public class UsuarioRequestDTO {
     @Size(min = 5, max = 100, message = "O nome deve ter entre 5 e 100 caracteres.")
     private String name;
 
-    @NotNull
     private String fotoPerfilBase64;
 
     @NotBlank(message = "O nome de usuário é obrigatório.")

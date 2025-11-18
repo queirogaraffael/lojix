@@ -2,8 +2,8 @@ package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Categoria;
 import com.example.supergestor.domain.entities.Produto;
-import com.example.supergestor.infrastructure.repositories.CategoriaRepository;
-import com.example.supergestor.infrastructure.repositories.ProdutoRepository;
+import com.example.supergestor.domain.repositories.CategoriaRepository;
+import com.example.supergestor.domain.repositories.ProdutoRepository;
 import com.example.supergestor.shared.dtos.produtos.ProdutoRequestDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoUpdateDTO;

@@ -59,8 +59,11 @@ public class Usuario implements UserDetails {
             return List.of(
                     new SimpleGrantedAuthority("ROLE_ADMIN"),
                     new SimpleGrantedAuthority("ROLE_FUNCIONARIO"));
-        else
+        else if(this.role == UserRole.FUNCIONARIO)
             return List.of(new SimpleGrantedAuthority("ROLE_FUNCIONARIO"));
+        else {
+            return List.of(new SimpleGrantedAuthority("ROLE_CLIENTE"));
+        }
     }
 
     @Override
