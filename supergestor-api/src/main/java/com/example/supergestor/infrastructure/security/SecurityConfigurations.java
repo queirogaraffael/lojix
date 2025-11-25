@@ -41,6 +41,11 @@ public class SecurityConfigurations {
                         // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
 
+                        // Health público
+                        .requestMatchers("/actuator/health").permitAll()
+
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
