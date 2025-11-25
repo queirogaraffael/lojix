@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +38,7 @@ public class ClienteController {
     @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
-    public ResponseEntity<ClienteResponseDTO> createCliente(@RequestBody ClienteRequestDTO clienteRequestDTO) {
+    public ResponseEntity<ClienteResponseDTO> createCliente(@RequestBody @Valid ClienteRequestDTO clienteRequestDTO) {
         ClienteResponseDTO clienteCriado = clienteService.createCliente(clienteRequestDTO);
 
         URI uri = ServletUriComponentsBuilder

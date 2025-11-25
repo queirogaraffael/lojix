@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +41,7 @@ public class ProdutoController {
     @PostMapping("/categoria/{idCategoria}")
     public ResponseEntity<ProdutoResponseDTO> createProduto(
             @PathVariable Long idCategoria,
-            @RequestBody ProdutoRequestDTO produtoRequestDTO
+            @RequestBody @Valid ProdutoRequestDTO produtoRequestDTO
     ) {
         ProdutoResponseDTO produtoCriado = produtoService.createProduto(idCategoria, produtoRequestDTO);
 
@@ -114,7 +115,7 @@ public class ProdutoController {
     @PutMapping("/{idProduto}")
     public ResponseEntity<ProdutoResponseDTO> updateProdutoById(
             @PathVariable Long idProduto,
-            @RequestBody ProdutoUpdateDTO produtoUpdateDTO
+            @RequestBody @Valid ProdutoUpdateDTO produtoUpdateDTO
     ) {
         return ResponseEntity.ok(produtoService.updateProdutoById(idProduto, produtoUpdateDTO));
     }

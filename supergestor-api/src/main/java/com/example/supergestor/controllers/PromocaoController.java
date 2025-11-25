@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class PromocaoController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<PromocaoResponseDTO> createPromocao(
-            @RequestBody PromocaoRequestDTO promocaoRequestDTO
+            @RequestBody @Valid PromocaoRequestDTO promocaoRequestDTO
     ) {
         PromocaoResponseDTO promocaoCriada = promocaoService.createPromocao(promocaoRequestDTO);
 

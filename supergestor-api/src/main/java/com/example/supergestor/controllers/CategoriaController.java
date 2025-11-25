@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +39,7 @@ public class CategoriaController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
     @PostMapping
     public ResponseEntity<CategoriaResponseDTO> criarCategoria(
-            @RequestBody CategoriaRequestDTO categoriaRequestDTO
+            @RequestBody @Valid CategoriaRequestDTO categoriaRequestDTO
     ) {
         CategoriaResponseDTO categoriaCriada = categoriaService.criarCategoria(categoriaRequestDTO);
 
@@ -90,7 +91,7 @@ public class CategoriaController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponseDTO> updateCategoria(
             @PathVariable Long id,
-            @RequestBody CategoriaUpdateDTO categoriaUpdateDTO
+            @RequestBody @Valid CategoriaUpdateDTO categoriaUpdateDTO
     ) {
         return ResponseEntity.ok(categoriaService.updateCategoria(id, categoriaUpdateDTO));
     }

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +39,7 @@ public class FuncionarioController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<FuncionarioResponseDTO> createFuncionario(
-            @RequestBody FuncionarioRequestDTO funcionarioRequestDTO
+            @RequestBody @Valid FuncionarioRequestDTO funcionarioRequestDTO
     ) {
         FuncionarioResponseDTO funcionarioCriado = funcionarioService.createFuncionario(funcionarioRequestDTO);
 
@@ -94,7 +95,7 @@ public class FuncionarioController {
     @PutMapping("/{id}")
     public ResponseEntity<FuncionarioResponseDTO> updateFuncionario(
             @PathVariable Long id,
-            @RequestBody FuncionarioUpdateDTO funcionarioUpdateDTO
+            @RequestBody @Valid FuncionarioUpdateDTO funcionarioUpdateDTO
     ) {
         return ResponseEntity.ok(funcionarioService.updateFuncionario(id, funcionarioUpdateDTO));
     }
