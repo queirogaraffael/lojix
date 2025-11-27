@@ -11,6 +11,11 @@ import com.example.supergestor.shared.mappers.PromocaoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +48,34 @@ public class PromocaoService {
         return promocaoMapper.toResponseDTO(saved);
     }
 
-    @CacheEvict(value = "produtosCache", allEntries = true)
+    @Cacheable(value = "promocaoCache", key = "#id")
+    @Transactional(readOnly = true)
+    public PromocaoResponseDTO getPromocaoById(Long id) {
+
+        log.debug("Buscando promocao id={}", id);
+
+        return promocaoRepository.findPromocaoById(id, true)
+                .orElseThrow(() -> {
+                    log.warn("Promocao não encontrada id={}", id);
+                    return new ResourceNotFoundException("Promocao com id " + id + " não encontrada.");
+                });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PromocaoResponseDTO> getPromocoesAtivasPaginadas(int page, int size) {
+
+        log.debug("Listando promocao paginadas page={} size={}", page, size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        return promocaoRepository.findAllPageable(true, pageable);
+    }
+
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "produtosCache", allEntries = true),
+                    @CacheEvict(value = "promocaoCache", key = "#idPromocao")
+            }
+    )
     @Transactional
     public void desativarPromocaoById(Long idPromocao) {
 

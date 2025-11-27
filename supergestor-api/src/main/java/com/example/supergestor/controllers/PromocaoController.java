@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -106,4 +107,41 @@ public class PromocaoController {
         promocaoService.removerPromocaoProduto(idProduto);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Buscar promoção por ID",
+            description = "Retorna os detalhes de uma promoção ativa pelo ID. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promoção encontrada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Promoção não encontrada"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/{id}")
+    public ResponseEntity<PromocaoResponseDTO> getPromocaoById(@PathVariable Long id) {
+        PromocaoResponseDTO dto = promocaoService.getPromocaoById(id);
+        return ResponseEntity.ok(dto);
+    }
+
+    @Operation(
+            summary = "Listar promoções ativas paginadas",
+            description = "Retorna promoções ativas com paginação. **Roles permitidos:** ADMIN, FUNCIONARIO"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promoções listadas com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping
+    public ResponseEntity<Page<PromocaoResponseDTO>> getPromocoesAtivasPaginadas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<PromocaoResponseDTO> lista = promocaoService.getPromocoesAtivasPaginadas(page, size);
+        return ResponseEntity.ok(lista);
+    }
+
 }

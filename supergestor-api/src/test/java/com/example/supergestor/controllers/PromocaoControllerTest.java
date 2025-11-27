@@ -22,8 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -171,5 +170,51 @@ class PromocaoControllerTest {
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{idPromocao}/associar/{idProduto}", nonExistentId, produto1.getId())
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetPromocaoByIdSuccess() throws Exception {
+        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
+        String token = authData.get("token");
+
+        Promocao savedPromocao = createAndSavePromocao("Promo Buscar ID");
+
+        mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{id}", savedPromocao.getId())
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(savedPromocao.getId()))
+                .andExpect(jsonPath("$.nome").value("Promo Buscar ID"))
+                .andExpect(jsonPath("$.taxaDeDesconto").value(0.15));
+    }
+
+
+    @Test
+    void testGetPromocaoByIdNotFound() throws Exception {
+        Map<String, String> authData = testUtils.authenticateAs(UserRole.FUNCIONARIO);
+        String token = authData.get("token");
+
+        Long nonExistentId = 999L;
+
+        mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{id}", nonExistentId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetPromocoesAtivasPaginadasSuccess() throws Exception {
+        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
+        String token = authData.get("token");
+
+        createAndSavePromocao("Promo 1");
+        createAndSavePromocao("Promo 2");
+        createAndSavePromocao("Promo 3");
+
+        mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PROMOCOES)
+                        .header("Authorization", "Bearer " + token)
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.totalElements").value(3));
     }
 }
