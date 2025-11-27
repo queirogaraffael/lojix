@@ -10,6 +10,8 @@ import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.exceptions.UsuarioJaExisteException;
 import com.example.supergestor.shared.mappers.ClienteMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +37,7 @@ public class ClienteService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    @CachePut(value = "clientesCache", key = "#result.id")
     @Transactional
     public ClienteResponseDTO createCliente(ClienteRequestDTO clienteRequestDTO) {
 
@@ -65,6 +68,7 @@ public class ClienteService {
         return clienteMapper.entityToResponseDTO(clienteSalvo);
     }
 
+    @Cacheable(value = "clientesCache", key = "#id")
     @Transactional(readOnly = true)
     public ClienteResponseDTO getClienteById(Long id){
         log.debug("Buscando cliente pelo ID {}", id);

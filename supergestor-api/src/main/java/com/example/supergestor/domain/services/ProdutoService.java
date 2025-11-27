@@ -10,10 +10,15 @@ import com.example.supergestor.shared.dtos.produtos.ProdutoUpdateDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.mappers.ProdutoMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @Slf4j
 public class ProdutoService {
@@ -28,6 +33,8 @@ public class ProdutoService {
         this.categoriaRepository = categoriaRepository;
     }
 
+    @CachePut(value = "produtosCache", key = "#result.id")
+    @Transactional
     public ProdutoResponseDTO createProduto(Long idCategoria, ProdutoRequestDTO dto) {
 
         log.info("Criando produto na categoria id={}", idCategoria);
@@ -48,6 +55,8 @@ public class ProdutoService {
         return produtoMapper.toResponse(saved);
     }
 
+    @Cacheable(value = "produtosCache", key = "#id")
+    @Transactional(readOnly = true)
     public ProdutoResponseDTO getProdutoById(Long id) {
 
         log.debug("Buscando produto id={}", id);
@@ -59,6 +68,7 @@ public class ProdutoService {
                 });
     }
 
+    @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> getProdutosPaginados(int page, int size) {
 
         log.debug("Listando produtos paginados page={} size={}", page, size);
@@ -67,6 +77,7 @@ public class ProdutoService {
         return produtoRepository.findAllPageable(true, pageable);
     }
 
+    @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> getProdutosPaginadosByCategoriaId(Long idCategoria, int page, int size) {
 
         log.debug("Listando produtos por categoria id={} page={} size={}", idCategoria, page, size);
@@ -82,6 +93,8 @@ public class ProdutoService {
         return produtoRepository.findPageableByCategoriaId(categoria.getId(), true, pageable);
     }
 
+    @CachePut(value = "produtosCache", key = "#result.id")
+    @Transactional
     public ProdutoResponseDTO updateProdutoById(Long idProduto, ProdutoUpdateDTO dto) {
 
         log.info("Atualizando produto id={}", idProduto);
@@ -100,6 +113,8 @@ public class ProdutoService {
         return produtoMapper.toResponse(updated);
     }
 
+    @CacheEvict(value = "produtosCache", key = "#id")
+    @Transactional
     public void desativarProdutoById(Long id) {
 
         log.info("Desativando produto id={}", id);

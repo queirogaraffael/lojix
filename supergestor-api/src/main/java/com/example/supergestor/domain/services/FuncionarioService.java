@@ -11,6 +11,9 @@ import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.exceptions.UsuarioJaExisteException;
 import com.example.supergestor.shared.mappers.FuncionarioMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +34,7 @@ public class FuncionarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    @CachePut(value = "funcionariosCache", key = "#result.id")
     @Transactional
     public FuncionarioResponseDTO createFuncionario(FuncionarioRequestDTO dto) {
 
@@ -52,9 +56,10 @@ public class FuncionarioService {
 
         log.info("Funcionário criado com id={} para CPF={}", salvo.getId(), cpf);
 
-        return funcionarioMapper.entityToRespondeDTO(salvo);
+        return funcionarioMapper.entityToResponseDTO(salvo);
     }
 
+    @Cacheable(value = "funcionariosCache", key = "#id")
     @Transactional(readOnly = true)
     public FuncionarioResponseDTO getFuncionarioById(Long id) {
 
@@ -66,7 +71,7 @@ public class FuncionarioService {
                     return new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
                 });
 
-        return funcionarioMapper.entityToRespondeDTO(funcionario);
+        return funcionarioMapper.entityToResponseDTO(funcionario);
     }
 
     @Transactional(readOnly = true)
@@ -77,6 +82,7 @@ public class FuncionarioService {
         return funcionarioRepository.findAllPageable(true, pageable);
     }
 
+    @CachePut(value = "funcionariosCache", key = "#result.id")
     @Transactional
     public FuncionarioResponseDTO updateFuncionario(Long id, FuncionarioUpdateDTO dto) {
 
@@ -94,9 +100,10 @@ public class FuncionarioService {
 
         log.info("Funcionário id={} atualizado com sucesso", id);
 
-        return funcionarioMapper.entityToRespondeDTO(salvo);
+        return funcionarioMapper.entityToResponseDTO(salvo);
     }
 
+    @CacheEvict(value = "funcionariosCache", key = "#id")
     @Transactional
     public void desligarFuncionarioById(Long id) {
 

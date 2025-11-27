@@ -8,10 +8,14 @@ import com.example.supergestor.shared.dtos.categoria.CategoriaUpdateDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.mappers.CategoriaMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @Slf4j
 public class CategoriaService {
@@ -27,6 +31,8 @@ public class CategoriaService {
         this.categoriaMapper = categoriaMapper;
     }
 
+    @CachePut(value = "categoriasCache", key = "#result.id")
+    @Transactional
     public CategoriaResponseDTO criarCategoria(CategoriaRequestDTO categoriaRequestDTO){
         log.info("Iniciando criação de categoria: {}", categoriaRequestDTO.getNome());
 
@@ -39,6 +45,8 @@ public class CategoriaService {
         return categoriaMapper.toResponseDTO(categoriaSalva);
     }
 
+    @Cacheable(value = "categoriasCache", key = "#idCategoria")
+    @Transactional(readOnly = true)
     public CategoriaResponseDTO getCategoriaById(Long idCategoria){
         log.debug("Buscando categoria pelo ID {}", idCategoria);
 
@@ -64,6 +72,8 @@ public class CategoriaService {
         return result;
     }
 
+    @CachePut(value = "categoriasCache", key = "#result.id")
+    @Transactional
     public CategoriaResponseDTO updateCategoria(Long idCategoria, CategoriaUpdateDTO categoriaUpdateDTO){
         log.info("Atualizando categoria ID {}", idCategoria);
 

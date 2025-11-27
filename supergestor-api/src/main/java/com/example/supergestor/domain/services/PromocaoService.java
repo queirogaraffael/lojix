@@ -9,7 +9,10 @@ import com.example.supergestor.shared.dtos.promocao.PromocaoResponseDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.mappers.PromocaoMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -24,6 +27,8 @@ public class PromocaoService {
         this.promocaoMapper = promocaoMapper;
     }
 
+    @CachePut(value = "promocaoCache", key = "#result.id")
+    @Transactional
     public PromocaoResponseDTO createPromocao(PromocaoRequestDTO dto) {
 
         log.info("Criando promoção '{}'", dto.getNome());
@@ -38,6 +43,8 @@ public class PromocaoService {
         return promocaoMapper.toResponseDTO(saved);
     }
 
+    @CacheEvict(value = "produtosCache", allEntries = true)
+    @Transactional
     public void desativarPromocaoById(Long idPromocao) {
 
         log.info("Desativando promoção id={}", idPromocao);
@@ -54,6 +61,8 @@ public class PromocaoService {
         log.info("Promoção id={} desativada", idPromocao);
     }
 
+    @CacheEvict(value = "produtosCache", key = "#idProduto")
+    @Transactional
     public void associarPromocaoAProduto(Long idProduto, Long idPromocao) {
 
         log.info("Associando promoção id={} ao produto id={}", idPromocao, idProduto);
@@ -76,6 +85,8 @@ public class PromocaoService {
         log.info("Promoção id={} associada ao produto id={}", idPromocao, idProduto);
     }
 
+    @CacheEvict(value = "produtosCache", key = "#idProduto")
+    @Transactional
     public void removerPromocaoProduto(Long idProduto) {
 
         log.info("Removendo promoção do produto id={}", idProduto);

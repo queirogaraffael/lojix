@@ -23,7 +23,7 @@ public interface FuncionarioMapper {
     @Mapping(target = "usuarioResponseDTO.email", source = "usuario.email")
     @Mapping(target = "usuarioResponseDTO.cpf", source = "usuario.cpf")
     @Mapping(target = "usuarioResponseDTO.fotoPerfilBase64", source = "usuario.foto", qualifiedByName = "toBase64")
-    FuncionarioResponseDTO entityToRespondeDTO(Funcionario funcionario);
+    FuncionarioResponseDTO entityToResponseDTO(Funcionario funcionario);
 
     @Mapping(source = "usuarioRequestDTO.name",     target = "usuario.name")
     @Mapping(source = "usuarioRequestDTO.username", target = "usuario.username")
