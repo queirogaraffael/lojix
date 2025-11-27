@@ -128,7 +128,6 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.funcionario.salario").value(expectedSalario.doubleValue()));
     }
 
-
     @Test
     void testGetUserContextForbidden() throws Exception {
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_AUTENTICACAO + "/me"))

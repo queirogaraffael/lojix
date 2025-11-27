@@ -9,27 +9,33 @@ import com.example.supergestor.shared.dtos.promocao.PromocaoResponseDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.mappers.PromocaoMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class PromocaoService {
+
     private final PromocaoRepository promocaoRepository;
     private final ProdutoRepository produtoRepository;
     private final PromocaoMapper promocaoMapper;
+    private final CacheManager cacheManager;
 
-    public PromocaoService(PromocaoRepository promocaoRepository, ProdutoRepository produtoRepository, PromocaoMapper promocaoMapper) {
+    public PromocaoService(PromocaoRepository promocaoRepository, ProdutoRepository produtoRepository, PromocaoMapper promocaoMapper, CacheManager cacheManager) {
         this.promocaoRepository = promocaoRepository;
         this.produtoRepository = produtoRepository;
         this.promocaoMapper = promocaoMapper;
+        this.cacheManager = cacheManager;
     }
 
     @CachePut(value = "promocaoCache", key = "#result.id")
@@ -70,12 +76,7 @@ public class PromocaoService {
         return promocaoRepository.findAllPageable(true, pageable);
     }
 
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "produtosCache", allEntries = true),
-                    @CacheEvict(value = "promocaoCache", key = "#idPromocao")
-            }
-    )
+    @CacheEvict(value = "promocaoCache", key = "#idPromocao")
     @Transactional
     public void desativarPromocaoById(Long idPromocao) {
 
@@ -87,11 +88,19 @@ public class PromocaoService {
                     return new ResourceNotFoundException("Promocao com id " + idPromocao + " não encontrada.");
                 });
 
+        List<Long> idsProdutos = produtoRepository.findProdutoIdsByPromocaoId(idPromocao);
+
+        Cache produtosCache = cacheManager.getCache("produtosCache");
+        if (produtosCache != null) {
+            idsProdutos.forEach(produtosCache::evict);
+        }
+
         promocaoRepository.removerPromocaoDosProdutos(promocao.getId());
         promocaoRepository.alterarStatusPromocao(idPromocao, false);
 
-        log.info("Promoção id={} desativada", idPromocao);
+        log.info("Promoção id={} desativada e caches afetados invalidados", idPromocao);
     }
+
 
     @CacheEvict(value = "produtosCache", key = "#idProduto")
     @Transactional

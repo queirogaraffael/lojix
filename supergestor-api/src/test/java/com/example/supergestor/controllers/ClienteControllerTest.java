@@ -90,7 +90,7 @@ class ClienteControllerTest {
     void testCreateClienteSuccess() throws Exception {
         Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
         String token = authData.get("token");
-        ClienteRequestDTO requestDTO = createValidClienteRequestDTO("000");
+        ClienteRequestDTO requestDTO = createValidClienteRequestDTO("00");
 
         String json = objectMapper.writeValueAsString(requestDTO);
 
@@ -113,7 +113,7 @@ class ClienteControllerTest {
 
         String existingCpf = preconditionFunc.getUsuario().getCpf();
 
-        ClienteRequestDTO requestDTO = createValidClienteRequestDTO("999");
+        ClienteRequestDTO requestDTO = createValidClienteRequestDTO("99");
         requestDTO.getUsuarioRequestDTO().setCpf(existingCpf);
         requestDTO.getUsuarioRequestDTO().setUsername("unique_user_name_for_conflict");
         requestDTO.getUsuarioRequestDTO().setEmail("unique_email_for_conflict@test.com");

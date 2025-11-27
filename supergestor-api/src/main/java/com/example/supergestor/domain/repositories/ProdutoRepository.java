@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -76,4 +77,5 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
             Pageable pageable
     );
 
-}
+    @Query("SELECT p.id FROM Produto p WHERE p.promocao.id = :promocaoId")
+    List<Long> findProdutoIdsByPromocaoId(@Param("promocaoId") Long promocaoId);}

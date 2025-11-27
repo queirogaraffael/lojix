@@ -84,7 +84,7 @@ class FuncionarioControllerTest {
     void testCreateFuncionarioSuccess() throws Exception {
         Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
         String token = authData.get("token");
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("000");
+        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("00");
         String json = objectMapper.writeValueAsString(requestDTO);
 
         mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS)
@@ -105,7 +105,7 @@ class FuncionarioControllerTest {
 
         String existingCpf = preconditionFunc.getUsuario().getCpf();
 
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("999");
+        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("99");
         requestDTO.getUsuarioRequestDTO().setCpf(existingCpf);
         requestDTO.getUsuarioRequestDTO().setUsername("unique_user_name_for_conflict");
         requestDTO.getUsuarioRequestDTO().setEmail("unique_email_for_conflict@test.com");
@@ -123,7 +123,7 @@ class FuncionarioControllerTest {
 
     @Test
     void testCreateFuncionarioUnauthorized() throws Exception {
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("000");
+        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("11");
         String json = objectMapper.writeValueAsString(requestDTO);
 
         mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS)
@@ -136,7 +136,7 @@ class FuncionarioControllerTest {
     void testCreateFuncionarioForbiddenForFunctionary() throws Exception {
         Map<String, String> authData = testUtils.createAndAuthenticateFuncionario("forbid_func");
         String token = authData.get("token");
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("000");
+        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("05");
         String json = objectMapper.writeValueAsString(requestDTO);
 
         mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS)
@@ -175,7 +175,7 @@ class FuncionarioControllerTest {
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(2))) // func1 e func3 ativos
+                .andExpect(jsonPath("$.content", hasSize(2)))
                 .andExpect(jsonPath("$.totalElements").value(2));
     }
 
