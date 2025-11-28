@@ -47,6 +47,7 @@ public class UserAdminInitializer implements CommandLineRunner {
             admin.setCpf(adminCpf);
             admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setRole(UserRole.ADMIN);
+            admin.setFoto(null);
 
             usuarioRepository.save(admin);
             log.info("Usuário admin ({}) criado!", adminUsername);

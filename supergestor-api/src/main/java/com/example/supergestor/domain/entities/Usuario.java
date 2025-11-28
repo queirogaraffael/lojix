@@ -43,6 +43,7 @@ public class Usuario implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private UserRole role;
 
     @OneToOne(mappedBy = "usuario")
