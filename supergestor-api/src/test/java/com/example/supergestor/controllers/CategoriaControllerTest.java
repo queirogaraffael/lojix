@@ -2,10 +2,7 @@ package com.example.supergestor.controllers;
 
 import com.example.supergestor.domain.entities.Categoria;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.CategoriaRepository;
-import com.example.supergestor.domain.repositories.ClienteRepository;
-import com.example.supergestor.domain.repositories.FuncionarioRepository;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.domain.repositories.*;
 import com.example.supergestor.shared.dtos.categoria.CategoriaRequestDTO;
 import com.example.supergestor.shared.dtos.categoria.CategoriaUpdateDTO;
 import com.example.supergestor.utils.ConstantesRotasEndpoints;
@@ -47,6 +44,9 @@ class CategoriaControllerTest {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private ProdutoRepository produtoRepository;
+
+    @Autowired
     private FuncionarioRepository funcionarioRepository;
 
     @Autowired
@@ -56,8 +56,9 @@ class CategoriaControllerTest {
     void setup() {
         funcionarioRepository.deleteAll();
         clienteRepository.deleteAll();
-        categoriaRepository.deleteAll();
         usuarioRepository.deleteAll();
+        produtoRepository.deleteAll();
+        categoriaRepository.deleteAll();
     }
 
     private Categoria createAndSaveCategoria(String name) {
