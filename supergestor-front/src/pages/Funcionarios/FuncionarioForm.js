@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 
 export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
-    nome: '',
+    name: '',
     email: '',
+    username: '',
     cpf: '',
-    foto: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
-    password: '',
+    cargo: '',
+    salario: '',
+    password: ''
   });
 
   const isEditMode = !!funcionario;
@@ -14,16 +16,23 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
   useEffect(() => {
     if (funcionario) {
       setFormData({
-        ...funcionario,
-        password: '',
+        name: funcionario.usuarioResponseDTO.name,
+        email: funcionario.usuarioResponseDTO.email,
+        username: funcionario.usuarioResponseDTO.username,
+        cpf: funcionario.usuarioResponseDTO.cpf,
+        cargo: funcionario.cargo,
+        salario: funcionario.salario,
+        password: ''
       });
     } else {
       setFormData({
-        nome: '',
+        name: '',
         email: '',
+        username: '',
         cpf: '',
-        foto: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
-        password: '',
+        cargo: '',
+        salario: '',
+        password: ''
       });
     }
   }, [funcionario]);
@@ -34,20 +43,6 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleFotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({
-          ...prev,
-          foto: reader.result,
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSubmit = (e) => {
@@ -62,15 +57,44 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="produto-form">
       <div className="form-control">
-        <label htmlFor="nome">Nome Completo</label>
+        <label htmlFor="name">Nome Completo</label>
         <input
           type="text"
-          id="nome"
-          name="nome"
-          value={formData.nome}
+          id="name"
+          name="name"
+          value={formData.name}
           onChange={handleChange}
-          required
+          required={!isEditMode}
+          disabled={isEditMode}
         />
+      </div>
+
+      <div className="form-group">
+         <div className="form-control">
+          <label htmlFor="username">Usuário (Login)</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            required={!isEditMode}
+            disabled={isEditMode}
+          />
+        </div>
+        <div className="form-control">
+          <label htmlFor="cpf">CPF (somente números)</label>
+          <input
+            type="text"
+            id="cpf"
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleChange}
+            required={!isEditMode}
+            disabled={isEditMode}
+            maxLength="11"
+          />
+        </div>
       </div>
 
       <div className="form-group">
@@ -82,50 +106,51 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            required
+            required={!isEditMode}
+            disabled={isEditMode}
           />
         </div>
-        <div className="form-control">
-          <label htmlFor="cpf">CPF (somente números)</label>
+         <div className="form-control">
+          <label htmlFor="cargo">Cargo</label>
           <input
             type="text"
-            id="cpf"
-            name="cpf"
-            value={formData.cpf}
+            id="cargo"
+            name="cargo"
+            value={formData.cargo}
             onChange={handleChange}
             required
           />
         </div>
       </div>
 
-      <div className="form-control">
-        <label htmlFor="password">
-          Senha {isEditMode ? '(Deixe em branco para não alterar)' : ''}
-        </label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required={!isEditMode}
-        />
-      </div>
-
-      <div className="form-control">
-        <label htmlFor="foto">Foto (Upload)</label>
-        <input
-          type="file"
-          id="foto"
-          name="foto"
-          accept="image/*"
-          onChange={handleFotoChange}
-        />
-        <img
-          src={formData.foto}
-          alt="Preview"
-          className="funcionario-foto-preview"
-        />
+      <div className="form-group">
+        <div className="form-control">
+          <label htmlFor="salario">Salário</label>
+          <input
+            type="number"
+            id="salario"
+            name="salario"
+            value={formData.salario}
+            onChange={handleChange}
+            step="0.01"
+            required
+          />
+        </div>
+        
+        {!isEditMode && (
+          <div className="form-control">
+            <label htmlFor="password">Senha</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              minLength="6"
+            />
+          </div>
+        )}
       </div>
 
       <div className="form-actions">

@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,33 +28,39 @@ public class FuncionarioService {
     private final FuncionarioRepository funcionarioRepository;
     private final FuncionarioMapper funcionarioMapper;
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public FuncionarioService(FuncionarioRepository funcionarioRepository, FuncionarioMapper funcionarioMapper, UsuarioRepository usuarioRepository) {
+    public FuncionarioService(
+            FuncionarioRepository funcionarioRepository,
+            FuncionarioMapper funcionarioMapper,
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.funcionarioRepository = funcionarioRepository;
         this.funcionarioMapper = funcionarioMapper;
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @CachePut(value = "funcionariosCache", key = "#result.id")
     @Transactional
     public FuncionarioResponseDTO createFuncionario(FuncionarioRequestDTO dto) {
-
         String cpf = dto.getUsuarioRequestDTO().getCpf();
-
         log.info("Criando funcionário para CPF={}", cpf);
 
         boolean usuarioJaExiste = usuarioRepository.existsByCpf(cpf);
-
         if (usuarioJaExiste) {
             log.warn("Tentativa de cadastrar funcionário com CPF já existente: {}", cpf);
             throw new UsuarioJaExisteException("Usuario com CPF " + cpf + " já cadastrado.");
         }
 
         Funcionario funcionario = funcionarioMapper.toEntity(dto);
+
         funcionario.getUsuario().setRole(UserRole.FUNCIONARIO);
+        String senhaPlana = funcionario.getUsuario().getPassword();
+        funcionario.getUsuario().setPassword(passwordEncoder.encode(senhaPlana));
 
         Funcionario salvo = funcionarioRepository.save(funcionario);
-
         log.info("Funcionário criado com id={} para CPF={}", salvo.getId(), cpf);
 
         return funcionarioMapper.entityToResponseDTO(salvo);
@@ -62,22 +69,18 @@ public class FuncionarioService {
     @Cacheable(value = "funcionariosCache", key = "#id")
     @Transactional(readOnly = true)
     public FuncionarioResponseDTO getFuncionarioById(Long id) {
-
         log.debug("Buscando funcionário id={}", id);
-
         Funcionario funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Funcionário não encontrado id={}", id);
                     return new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
                 });
-
         return funcionarioMapper.entityToResponseDTO(funcionario);
     }
 
     @Transactional(readOnly = true)
     public Page<FuncionarioResponseDTO> getFuncionariosAtivosPaginados(int page, int size) {
         log.debug("Listando funcionários ativos page={} size={}", page, size);
-
         Pageable pageable = PageRequest.of(page, size);
         return funcionarioRepository.findAllPageable(true, pageable);
     }
@@ -85,7 +88,6 @@ public class FuncionarioService {
     @CachePut(value = "funcionariosCache", key = "#result.id")
     @Transactional
     public FuncionarioResponseDTO updateFuncionario(Long id, FuncionarioUpdateDTO dto) {
-
         log.info("Atualizando funcionário id={}", id);
 
         Funcionario funcionario = funcionarioRepository.findById(id)
@@ -97,7 +99,6 @@ public class FuncionarioService {
         funcionarioMapper.updateFuncionarioFromDTO(dto, funcionario);
 
         Funcionario salvo = funcionarioRepository.save(funcionario);
-
         log.info("Funcionário id={} atualizado com sucesso", id);
 
         return funcionarioMapper.entityToResponseDTO(salvo);
@@ -106,16 +107,12 @@ public class FuncionarioService {
     @CacheEvict(value = "funcionariosCache", key = "#id")
     @Transactional
     public void desligarFuncionarioById(Long id) {
-
         log.info("Desligando funcionário id={}", id);
-
         if (!funcionarioRepository.existsById(id)) {
             log.warn("Tentativa de desligar funcionário inexistente id={}", id);
             throw new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
         }
-
         funcionarioRepository.atualizaStatusFuncionario(id, false);
-
         log.info("Funcionário id={} desligado com sucesso", id);
     }
 }

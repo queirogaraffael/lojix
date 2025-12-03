@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import './Login.css';
 
 export const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +15,7 @@ export const Login = () => {
     setError('');
     setIsLoading(true);
 
-    const result = await login(username, password);
+    const result = await login(email, password);
 
     if (!result.success) {
       setError(result.message);
@@ -31,14 +31,15 @@ export const Login = () => {
         {error && <div className="error-message" style={{color: '#dc3545', marginBottom: '1rem', padding: '10px', backgroundColor: '#f8d7da', borderRadius: '4px'}}>{error}</div>}
 
         <div className="form-control">
-          <label htmlFor="username">Usuário</label>
+          <label htmlFor="email">Email</label>
           <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             disabled={isLoading}
+            placeholder="exemplo@empresa.com"
           />
         </div>
         <div className="form-control">
@@ -56,7 +57,8 @@ export const Login = () => {
           {isLoading ? 'Entrando...' : 'Entrar'}
         </button>
         <p className="login-hint">
-          Padrão: <strong>admin</strong> / <strong>senhaSuperSecreta456</strong>
+          Admin: <strong>admin@meuapp.com</strong><br/>
+          Senha: <strong>senhaSuperSecreta456</strong>
         </p>
       </form>
     </div>
