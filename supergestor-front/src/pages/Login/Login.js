@@ -57,8 +57,8 @@ export const Login = () => {
           {isLoading ? 'Entrando...' : 'Entrar'}
         </button>
         <p className="login-hint">
-          Admin: <strong>admin@meuapp.com</strong><br/>
-          Senha: <strong>senhaSuperSecreta456</strong>
+          Email Padrão: <strong>admin@supergestor.com</strong><br/>
+          Senha Padrão: <strong>admin123</strong>
         </p>
       </form>
     </div>

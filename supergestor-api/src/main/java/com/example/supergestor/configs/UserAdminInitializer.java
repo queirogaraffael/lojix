@@ -47,7 +47,7 @@ public class UserAdminInitializer implements CommandLineRunner {
             adminFuncionario.setUsuario(savedUser);
             adminFuncionario.setCargo("CEO");
             adminFuncionario.setSalario(new BigDecimal("50000.00"));
-            adminFuncionario.setStatus(true); // Ativo
+            adminFuncionario.setAtivo(true); // <--- CORRIGIDO AQUI (era setStatus)
 
             funcionarioRepository.save(adminFuncionario);
         }
