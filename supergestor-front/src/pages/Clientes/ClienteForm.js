@@ -1,30 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-export const ClienteForm = ({ cliente, onSave, onCancel }) => {
+export const ClienteForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({
-    nome: '',
+    name: '',
+    email: '',
+    username: '',
     cpf: '',
-    idade: '',
-    dataCadastro: '',
+    password: '',
+    tempoFidelidade: ''
   });
-
-  useEffect(() => {
-    if (cliente) {
-      setFormData({
-        nome: cliente.nome,
-        cpf: cliente.cpf,
-        idade: cliente.idade.toString(),
-        dataCadastro: cliente.dataCadastro,
-      });
-    } else {
-      setFormData({
-        nome: '',
-        cpf: '',
-        idade: '',
-        dataCadastro: '',
-      });
-    }
-  }, [cliente]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,21 +20,56 @@ export const ClienteForm = ({ cliente, onSave, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({
-      ...formData,
-      idade: parseInt(formData.idade, 10),
-    });
+    onSave(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="produto-form">
       <div className="form-control">
-        <label htmlFor="nome">Nome Completo</label>
+        <label htmlFor="name">Nome Completo</label>
         <input
           type="text"
-          id="nome"
-          name="nome"
-          value={formData.nome}
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div className="form-group">
+         <div className="form-control">
+          <label htmlFor="username">Usuário (Login)</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-control">
+          <label htmlFor="cpf">CPF</label>
+          <input
+            type="text"
+            id="cpf"
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleChange}
+            maxLength="11"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="form-control">
+        <label htmlFor="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
           onChange={handleChange}
           required
         />
@@ -58,40 +77,30 @@ export const ClienteForm = ({ cliente, onSave, onCancel }) => {
 
       <div className="form-group">
         <div className="form-control">
-          <label htmlFor="cpf">CPF / Identidade</label>
+          <label htmlFor="password">Senha</label>
           <input
-            type="text"
-            id="cpf"
-            name="cpf"
-            value={formData.cpf}
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
             onChange={handleChange}
             required
+            minLength="6"
           />
         </div>
         <div className="form-control">
-          <label htmlFor="idade">Idade</label>
+          <label htmlFor="tempoFidelidade">Data de Início (Fidelidade)</label>
           <input
-            type="number"
-            id="idade"
-            name="idade"
-            value={formData.idade}
+            type="date"
+            id="tempoFidelidade"
+            name="tempoFidelidade"
+            value={formData.tempoFidelidade}
             onChange={handleChange}
-            min="0"
             required
+            max={new Date().toISOString().split("T")[0]} 
           />
+          <small style={{fontSize: '0.8em', color: '#666'}}>Data passada ou atual.</small>
         </div>
-      </div>
-
-      <div className="form-control">
-        <label htmlFor="dataCadastro">Data de Cadastro</label>
-        <input
-          type="date"
-          id="dataCadastro"
-          name="dataCadastro"
-          value={formData.dataCadastro}
-          onChange={handleChange}
-          required
-        />
       </div>
 
       <div className="form-actions">
