@@ -17,6 +17,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Tag(name = "Promocao")
 @RestController
 @RequestMapping("/api/promocoes")
@@ -121,9 +124,32 @@ public class PromocaoController {
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<PromocaoResponseDTO> getPromocaoById(@PathVariable Long id) {
+
         PromocaoResponseDTO dto = promocaoService.getPromocaoById(id);
+
+        dto.add(
+                linkTo(methodOn(PromocaoController.class).getPromocaoById(id))
+                        .withSelfRel()
+        );
+
+        dto.add(
+                linkTo(methodOn(PromocaoController.class).desativarPromocao(id))
+                        .withRel("desativar")
+        );
+
+        dto.add(
+                linkTo(methodOn(PromocaoController.class).associarPromocao(id, null))
+                        .withRel("associar-produto")
+        );
+
+        dto.add(
+                linkTo(methodOn(PromocaoController.class).getPromocoesAtivasPaginadas(0, 10))
+                        .withRel("listar")
+        );
+
         return ResponseEntity.ok(dto);
     }
+
 
     @Operation(
             summary = "Listar promoções ativas paginadas",
