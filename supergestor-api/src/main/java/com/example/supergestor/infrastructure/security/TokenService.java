@@ -6,7 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.supergestor.domain.entities.Usuario;
-import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
+import com.example.supergestor.domain.repositories.UsuarioRepository;
 import com.example.supergestor.shared.exceptions.TokenCreationException;
 import com.example.supergestor.shared.exceptions.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;

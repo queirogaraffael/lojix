@@ -20,7 +20,7 @@ public class ProdutoResponseDTO {
     private String descricao;
     private LocalDate dataValidade;
 
-    private PromocaoProdutoResponseDTO promocaoResponseDTO;
+    private Long promocaoId;
     private Long categoriaId;
 
 }

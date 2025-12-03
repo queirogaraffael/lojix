@@ -14,5 +14,6 @@ public class FuncionarioUpdateDTO {
 
     private String cargo;
     private BigDecimal salario;
-    private UsuarioUpdateDTO usuario;
+
+    private UsuarioUpdateDTO usuarioUpdateDTO;
 }
