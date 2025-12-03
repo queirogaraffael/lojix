@@ -108,10 +108,17 @@ public class FuncionarioService {
     @Transactional
     public void desligarFuncionarioById(Long id) {
         log.info("Desligando funcionário id={}", id);
-        if (!funcionarioRepository.existsById(id)) {
-            log.warn("Tentativa de desligar funcionário inexistente id={}", id);
-            throw new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
+        
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Tentativa de desligar funcionário inexistente id={}", id);
+                    return new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
+                });
+
+        if ("admin@supergestor.com".equalsIgnoreCase(funcionario.getUsuario().getEmail())) {
+            throw new IllegalArgumentException("O administrador principal não pode ser removido ou desativado.");
         }
+
         funcionarioRepository.atualizaStatusFuncionario(id, false);
         log.info("Funcionário id={} desligado com sucesso", id);
     }
