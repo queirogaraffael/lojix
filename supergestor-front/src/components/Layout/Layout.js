@@ -20,6 +20,7 @@ export const Layout = ({ children }) => {
         <div className="navbar-links">
           <NavLink to="/">Dashboard</NavLink>
           <NavLink to="/produtos">Produtos</NavLink>
+          <NavLink to="/categorias">Categorias</NavLink> {/* Link Novo */}
           <NavLink to="/funcionarios">Funcionários</NavLink>
           <NavLink to="/promocoes">Promoções</NavLink>
           <NavLink to="/clientes">Clientes</NavLink>

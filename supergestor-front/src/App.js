@@ -8,6 +8,7 @@ import { Produtos } from './pages/Produtos/Produtos';
 import { Funcionarios } from './pages/Funcionarios/Funcionarios';
 import { Promocoes } from './pages/Promocoes/Promocoes';
 import { Clientes } from './pages/Clientes/Clientes';
+import { Categorias } from './pages/Categorias/Categorias'; // Importação Nova
 import './App.css';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/funcionarios" element={<Funcionarios />} />
                 <Route path="/promocoes" element={<Promocoes />} />
                 <Route path="/clientes" element={<Clientes />} />
+                <Route path="/categorias" element={<Categorias />} /> {/* Rota Nova */}
               </Routes>
             </Layout>
           </ProtectedRoute>
