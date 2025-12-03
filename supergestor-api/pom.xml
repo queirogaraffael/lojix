@@ -14,6 +14,8 @@
 	<name>supergestor</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
+
+
 	<licenses>
 		<license/>
 	</licenses>
@@ -26,9 +28,13 @@
 		<tag/>
 		<url/>
 	</scm>
-	<properties>
-		<java.version>17</java.version>
-	</properties>
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
 	<dependencies>
 
         <!-- Spring -->
@@ -154,6 +160,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
     </dependencies>
