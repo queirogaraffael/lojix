@@ -350,3 +350,7 @@ insert into usuario (cpf,email,foto_perfil,name,password,role,username,id) value
 2025-12-03 19:00:28 INFO  c.e.s.domain.services.ClienteService - Página de clientes retornada: 0 itens
 2025-12-03 19:05:47 INFO  c.e.s.d.services.CategoriaService - Página de categorias retornada: 0 itens
 2025-12-03 19:05:47 INFO  c.e.s.d.services.CategoriaService - Página de categorias retornada: 0 itens
+2025-12-03 19:06:44 INFO  c.e.s.domain.services.ClienteService - Página de clientes retornada: 0 itens
+2025-12-03 19:06:44 INFO  c.e.s.domain.services.ClienteService - Página de clientes retornada: 0 itens
+2025-12-03 19:06:54 INFO  c.e.s.domain.services.ClienteService - Página de clientes retornada: 0 itens
+2025-12-03 19:06:54 INFO  c.e.s.domain.services.ClienteService - Página de clientes retornada: 0 itens
