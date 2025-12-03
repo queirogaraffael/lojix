@@ -1,4 +1,4 @@
-package com.example.supergestor.infrastructure.repositories;
+package com.example.supergestor.domain.repositories;
 
 import com.example.supergestor.domain.entities.Funcionario;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
@@ -23,9 +23,10 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> 
 
     @Query(
             value = "SELECT new com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO(" +
+                    "f.id, " +
                     "f.cargo, " +
                     "f.salario, " +
-                    "new com.example.supergestor.shared.dtos.funcionario.UsuarioResponseDTO(" +
+                    "new com.example.supergestor.shared.dtos.usuario.UsuarioResponseDTO(" +
                     "u.id, u.name, u.username, u.email, u.cpf" +
                     ")" +
                     ") " +

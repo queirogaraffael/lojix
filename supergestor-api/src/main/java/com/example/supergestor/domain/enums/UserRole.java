@@ -2,7 +2,8 @@ package com.example.supergestor.domain.enums;
 
 public enum UserRole {
     ADMIN("admin"),
-    FUNCIONARIO("funcionario");
+    FUNCIONARIO("funcionario"),
+    CLIENTE("cliente");
 
     private String role;
 

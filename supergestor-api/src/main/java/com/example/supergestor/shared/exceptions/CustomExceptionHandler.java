@@ -86,4 +86,8 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UsuarioJaExisteException.class)
+    public ResponseEntity<Object> handleUsuarioJaExisteException(UsuarioJaExisteException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
 }

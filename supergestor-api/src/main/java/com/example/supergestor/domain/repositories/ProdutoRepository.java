@@ -1,4 +1,4 @@
-package com.example.supergestor.infrastructure.repositories;
+package com.example.supergestor.domain.repositories;
 
 import com.example.supergestor.domain.entities.Produto;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
@@ -15,23 +15,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
-    @Query("SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO(" +
+    @Query("SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO( " +
             "p.id, " +
             "p.nome, " +
             "p.preco, " +
             "p.descricao, " +
             "p.dataValidade, " +
-            "new com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO(" +
-            "pr.id, pr.nome, pr.taxaDeDesconto)" +
-            ") " +
-            "FROM Produto p LEFT JOIN p.promocao pr " +
+            "p.promocao.id, " +
+            "p.categoria.id ) " +
+            "FROM Produto p " +
             "WHERE p.id = :id AND p.produtoAtivo = :ativo")
-    Optional<ProdutoResponseDTO> findProdutoById(@Param("id") Long id, @Param("ativo") boolean ativo);
+    Optional<ProdutoResponseDTO> findProdutoById(@Param("id") Long id,
+                                                 @Param("ativo") boolean ativo);
 
     @Query(
             value = "SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO(" +
@@ -40,10 +41,9 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
                     "p.preco, " +
                     "p.descricao, " +
                     "p.dataValidade, " +
-                    "new com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO(" +
-                    "pr.id, pr.nome, pr.taxaDeDesconto)" +
-                    ") " +
-                    "FROM Produto p LEFT JOIN p.promocao pr " +
+                    "p.promocao.id, " +
+                    "p.categoria.id ) " +
+                    "FROM Produto p " +
                     "WHERE p.produtoAtivo = :ativo",
             countQuery = "SELECT count(p) FROM Produto p WHERE p.produtoAtivo = :ativo"
     )
@@ -53,4 +53,29 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     @Modifying
     @Query("UPDATE Produto p SET p.produtoAtivo = :produtoAtivo WHERE p.id = :id")
     void desativarProduto(@Param("id") Long id, @Param("produtoAtivo") boolean produtoAtivo);
-}
+
+    @Query(
+            value = "SELECT new com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO( " +
+                    "p.id, " +
+                    "p.nome, " +
+                    "p.preco, " +
+                    "p.descricao, " +
+                    "p.dataValidade, " +
+                    "p.promocao.id, " +
+                    "p.categoria.id ) " +
+                    "FROM Produto p " +
+                    "JOIN p.categoria c " +
+                    "WHERE p.produtoAtivo = :produtoAtivo " +
+                    "AND c.id = :idCategoria",
+            countQuery = "SELECT count(p) FROM Produto p JOIN p.categoria c " +
+                    "WHERE p.produtoAtivo = :produtoAtivo " +
+                    "AND c.id = :idCategoria"
+    )
+    Page<ProdutoResponseDTO> findPageableByCategoriaId(
+            @Param("idCategoria") Long idCategoria,
+            @Param("produtoAtivo") boolean produtoAtivo,
+            Pageable pageable
+    );
+
+    @Query("SELECT p.id FROM Produto p WHERE p.promocao.id = :promocaoId")
+    List<Long> findProdutoIdsByPromocaoId(@Param("promocaoId") Long promocaoId);}
