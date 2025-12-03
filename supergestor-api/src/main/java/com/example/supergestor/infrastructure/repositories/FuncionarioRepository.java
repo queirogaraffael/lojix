@@ -25,7 +25,7 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> 
             value = "SELECT new com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO(" +
                     "f.cargo, " +
                     "f.salario, " +
-                    "new com.example.supergestor.shared.dtos.funcionario.UsuarioResponseDTO(" +
+                    "new com.example.supergestor.shared.dtos.usuario.UsuarioResponseDTO(" + // Caminho corrigido aqui (era .dtos.funcionario)
                     "u.id, u.name, u.username, u.email, u.cpf" +
                     ")" +
                     ") " +

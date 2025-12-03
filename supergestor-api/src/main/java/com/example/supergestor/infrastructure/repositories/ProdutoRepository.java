@@ -1,9 +1,7 @@
 package com.example.supergestor.infrastructure.repositories;
 
 import com.example.supergestor.domain.entities.Produto;
-import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO;
-import com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,8 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -27,7 +23,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
             "p.descricao, " +
             "p.dataValidade, " +
             "new com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO(" +
-            "pr.id, pr.nome, pr.taxaDeDesconto)" +
+            "pr.id, pr.nome, pr.taxaDeDesconto), " +
+            "p.categoria.id" + // Adicionado categoriaId
             ") " +
             "FROM Produto p LEFT JOIN p.promocao pr " +
             "WHERE p.id = :id AND p.produtoAtivo = :ativo")
@@ -41,7 +38,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
                     "p.descricao, " +
                     "p.dataValidade, " +
                     "new com.example.supergestor.shared.dtos.promocao.PromocaoProdutoResponseDTO(" +
-                    "pr.id, pr.nome, pr.taxaDeDesconto)" +
+                    "pr.id, pr.nome, pr.taxaDeDesconto), " +
+                    "p.categoria.id" + // Adicionado categoriaId
                     ") " +
                     "FROM Produto p LEFT JOIN p.promocao pr " +
                     "WHERE p.produtoAtivo = :ativo",

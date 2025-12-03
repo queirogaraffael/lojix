@@ -5,17 +5,31 @@ import './Login.css';
 export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(username);
+    setError('');
+    setIsLoading(true);
+
+    const result = await login(username, password);
+
+    if (!result.success) {
+      setError(result.message);
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <h1>SuperGestor</h1>
+        
+        {error && <div className="error-message" style={{color: '#dc3545', marginBottom: '1rem', padding: '10px', backgroundColor: '#f8d7da', borderRadius: '4px'}}>{error}</div>}
+
         <div className="form-control">
           <label htmlFor="username">Usuário</label>
           <input
@@ -23,6 +37,8 @@ export const Login = () => {
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
+            disabled={isLoading}
           />
         </div>
         <div className="form-control">
@@ -32,10 +48,16 @@ export const Login = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
           />
         </div>
-        <button type="submit" className="login-button">Entrar</button>
-        <p className="login-hint">Use "admin" ou "func" (a senha é ignorada)</p>
+        <button type="submit" className="login-button" disabled={isLoading}>
+          {isLoading ? 'Entrando...' : 'Entrar'}
+        </button>
+        <p className="login-hint">
+          Padrão: <strong>admin</strong> / <strong>senhaSuperSecreta456</strong>
+        </p>
       </form>
     </div>
   );
