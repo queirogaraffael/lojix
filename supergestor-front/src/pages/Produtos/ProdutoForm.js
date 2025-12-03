@@ -1,35 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { mockPromocoes } from '../../mocks/db';
 import './ProdutoForm.css';
 
-export const ProdutoForm = ({ produto, onSave, onCancel }) => {
+export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     nome: '',
-    tipo: '',
-    precoAtual: 0,
+    preco: '',
     descricao: '',
     dataValidade: '',
-    promocaoId: null,
+    categoriaId: '',
+    promocaoId: ''
   });
+
+  const isEditMode = !!produto;
 
   useEffect(() => {
     if (produto) {
       setFormData({
-        ...produto,
-        precoAtual: produto.precoAtual.toString(),
-        promocaoId: produto.promocaoId || 'null',
+        nome: produto.nome,
+        preco: produto.preco,
+        descricao: produto.descricao || '',
+        dataValidade: produto.dataValidade || '',
+        categoriaId: produto.categoriaId,
+        promocaoId: produto.promocaoId || ''
       });
     } else {
       setFormData({
         nome: '',
-        tipo: 'Bebidas',
-        precoAtual: '0',
+        preco: '',
         descricao: '',
         dataValidade: '',
-        promocaoId: 'null',
+        categoriaId: categorias.length > 0 ? categorias[0].id : '',
+        promocaoId: ''
       });
     }
-  }, [produto]);
+  }, [produto, categorias]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,19 +45,23 @@ export const ProdutoForm = ({ produto, onSave, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const promocaoFinal = formData.promocaoId === 'null' ? null : formData.promocaoId;
+    
+    if (!formData.categoriaId && !isEditMode) {
+        alert("Selecione uma categoria.");
+        return;
+    }
 
     onSave({
       ...formData,
-      precoAtual: parseFloat(formData.precoAtual),
-      promocaoId: promocaoFinal,
+      preco: parseFloat(formData.preco),
+      promocaoId: formData.promocaoId ? parseInt(formData.promocaoId) : null
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="produto-form">
       <div className="form-control">
-        <label htmlFor="nome">Nome</label>
+        <label htmlFor="nome">Nome do Produto</label>
         <input
           type="text"
           id="nome"
@@ -66,29 +74,35 @@ export const ProdutoForm = ({ produto, onSave, onCancel }) => {
 
       <div className="form-group">
         <div className="form-control">
-          <label htmlFor="tipo">Tipo</label>
+          <label htmlFor="categoriaId">Categoria</label>
           <select
-            id="tipo"
-            name="tipo"
-            value={formData.tipo}
+            id="categoriaId"
+            name="categoriaId"
+            value={formData.categoriaId}
             onChange={handleChange}
+            required
+            disabled={isEditMode}
+            style={isEditMode ? { backgroundColor: '#e9ecef' } : {}}
           >
-            <option value="Bebidas">Bebidas</option>
-            <option value="Limpeza">Limpeza</option>
-            <option value="Padaria">Padaria</option>
-            <option value="Outros">Outros</option>
+            <option value="" disabled>Selecione...</option>
+            {categorias.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.nome}
+              </option>
+            ))}
           </select>
         </div>
+
         <div className="form-control">
-          <label htmlFor="precoAtual">Preço Atual (R$)</label>
+          <label htmlFor="preco">Preço (R$)</label>
           <input
             type="number"
-            id="precoAtual"
-            name="precoAtual"
-            value={formData.precoAtual}
+            id="preco"
+            name="preco"
+            value={formData.preco}
             onChange={handleChange}
             step="0.01"
-            min="0"
+            min="0.01"
             required
           />
         </div>
@@ -102,6 +116,7 @@ export const ProdutoForm = ({ produto, onSave, onCancel }) => {
           value={formData.descricao}
           onChange={handleChange}
           rows="3"
+          maxLength="255"
         ></textarea>
       </div>
 
@@ -118,17 +133,17 @@ export const ProdutoForm = ({ produto, onSave, onCancel }) => {
           />
         </div>
         <div className="form-control">
-          <label htmlFor="promocaoId">Promoção</label>
+          <label htmlFor="promocaoId">Promoção (Opcional)</label>
           <select
             id="promocaoId"
             name="promocaoId"
-            value={formData.promocaoId || 'null'}
+            value={formData.promocaoId}
             onChange={handleChange}
           >
-            <option value="null">Sem Promoção</option>
-            {mockPromocoes.map((promo) => (
+            <option value="">Sem Promoção</option>
+            {promocoes.map((promo) => (
               <option key={promo.id} value={promo.id}>
-                {promo.nome}
+                {promo.nome} ({(promo.taxaDeDesconto * 100).toFixed(0)}%)
               </option>
             ))}
           </select>
