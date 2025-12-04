@@ -1,0 +1,18 @@
+2025-12-03 18:08:22 ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+The bean 'promocaoRepository', defined in com.example.supergestor.domain.repositories.PromocaoRepository defined in @EnableJpaRepositories declared on JpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration, could not be registered. A bean with that name has already been defined in com.example.supergestor.infrastructure.repositories.PromocaoRepository defined in @EnableJpaRepositories declared on JpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration and overriding is disabled.
+
+Action:
+
+Consider renaming one of the beans or enabling overriding by setting spring.main.allow-bean-definition-overriding=true
+
+2025-12-03 18:55:22 ERROR o.h.e.jdbc.spi.SqlExceptionHelper - Unique index or primary key violation: "PUBLIC.UK5171L57FAOSMJ8MYAWAUCATDW_INDEX_2 ON PUBLIC.USUARIO(EMAIL NULLS FIRST) VALUES ( /* 2 */ 'luizfelipeazevedobrito@gmail.com' )"; SQL statement:
+insert into usuario (cpf,email,foto_perfil,name,password,role,username,id) values (?,?,?,?,?,?,?,?) [23505-232]
+2025-12-03 18:55:29 ERROR o.h.e.jdbc.spi.SqlExceptionHelper - Unique index or primary key violation: "PUBLIC.UK5171L57FAOSMJ8MYAWAUCATDW_INDEX_2 ON PUBLIC.USUARIO(EMAIL NULLS FIRST) VALUES ( /* 2 */ 'luizfelipeazevedobrito@gmail.com' )"; SQL statement:
+insert into usuario (cpf,email,foto_perfil,name,password,role,username,id) values (?,?,?,?,?,?,?,?) [23505-232]

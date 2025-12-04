@@ -1,0 +1,49 @@
+.funcionarios-container {
+    width: 100%;
+  }
+  
+  .funcionarios-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .funcionarios-tabela th,
+  .funcionarios-tabela td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+  }
+  
+  .funcionarios-tabela th {
+    background-color: #f4f6f8;
+    font-weight: 600;
+  }
+  
+  .funcionarios-tabela tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .funcionarios-tabela tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .funcionario-foto {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .funcionario-foto-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+  }

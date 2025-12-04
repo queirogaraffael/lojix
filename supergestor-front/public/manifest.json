@@ -1,0 +1,8 @@
+{
+    "short_name": "SuperGestor",
+    "name": "SuperGestor - Sistema de Gestão",
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#007bff",
+    "background_color": "#ffffff"
+  }
