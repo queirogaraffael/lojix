@@ -1,5 +1,6 @@
 package com.example.supergestor.infrastructure.security;
 
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,15 +31,23 @@ public class SecurityConfigurations {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .cors(org.springframework.security.config.Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+
+                        // Endpoints públicos de login
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+
+                        // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/clientes").permitAll()
+
+                        // Actuator + Prometheus
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception

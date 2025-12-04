@@ -35,7 +35,6 @@ public class ClienteController {
     @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<ClienteResponseDTO> createCliente(@RequestBody @Valid ClienteRequestDTO clienteRequestDTO) {

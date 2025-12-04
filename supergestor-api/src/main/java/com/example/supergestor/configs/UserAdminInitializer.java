@@ -1,55 +1,56 @@
 package com.example.supergestor.configs;
 
-import com.example.supergestor.domain.entities.Funcionario;
 import com.example.supergestor.domain.entities.Usuario;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.FuncionarioRepository;
 import com.example.supergestor.domain.repositories.UsuarioRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
-@Configuration
+@Component
+@Slf4j
 public class UserAdminInitializer implements CommandLineRunner {
 
+    @Value("${app.admin.username}")
+    private String adminUsername;
+
+    @Value("${app.admin.password}")
+    private String adminPassword;
+
+    @Value("${app.admin.nome}")
+    private String adminNome;
+
+    @Value("${app.admin.email}")
+    private String adminEmail;
+
+    @Value("${app.admin.cpf}")
+    private String adminCpf;
+
     private final UsuarioRepository usuarioRepository;
-    private final FuncionarioRepository funcionarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserAdminInitializer(UsuarioRepository usuarioRepository, 
-                                FuncionarioRepository funcionarioRepository,
-                                PasswordEncoder passwordEncoder) {
+    public UserAdminInitializer(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
-        this.funcionarioRepository = funcionarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    @Transactional
     public void run(String... args) throws Exception {
-        String emailAdmin = "admin@supergestor.com";
+        if (!usuarioRepository.existsByUsername(adminUsername)) {
 
-        if (usuarioRepository.findByEmail(emailAdmin).isEmpty()) {
-            Usuario adminUser = new Usuario();
-            adminUser.setName("Administrador Principal");
-            adminUser.setEmail(emailAdmin);
-            adminUser.setUsername("admin");
-            adminUser.setPassword(passwordEncoder.encode("admin123"));
-            adminUser.setCpf("00000000000");
-            adminUser.setRole(UserRole.ADMIN);
+            Usuario admin = new Usuario();
+            admin.setName(adminNome);
+            admin.setEmail(adminEmail);
+            admin.setUsername(adminUsername);
+            admin.setCpf(adminCpf);
+            admin.setPassword(passwordEncoder.encode(adminPassword));
+            admin.setRole(UserRole.ADMIN);
+            admin.setFoto(null);
 
-            Usuario savedUser = usuarioRepository.save(adminUser);
-
-            Funcionario adminFuncionario = new Funcionario();
-            adminFuncionario.setUsuario(savedUser);
-            adminFuncionario.setCargo("CEO");
-            adminFuncionario.setSalario(new BigDecimal("50000.00"));
-            adminFuncionario.setAtivo(true); // <--- CORRIGIDO AQUI (era setStatus)
-
-            funcionarioRepository.save(adminFuncionario);
+            usuarioRepository.save(admin);
+            log.info("Usuário admin ({}) criado!", adminUsername);
         }
     }
 }
