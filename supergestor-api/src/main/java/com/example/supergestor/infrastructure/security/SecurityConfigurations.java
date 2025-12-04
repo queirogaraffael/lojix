@@ -41,6 +41,8 @@ public class SecurityConfigurations {
                         // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
 
+                        .requestMatchers(HttpMethod.POST, "/api/clientes").permitAll()
+
                         // Actuator + Prometheus
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/prometheus").permitAll()

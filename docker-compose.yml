@@ -46,7 +46,7 @@ services:
       dockerfile: Dockerfile
     container_name: supergestor-front
     ports:
-      - "80:80" # Acesso via http://localhost
+      - "80:80"
     depends_on:
       - app
 
