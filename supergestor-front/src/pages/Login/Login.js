@@ -3,9 +3,9 @@ import { useAuth } from "../../contexts/AuthContext";
 import "./Login.css";
 
 export const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
@@ -70,8 +70,7 @@ export const Login = () => {
           {isLoading ? "Entrando..." : "Entrar"}
         </button>
         <p className="login-hint">
-          Usuário Padrão: <strong>Admin</strong>
-          <br />
+          Usuário Padrão: <strong>Admin</strong><br/>
           Senha Padrão: <strong>Admin123</strong>
         </p>
       </form>
