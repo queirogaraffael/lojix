@@ -2,7 +2,7 @@ package com.example.supergestor.configs;
 
 import com.example.supergestor.domain.entities.Usuario;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;

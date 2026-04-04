@@ -1,4 +1,4 @@
-package com.example.supergestor.shared.mappers;
+package com.example.supergestor.mappers;
 
 import com.example.supergestor.domain.entities.Funcionario;
 import com.example.supergestor.domain.entities.Usuario;

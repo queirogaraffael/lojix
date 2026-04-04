@@ -2,14 +2,14 @@ package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Funcionario;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.FuncionarioRepository;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.infrastructure.repositories.FuncionarioRepository;
+import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioRequestDTO;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioUpdateDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.exceptions.UsuarioJaExisteException;
-import com.example.supergestor.shared.mappers.FuncionarioMapper;
+import com.example.supergestor.mappers.FuncionarioMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -107,15 +107,11 @@ public class FuncionarioService {
     @Transactional
     public void desligarFuncionarioById(Long id) {
 
-        log.info("Desligando funcionário id={}", id);
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Funcionario com id " + id + " não encontrado"
+                ));
 
-        if (!funcionarioRepository.existsById(id)) {
-            log.warn("Tentativa de desligar funcionário inexistente id={}", id);
-            throw new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
-        }
-
-        funcionarioRepository.atualizaStatusFuncionario(id, false);
-
-        log.info("Funcionário id={} desligado com sucesso", id);
+        funcionario.setAtivo(false);
     }
 }

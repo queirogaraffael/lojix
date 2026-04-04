@@ -2,13 +2,13 @@ package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Cliente;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.ClienteRepository;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.infrastructure.repositories.ClienteRepository;
+import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.cliente.ClienteRequestDTO;
 import com.example.supergestor.shared.dtos.cliente.ClienteResponseDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
 import com.example.supergestor.shared.exceptions.UsuarioJaExisteException;
-import com.example.supergestor.shared.mappers.ClienteMapper;
+import com.example.supergestor.mappers.ClienteMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

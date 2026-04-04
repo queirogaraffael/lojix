@@ -2,7 +2,7 @@ package com.example.supergestor.controllers;
 
 import com.example.supergestor.domain.entities.Categoria;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.*;
+import com.example.supergestor.infrastructure.repositories.*;
 import com.example.supergestor.shared.dtos.categoria.CategoriaRequestDTO;
 import com.example.supergestor.shared.dtos.categoria.CategoriaUpdateDTO;
 import com.example.supergestor.utils.ConstantesRotasEndpoints;

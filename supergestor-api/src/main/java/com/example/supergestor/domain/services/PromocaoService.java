@@ -2,12 +2,12 @@ package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Produto;
 import com.example.supergestor.domain.entities.Promocao;
-import com.example.supergestor.domain.repositories.ProdutoRepository;
-import com.example.supergestor.domain.repositories.PromocaoRepository;
+import com.example.supergestor.infrastructure.repositories.ProdutoRepository;
+import com.example.supergestor.infrastructure.repositories.PromocaoRepository;
 import com.example.supergestor.shared.dtos.promocao.PromocaoRequestDTO;
 import com.example.supergestor.shared.dtos.promocao.PromocaoResponseDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
-import com.example.supergestor.shared.mappers.PromocaoMapper;
+import com.example.supergestor.mappers.PromocaoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;

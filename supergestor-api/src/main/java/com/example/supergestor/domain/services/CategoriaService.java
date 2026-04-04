@@ -1,12 +1,12 @@
 package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Categoria;
-import com.example.supergestor.domain.repositories.CategoriaRepository;
+import com.example.supergestor.infrastructure.repositories.CategoriaRepository;
 import com.example.supergestor.shared.dtos.categoria.CategoriaRequestDTO;
 import com.example.supergestor.shared.dtos.categoria.CategoriaResponseDTO;
 import com.example.supergestor.shared.dtos.categoria.CategoriaUpdateDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
-import com.example.supergestor.shared.mappers.CategoriaMapper;
+import com.example.supergestor.mappers.CategoriaMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

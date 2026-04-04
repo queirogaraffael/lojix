@@ -1,9 +1,9 @@
 package com.example.supergestor.controllers;
 
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.ClienteRepository;
-import com.example.supergestor.domain.repositories.FuncionarioRepository;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.infrastructure.repositories.ClienteRepository;
+import com.example.supergestor.infrastructure.repositories.FuncionarioRepository;
+import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.auth.LoginDTO;
 import com.example.supergestor.utils.ConstantesRotasEndpoints;
 import com.example.supergestor.utils.TestUtils;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,9 +46,6 @@ class AuthControllerTest {
 
     @Autowired
     private ClienteRepository clienteRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TestUtils testUtils;

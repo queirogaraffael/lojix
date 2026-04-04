@@ -2,13 +2,13 @@ package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Categoria;
 import com.example.supergestor.domain.entities.Produto;
-import com.example.supergestor.domain.repositories.CategoriaRepository;
-import com.example.supergestor.domain.repositories.ProdutoRepository;
+import com.example.supergestor.infrastructure.repositories.CategoriaRepository;
+import com.example.supergestor.infrastructure.repositories.ProdutoRepository;
 import com.example.supergestor.shared.dtos.produtos.ProdutoRequestDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoResponseDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoUpdateDTO;
 import com.example.supergestor.shared.exceptions.ResourceNotFoundException;
-import com.example.supergestor.shared.mappers.ProdutoMapper;
+import com.example.supergestor.mappers.ProdutoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;

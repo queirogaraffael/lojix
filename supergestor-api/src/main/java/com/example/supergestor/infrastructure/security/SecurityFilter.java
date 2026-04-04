@@ -1,7 +1,7 @@
 package com.example.supergestor.infrastructure.security;
 
 import com.example.supergestor.domain.entities.Usuario;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

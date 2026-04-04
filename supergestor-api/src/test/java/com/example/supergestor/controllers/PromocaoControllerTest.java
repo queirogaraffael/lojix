@@ -4,7 +4,7 @@ import com.example.supergestor.domain.entities.Categoria;
 import com.example.supergestor.domain.entities.Produto;
 import com.example.supergestor.domain.entities.Promocao;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.*;
+import com.example.supergestor.infrastructure.repositories.*;
 import com.example.supergestor.shared.dtos.promocao.PromocaoRequestDTO;
 import com.example.supergestor.utils.ConstantesRotasEndpoints;
 import com.example.supergestor.utils.TestUtils;

@@ -3,7 +3,7 @@ package com.example.supergestor.controllers;
 import com.example.supergestor.domain.entities.Categoria;
 import com.example.supergestor.domain.entities.Produto;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.*;
+import com.example.supergestor.infrastructure.repositories.*;
 import com.example.supergestor.shared.dtos.produtos.ProdutoRequestDTO;
 import com.example.supergestor.shared.dtos.produtos.ProdutoUpdateDTO;
 import com.example.supergestor.utils.ConstantesRotasEndpoints;

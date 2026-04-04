@@ -2,9 +2,9 @@ package com.example.supergestor.controllers;
 
 import com.example.supergestor.domain.entities.Funcionario;
 import com.example.supergestor.domain.enums.UserRole;
-import com.example.supergestor.domain.repositories.ClienteRepository;
-import com.example.supergestor.domain.repositories.FuncionarioRepository;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.infrastructure.repositories.ClienteRepository;
+import com.example.supergestor.infrastructure.repositories.FuncionarioRepository;
+import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioRequestDTO;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioUpdateDTO;
 import com.example.supergestor.shared.dtos.usuario.UsuarioRequestDTO;

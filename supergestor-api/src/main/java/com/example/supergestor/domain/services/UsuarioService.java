@@ -1,10 +1,10 @@
 package com.example.supergestor.domain.services;
 
 import com.example.supergestor.domain.entities.Usuario;
-import com.example.supergestor.domain.repositories.UsuarioRepository;
+import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.usuario.UsuarioResponseDTO;
 import com.example.supergestor.shared.exceptions.UserNotAuthenticatedException;
-import com.example.supergestor.shared.mappers.UsuarioMapper;
+import com.example.supergestor.mappers.UsuarioMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -1,4 +1,4 @@
-package com.example.supergestor.domain.repositories;
+package com.example.supergestor.infrastructure.repositories;
 
 import com.example.supergestor.domain.entities.Funcionario;
 import com.example.supergestor.shared.dtos.funcionario.FuncionarioResponseDTO;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> {
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Funcionario f SET f.ativo = :ativo WHERE f.id = :id")
     void atualizaStatusFuncionario(@Param("id") Long id, @Param("ativo") boolean ativo);
 
