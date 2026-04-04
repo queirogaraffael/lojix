@@ -1731,3 +1731,85 @@ insert into usuario (cpf,email,foto_perfil,name,password,role,username,id) value
 2026-04-04 19:23:22 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-04-04 19:23:22 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2026-04-04 19:23:22 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-04-04 19:28:14 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+2026-04-04 19:28:14 INFO  c.e.s.c.PromocaoControllerTest - Starting PromocaoControllerTest using Java 17.0.18 with PID 37822 (started by raffael in /home/raffael/Documents/Projetos/super-gestor/supergestor-api)
+2026-04-04 19:28:14 INFO  c.e.s.c.PromocaoControllerTest - The following 1 profile is active: "test"
+2026-04-04 19:28:15 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-04-04 19:28:15 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-04 19:28:15 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 103 ms. Found 6 JPA repository interfaces.
+2026-04-04 19:28:16 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-04 19:28:16 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.29.Final
+2026-04-04 19:28:16 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-04-04 19:28:16 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-04 19:28:16 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-04 19:28:16 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:hotel user=SA
+2026-04-04 19:28:16 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-04 19:28:16 WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-04 19:28:16 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-04 19:28:17 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-04 19:28:17 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-04 19:28:17 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-04 19:28:18 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name usuarioService
+2026-04-04 19:28:18 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-04 19:28:19 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-04 19:28:19 INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2026-04-04 19:28:19 INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2026-04-04 19:28:19 INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 1 ms
+2026-04-04 19:28:19 INFO  c.e.s.c.PromocaoControllerTest - Started PromocaoControllerTest in 5.842 seconds (process running for 6.918)
+2026-04-04 19:28:20 INFO  c.e.s.configs.UserAdminInitializer - Usuário admin (admin) criado!
+2026-04-04 19:28:20 INFO  c.e.s.domain.services.AuthService - Tentativa de login para o usuário '_test_user_deact_promo'
+2026-04-04 19:28:20 INFO  c.e.s.domain.services.UsuarioService - Carregando usuário pelo username: _test_user_deact_promo
+2026-04-04 19:28:20 INFO  c.e.s.domain.services.AuthService - Login bem-sucedido para o usuário '_test_user_deact_promo'. Gerando token.
+2026-04-04 19:28:21 INFO  c.e.s.d.services.PromocaoService - Desativando promoção id=1
+2026-04-04 19:28:21 INFO  c.e.s.d.services.PromocaoService - Promoção id=1 desativada e caches afetados invalidados
+2026-04-04 19:28:21 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-04 19:28:21 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-04-04 19:28:21 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-04-04 19:33:45 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+2026-04-04 19:33:45 INFO  c.e.s.c.PromocaoControllerTest - Starting PromocaoControllerTest using Java 17.0.18 with PID 38705 (started by raffael in /home/raffael/Documents/Projetos/super-gestor/supergestor-api)
+2026-04-04 19:33:45 INFO  c.e.s.c.PromocaoControllerTest - The following 1 profile is active: "test"
+2026-04-04 19:33:46 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-04-04 19:33:46 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-04 19:33:46 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 135 ms. Found 6 JPA repository interfaces.
+2026-04-04 19:33:47 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-04 19:33:47 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.29.Final
+2026-04-04 19:33:47 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-04-04 19:33:47 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-04 19:33:47 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-04 19:33:48 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:hotel user=SA
+2026-04-04 19:33:48 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-04 19:33:48 WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-04 19:33:48 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-04 19:33:48 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-04 19:33:48 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-04 19:33:49 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-04 19:33:49 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name usuarioService
+2026-04-04 19:33:50 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-04 19:33:50 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-04 19:33:51 INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2026-04-04 19:33:51 INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2026-04-04 19:33:51 INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 1 ms
+2026-04-04 19:33:51 INFO  c.e.s.c.PromocaoControllerTest - Started PromocaoControllerTest in 5.739 seconds (process running for 6.537)
+2026-04-04 19:33:51 INFO  c.e.s.configs.UserAdminInitializer - Usuário admin (admin) criado!
+2026-04-04 19:33:52 INFO  c.e.s.domain.services.AuthService - Tentativa de login para o usuário '_test_user_deact_promo'
+2026-04-04 19:33:52 INFO  c.e.s.domain.services.UsuarioService - Carregando usuário pelo username: _test_user_deact_promo
+2026-04-04 19:33:52 INFO  c.e.s.domain.services.AuthService - Login bem-sucedido para o usuário '_test_user_deact_promo'. Gerando token.
+2026-04-04 19:33:52 INFO  c.e.s.d.services.PromocaoService - Desativando promoção id=1
+2026-04-04 19:33:52 INFO  c.e.s.d.services.PromocaoService - Promoção id=1 desativada e caches afetados invalidados
+2026-04-04 19:33:52 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-04 19:33:52 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-04-04 19:33:52 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

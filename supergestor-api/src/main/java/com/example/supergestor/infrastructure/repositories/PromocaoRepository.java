@@ -22,7 +22,7 @@ public interface PromocaoRepository extends JpaRepository<Promocao, Long> {
     void removerPromocaoDosProdutos(@Param("idPromocao") Long idPromocao);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Promocao p SET p.ativada = :ativada WHERE p.id = :idPromocao")
     void alterarStatusPromocao(@Param("idPromocao") Long idPromocao,
                                @Param("ativada") boolean ativada);
