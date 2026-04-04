@@ -10,6 +10,7 @@ import com.example.supergestor.infrastructure.repositories.FuncionarioRepository
 import com.example.supergestor.infrastructure.repositories.UsuarioRepository;
 import com.example.supergestor.shared.dtos.auth.LoginDTO;
 import com.example.supergestor.shared.dtos.auth.TokenResponseDTO;
+import com.example.supergestor.shared.utils.CpfGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,7 @@ public class TestUtils {
 
     public Usuario createUsuarioPrecondition(String uniqueSuffix, UserRole userRole) {
         String uniqueUsername = "_test_user_" + uniqueSuffix;
-        String uniqueCpf = "123456789" + UUID.randomUUID().toString().replaceAll("[^0-9]", "").substring(0, 2);
+        String uniqueCpf = CpfGenerator.generate();
         String uniqueEmail = String.format("%s@supergestor.com", uniqueSuffix);
 
         Usuario usuario = new Usuario();
@@ -102,7 +103,7 @@ public class TestUtils {
             admin.setName("Administrador Padrão");
             admin.setEmail("admin@meuapp.com");
             admin.setUsername(adminUsername);
-            admin.setCpf("123456789");
+            admin.setCpf(CpfGenerator.generate());
             admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setRole(UserRole.ADMIN);
             usuarioRepository.save(admin);
