@@ -1,2 +1,5 @@
 logs/
 target/
+
+# .gitignore
+.env
