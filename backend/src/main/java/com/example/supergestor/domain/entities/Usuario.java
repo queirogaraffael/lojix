@@ -12,11 +12,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Data
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Usuario implements UserDetails {
 
     @Id

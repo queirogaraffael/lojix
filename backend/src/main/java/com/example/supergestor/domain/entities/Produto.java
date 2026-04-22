@@ -7,10 +7,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Entity
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Produto {
 
     @Id

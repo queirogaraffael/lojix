@@ -5,11 +5,12 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-@Entity
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Funcionario {
 
     @Id

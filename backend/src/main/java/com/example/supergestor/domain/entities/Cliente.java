@@ -5,11 +5,12 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@Entity
-@Data
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Cliente {
 
     @Id

@@ -10,11 +10,12 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Data
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Promocao {
 
     @Id
