@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>supergestor</artifactId>
+	<artifactId>lojix</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>supergestor</name>
-	<description>Demo project for Spring Boot</description>
+	<name>lojix</name>
+	<description>Lojix - Store Manager Pro</description>
 	<url/>
 
 
