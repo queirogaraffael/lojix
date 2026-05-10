@@ -1,4 +1,4 @@
-package com.example.lojix.util.builder.dtos;
+package com.example.lojix.util.builder.dto;
 
 import com.example.lojix.dto.promocao.PromocaoRequestDTO;
 import java.math.BigDecimal;

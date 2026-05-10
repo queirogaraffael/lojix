@@ -1,6 +1,6 @@
 package com.example.lojix.dto.usuario;
 
-import com.example.lojix.domain.enumss.UserRole;
+import com.example.lojix.domain.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

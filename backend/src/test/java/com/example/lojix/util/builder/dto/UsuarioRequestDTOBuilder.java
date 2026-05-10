@@ -1,4 +1,4 @@
-package com.example.lojix.util.builder.dtos;
+package com.example.lojix.util.builder.dto;
 
 import com.example.lojix.dto.usuario.UsuarioRequestDTO;
 import java.util.UUID;

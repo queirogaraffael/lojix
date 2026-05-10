@@ -1,6 +1,6 @@
 package com.example.lojix.domain.entity;
 
-import com.example.lojix.domain.enumss.UserRole;
+import com.example.lojix.domain.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

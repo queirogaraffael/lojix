@@ -1,7 +1,7 @@
 package com.example.lojix.service;
 
 import com.example.lojix.domain.entity.Cliente;
-import com.example.lojix.domain.enumss.UserRole;
+import com.example.lojix.domain.enums.UserRole;
 import com.example.lojix.infrastructure.repository.ClienteRepository;
 import com.example.lojix.infrastructure.repository.UsuarioRepository;
 import com.example.lojix.dto.cliente.ClienteRequestDTO;

@@ -1,4 +1,4 @@
-package com.example.lojix.util.builder.dtos;
+package com.example.lojix.util.builder.dto;
 
 import com.example.lojix.dto.cliente.ClienteRequestDTO;
 import java.time.LocalDate;

@@ -1,7 +1,7 @@
 package com.example.lojix.config;
 
 import com.example.lojix.domain.entity.Usuario;
-import com.example.lojix.domain.enumss.UserRole;
+import com.example.lojix.domain.enums.UserRole;
 import com.example.lojix.infrastructure.repository.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
