@@ -23,4 +23,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     """)
     Optional<Usuario> findByUsernameWithAssociations(@Param("username") String username);
 
+    @Query("""
+    SELECT u FROM Usuario u
+    LEFT JOIN FETCH u.funcionario
+    LEFT JOIN FETCH u.cliente
+    WHERE u.id = :id
+    """)
+    Optional<Usuario> findByIdWithAssociations(@Param("id") UUID id);
+
 }

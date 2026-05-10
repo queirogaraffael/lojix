@@ -9,8 +9,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import com.example.lojix.infrastructure.security.AuthenticatedUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Auth")
@@ -44,8 +46,8 @@ public class AuthController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     @GetMapping("/me")
-    public ResponseEntity<UserContextDTO> getUserContext() {
-        UserContextDTO context = authService.getUserContext();
+    public ResponseEntity<UserContextDTO> getUserContext(@AuthenticationPrincipal AuthenticatedUser principal) {
+        UserContextDTO context = authService.getUserContext(principal.getId());
         return ResponseEntity.ok(context);
     }
 }

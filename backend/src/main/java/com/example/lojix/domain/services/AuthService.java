@@ -16,12 +16,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @Slf4j
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final UsuarioService usuarioService;
     private final TokenService tokenService;
     private final FuncionarioMapper funcionarioMapper;
     private final ClienteMapper clienteMapper;
@@ -29,13 +30,11 @@ public class AuthService {
 
     public AuthService(
             AuthenticationManager authenticationManager,
-            UsuarioService usuarioService,
             TokenService tokenService,
             FuncionarioMapper funcionarioMapper,
             ClienteMapper clienteMapper, UsuarioRepository usuarioRepository
     ) {
         this.authenticationManager = authenticationManager;
-        this.usuarioService = usuarioService;
         this.tokenService = tokenService;
         this.funcionarioMapper = funcionarioMapper;
         this.clienteMapper = clienteMapper;
@@ -63,10 +62,12 @@ public class AuthService {
             throw e;
         }
     }
-    @Transactional
-    public UserContextDTO getUserContext() {
 
-        Usuario usuario = usuarioService.getAuthenticatedUser();
+    @Transactional
+    public UserContextDTO getUserContext(UUID userId) {
+
+        Usuario usuario = usuarioRepository.findByIdWithAssociations(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         ClienteResponseDTO cliente = clienteMapper.usuarioToClienteResponseDTO(usuario);
         FuncionarioResponseDTO funcionario = funcionarioMapper.usuarioToFuncionarioResponseDTO(usuario);
