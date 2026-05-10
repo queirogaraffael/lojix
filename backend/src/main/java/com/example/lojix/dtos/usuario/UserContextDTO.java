@@ -18,6 +18,6 @@ public class UserContextDTO {
     private String email;
     private String foto;
     private UserRole role;
-    private UUID clienteId;
-    private UUID funcionarioId;
+    private Long clienteId;
+    private Long funcionarioId;
 }

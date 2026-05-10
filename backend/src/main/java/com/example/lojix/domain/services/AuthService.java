@@ -60,8 +60,8 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByIdWithAssociations(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        UUID clienteId = usuario.getCliente() != null ? usuario.getCliente().getId() : null;
-        UUID funcionarioId = usuario.getFuncionario() != null ? usuario.getFuncionario().getId() : null;
+        Long clienteId = usuario.getCliente() != null ? usuario.getCliente().getId() : null;
+        Long funcionarioId = usuario.getFuncionario() != null ? usuario.getFuncionario().getId() : null;
         
         String fotoBase64 = null;
         if (usuario.getFoto() != null) {
