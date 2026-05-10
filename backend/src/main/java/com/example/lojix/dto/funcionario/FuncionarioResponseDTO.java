@@ -1,0 +1,19 @@
+package com.example.lojix.dto.funcionario;
+
+import com.example.lojix.dto.usuario.UsuarioResponseDTO;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class FuncionarioResponseDTO {
+
+    private Long id;
+    private String cargo;
+    private BigDecimal salario;
+    private UsuarioResponseDTO usuarioResponseDTO;
+}
