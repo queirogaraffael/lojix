@@ -9,7 +9,12 @@ import com.example.lojix.infrastructure.repositories.UsuarioRepository;
 import com.example.lojix.dtos.cliente.ClienteRequestDTO;
 import com.example.lojix.dtos.usuario.UsuarioRequestDTO;
 import com.example.lojix.utils.ConstantesRotasEndpoints;
-import com.example.lojix.utils.TestUtils;
+import com.example.lojix.utils.AuthTestFactory;
+import com.example.lojix.utils.TestAuthContext;
+import com.example.lojix.utils.builders.ClienteTestBuilder;
+import com.example.lojix.utils.builders.FuncionarioTestBuilder;
+import com.example.lojix.utils.builders.UsuarioTestBuilder;
+import com.example.lojix.utils.builders.dtos.ClienteRequestDTOBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +51,7 @@ class ClienteControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private TestUtils testUtils;
+    private AuthTestFactory authTestFactory;
 
     @Autowired
     private ClienteRepository clienteRepository;
@@ -67,32 +72,11 @@ class ClienteControllerTest {
         usuarioRepository.deleteAll();
     }
 
-    private ClienteRequestDTO createValidClienteRequestDTO(String cpfSuffix) {
-        String uniqueSuffix = UUID.randomUUID().toString().substring(0, 8);
-        String uniqueCpf = "123456789" + cpfSuffix;
-        String uniqueUsername = "client_user_" + uniqueSuffix;
-        String uniqueEmail = "client_" + uniqueSuffix + "@test.com";
-
-        UsuarioRequestDTO usuarioDTO = new UsuarioRequestDTO(
-                "Client Test " + uniqueSuffix,
-                null,
-                uniqueUsername,
-                uniqueCpf,
-                uniqueEmail,
-                TestUtils.DEFAULT_RAW_PASSWORD
-        );
-        return new ClienteRequestDTO(LocalDate.now(), usuarioDTO);
-    }
-
-    private Cliente createAndSaveClientePrecondition(String name) {
-        return testUtils.createAndSaveClientePrecondition(name);
-    }
-
     @Test
     void testCreateClienteSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        ClienteRequestDTO requestDTO = createValidClienteRequestDTO("00");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        ClienteRequestDTO requestDTO = ClienteRequestDTOBuilder.criarValido("00");
 
         String json = objectMapper.writeValueAsString(requestDTO);
 
@@ -108,14 +92,19 @@ class ClienteControllerTest {
 
     @Test
     void testCreateClienteConflictUserExists() throws Exception {
-        Funcionario preconditionFunc = testUtils.createAndSaveFuncionarioPrecondition("conflict_func", "Cargo", BigDecimal.ONE);
+        Funcionario preconditionFunc = FuncionarioTestBuilder.novo()
+                .comCargo("Cargo")
+                .comSalario(BigDecimal.ONE)
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("conflict_func").comRole(UserRole.FUNCIONARIO))
+                .build();
+        funcionarioRepository.save(preconditionFunc);
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.FUNCIONARIO);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
 
         String existingCpf = preconditionFunc.getUsuario().getCpf();
 
-        ClienteRequestDTO requestDTO = createValidClienteRequestDTO("99");
+        ClienteRequestDTO requestDTO = ClienteRequestDTOBuilder.criarValido("99");
         requestDTO.getUsuarioRequestDTO().setCpf(existingCpf);
         requestDTO.getUsuarioRequestDTO().setUsername("unique_user_name_for_conflict");
         requestDTO.getUsuarioRequestDTO().setEmail("unique_email_for_conflict@test.com");
@@ -132,10 +121,13 @@ class ClienteControllerTest {
 
     @Test
     void testGetClienteByIdSuccess() throws Exception {
-        Cliente savedCliente = createAndSaveClientePrecondition("client_for_get");
+        Cliente c = ClienteTestBuilder.novo()
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("client_for_get").comRole(UserRole.CLIENTE))
+                .build();
+        Cliente savedCliente = clienteRepository.save(c);
 
-        Map<String, String> authAdmin = testUtils.createAndAuthenticateAdmin();
-        String token = authAdmin.get("token");
+        TestAuthContext authAdmin = authTestFactory.authenticateAsAdmin();
+        String token = authAdmin.token();
 
         Long clienteId = savedCliente.getId();
 
@@ -149,8 +141,8 @@ class ClienteControllerTest {
     @Test
     void testGetClienteByIdNotFound() throws Exception {
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.FUNCIONARIO);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
         Long nonExistentId = 999L;
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CLIENTES + "/{id}", nonExistentId)
@@ -160,12 +152,12 @@ class ClienteControllerTest {
 
     @Test
     void testGetClientesPaginadosSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
 
-        createAndSaveClientePrecondition("cli_pag_1");
-        createAndSaveClientePrecondition("cli_pag_2");
-        createAndSaveClientePrecondition("cli_pag_3");
+        clienteRepository.save(ClienteTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("cli_pag_1").comRole(UserRole.CLIENTE)).build());
+        clienteRepository.save(ClienteTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("cli_pag_2").comRole(UserRole.CLIENTE)).build());
+        clienteRepository.save(ClienteTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("cli_pag_3").comRole(UserRole.CLIENTE)).build());
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CLIENTES)
                         .header("Authorization", "Bearer " + token)

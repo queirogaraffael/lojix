@@ -6,7 +6,8 @@ import com.example.lojix.infrastructure.repositories.*;
 import com.example.lojix.dtos.categoria.CategoriaRequestDTO;
 import com.example.lojix.dtos.categoria.CategoriaUpdateDTO;
 import com.example.lojix.utils.ConstantesRotasEndpoints;
-import com.example.lojix.utils.TestUtils;
+import com.example.lojix.utils.AuthTestFactory;
+import com.example.lojix.utils.TestAuthContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ class CategoriaControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private TestUtils testUtils;
+    private AuthTestFactory authTestFactory;
 
     @Autowired
     private CategoriaRepository categoriaRepository;
@@ -63,15 +64,10 @@ class CategoriaControllerTest {
         categoriaRepository.deleteAll();
     }
 
-    private Categoria createAndSaveCategoria(String name) {
-        Categoria categoria = new Categoria(null, name, null);
-        return categoriaRepository.save(categoria);
-    }
-
     @Test
     void testCreateCategoriaSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
 
         CategoriaRequestDTO requestDTO = new CategoriaRequestDTO("Eletrônicos");
         String json = objectMapper.writeValueAsString(requestDTO);
@@ -99,9 +95,9 @@ class CategoriaControllerTest {
 
     @Test
     void testGetCategoriaByIdSuccess() throws Exception {
-        Map<String, String> authData = testUtils.createAndAuthenticateFuncionario("get_cat");
-        String token = authData.get("token");
-        Categoria savedCategoria = createAndSaveCategoria("Livros");
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
+        Categoria savedCategoria = categoriaRepository.save(new Categoria(null, "Livros", null));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CATEGORIAS + "/{id}", savedCategoria.getId())
                         .header("Authorization", "Bearer " + token))
@@ -113,8 +109,8 @@ class CategoriaControllerTest {
     @Test
     void testGetCategoriaByIdNotFound() throws Exception {
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
         Long nonExistentId = 999L;
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CATEGORIAS + "/{id}", nonExistentId)
@@ -124,10 +120,10 @@ class CategoriaControllerTest {
 
     @Test
     void testGetCategoriasPaginadosSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        createAndSaveCategoria("C1");
-        createAndSaveCategoria("C2");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        categoriaRepository.save(new Categoria(null, "C1", null));
+        categoriaRepository.save(new Categoria(null, "C2", null));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_CATEGORIAS)
                         .header("Authorization", "Bearer " + token)
@@ -141,9 +137,9 @@ class CategoriaControllerTest {
     @Test
     void testUpdateCategoriaSuccess() throws Exception {
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Categoria savedCategoria = createAndSaveCategoria("Antigo Nome");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Categoria savedCategoria = categoriaRepository.save(new Categoria(null, "Antigo Nome", null));
 
         CategoriaUpdateDTO updateDTO = new CategoriaUpdateDTO("Novo Nome");
         String json = objectMapper.writeValueAsString(updateDTO);
@@ -159,9 +155,9 @@ class CategoriaControllerTest {
 
     @Test
     void testUpdateCategoriaForbiddenForClient() throws Exception {
-        Map<String, String> authData = testUtils.createAndAuthenticateCliente("forbid_cat");
-        String token = authData.get("token");
-        Categoria savedCategoria = createAndSaveCategoria("Nome");
+        TestAuthContext authData = authTestFactory.authenticateAsCliente();
+        String token = authData.token();
+        Categoria savedCategoria = categoriaRepository.save(new Categoria(null, "Nome", null));
 
         CategoriaUpdateDTO updateDTO = new CategoriaUpdateDTO("Novo Nome");
         String json = objectMapper.writeValueAsString(updateDTO);

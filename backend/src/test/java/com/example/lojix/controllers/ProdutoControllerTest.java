@@ -7,7 +7,9 @@ import com.example.lojix.infrastructure.repositories.*;
 import com.example.lojix.dtos.produtos.ProdutoRequestDTO;
 import com.example.lojix.dtos.produtos.ProdutoUpdateDTO;
 import com.example.lojix.utils.ConstantesRotasEndpoints;
-import com.example.lojix.utils.TestUtils;
+import com.example.lojix.utils.AuthTestFactory;
+import com.example.lojix.utils.TestAuthContext;
+import com.example.lojix.utils.builders.dtos.ProdutoRequestDTOBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,7 @@ class ProdutoControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private TestUtils testUtils;
+    private AuthTestFactory authTestFactory;
 
     @Autowired
     private ProdutoRepository produtoRepository;
@@ -57,8 +59,7 @@ class ProdutoControllerTest {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    private Categoria categoria1;
-    private Categoria categoria2;
+
 
     @BeforeEach
     void setup() {
@@ -67,48 +68,31 @@ class ProdutoControllerTest {
         produtoRepository.deleteAll();
         categoriaRepository.deleteAll();
         usuarioRepository.deleteAll();
-
-        categoria1 = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
-        categoria2 = categoriaRepository.save(new Categoria(null, "Roupas", null));
-    }
-
-    private ProdutoRequestDTO createValidProdutoRequestDTO() {
-        return new ProdutoRequestDTO(
-                "Smartphone X",
-                new BigDecimal("1500.00"),
-                "Descrição do produto",
-                LocalDate.now().plusDays(10)
-        );
-    }
-
-    private Produto createAndSaveProduto(String name, Categoria categoria, boolean ativo) {
-        Produto produto = new Produto(null, name, new BigDecimal("10.00"), ativo, "Desc", LocalDate.now().plusDays(1), null, categoria);
-        return produtoRepository.save(produto);
     }
 
     @Test
     void testCreateProdutoSuccess() throws Exception {
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        ProdutoRequestDTO requestDTO = createValidProdutoRequestDTO();
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        ProdutoRequestDTO requestDTO = ProdutoRequestDTOBuilder.criarValido();
         String json = objectMapper.writeValueAsString(requestDTO);
-
-        mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/categoria/{idCategoria}", categoria1.getId())
+        Categoria categoria = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
+        mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/categoria/{idCategoria}", categoria.getId())
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.nome").value(requestDTO.getNome()))
-                .andExpect(jsonPath("$.categoriaId").value(categoria1.getId()));
+                .andExpect(jsonPath("$.categoriaId").value(categoria.getId()));
     }
 
     @Test
     void testCreateProdutoInvalidCategory() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        ProdutoRequestDTO requestDTO = createValidProdutoRequestDTO();
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        ProdutoRequestDTO requestDTO = ProdutoRequestDTOBuilder.criarValido();
         String json = objectMapper.writeValueAsString(requestDTO);
         Long nonExistentId = 999L;
 
@@ -121,26 +105,30 @@ class ProdutoControllerTest {
 
     @Test
     void testGetProdutoByIdSuccess() throws Exception {
-        Map<String, String> authData = testUtils.createAndAuthenticateFuncionario("get_prod");
-        String token = authData.get("token");
-        Produto savedProduto = createAndSaveProduto("Tablet Pro", categoria1, true);
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
+        Categoria categoria = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
+        Produto savedProduto = produtoRepository.save(new Produto(null, "Tablet Pro", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/{id}", savedProduto.getId())
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedProduto.getId()))
                 .andExpect(jsonPath("$.nome").value(savedProduto.getNome()))
-                .andExpect(jsonPath("$.categoriaId").value(categoria1.getId()));
+                .andExpect(jsonPath("$.categoriaId").value(categoria.getId()));
     }
 
     @Test
     void testGetProdutosPaginadosSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        createAndSaveProduto("P1", categoria1, true);
-        createAndSaveProduto("P2", categoria1, true);
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Categoria categoria1 = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
+        Categoria categoria2 = categoriaRepository.save(new Categoria(null, "Roupas", null));
 
-        createAndSaveProduto("P3", categoria2, false);
+        produtoRepository.save(new Produto(null, "P1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
+        produtoRepository.save(new Produto(null, "P2", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
+
+        produtoRepository.save(new Produto(null, "P3", new BigDecimal("10.00"), false, "Desc", LocalDate.now().plusDays(1), null, categoria2));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PRODUTOS)
                         .header("Authorization", "Bearer " + token)
@@ -153,11 +141,14 @@ class ProdutoControllerTest {
 
     @Test
     void testGetProdutosPaginadosByCategoriaIdSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        createAndSaveProduto("P-Cat1-1", categoria1, true);
-        createAndSaveProduto("P-Cat1-2", categoria1, true);
-        createAndSaveProduto("P-Cat2-1", categoria2, true);
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Categoria categoria1 = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
+        Categoria categoria2 = categoriaRepository.save(new Categoria(null, "Roupas", null));
+
+        produtoRepository.save(new Produto(null, "P-Cat1-1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
+        produtoRepository.save(new Produto(null, "P-Cat1-2", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
+        produtoRepository.save(new Produto(null, "P-Cat2-1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria2));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/categoria/{idCategoria}", categoria1.getId())
                         .header("Authorization", "Bearer " + token))
@@ -172,9 +163,10 @@ class ProdutoControllerTest {
 
     @Test
     void testUpdateProdutoSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Produto savedProduto = createAndSaveProduto("Old Name", categoria1, true);
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Categoria categoria = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
+        Produto savedProduto = produtoRepository.save(new Produto(null, "Old Name", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria));
 
         ProdutoUpdateDTO updateDTO = new ProdutoUpdateDTO(
                 "New Name",
@@ -195,9 +187,10 @@ class ProdutoControllerTest {
 
     @Test
     void testDesativarProdutoSuccess() throws Exception {
-        Map<String, String> authData = testUtils.createAndAuthenticateFuncionario("deact_prod");
-        String token = authData.get("token");
-        Produto savedProduto = createAndSaveProduto("Deactivate Product", categoria1, true);
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
+        Categoria categoria = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
+        Produto savedProduto = produtoRepository.save(new Produto(null, "Deactivate Product", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria));
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/{id}/desativar", savedProduto.getId())
                         .header("Authorization", "Bearer " + token))

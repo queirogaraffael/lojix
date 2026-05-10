@@ -7,7 +7,9 @@ import com.example.lojix.domain.enums.UserRole;
 import com.example.lojix.infrastructure.repositories.*;
 import com.example.lojix.dtos.promocao.PromocaoRequestDTO;
 import com.example.lojix.utils.ConstantesRotasEndpoints;
-import com.example.lojix.utils.TestUtils;
+import com.example.lojix.utils.AuthTestFactory;
+import com.example.lojix.utils.TestAuthContext;
+import com.example.lojix.utils.builders.dtos.PromocaoRequestDTOBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,7 @@ class PromocaoControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private TestUtils testUtils;
+    private AuthTestFactory authTestFactory;
 
     @Autowired
     private PromocaoRepository promocaoRepository;
@@ -59,10 +61,6 @@ class PromocaoControllerTest {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    private Categoria categoria;
-    private Produto produto1;
-    private Produto produto2;
-
     @BeforeEach
     void setup() {
         funcionarioRepository.deleteAll();
@@ -71,32 +69,13 @@ class PromocaoControllerTest {
         categoriaRepository.deleteAll();
         promocaoRepository.deleteAll();
         usuarioRepository.deleteAll();
-
-        categoria = categoriaRepository.save(new Categoria(null, "Diversos", null));
-        produto1 = produtoRepository.save(new Produto(null, "P1", BigDecimal.TEN, true, "D1", LocalDate.now().plusDays(1), null, categoria));
-        produto2 = produtoRepository.save(new Produto(null, "P2", BigDecimal.ONE, true, "D2", LocalDate.now().plusDays(1), null, categoria));
-    }
-
-    private PromocaoRequestDTO createValidPromocaoRequestDTO(String name) {
-        return new PromocaoRequestDTO(
-                name,
-                new BigDecimal("0.15"),
-                LocalDate.now(),
-                LocalDate.now().plusDays(30)
-        );
-    }
-
-    private Promocao createAndSavePromocao(String name) {
-        PromocaoRequestDTO requestDTO = createValidPromocaoRequestDTO(name);
-        Promocao promocao = new Promocao(null, requestDTO.getNome(), requestDTO.getTaxaDeDesconto(), requestDTO.getInicio(), requestDTO.getFim(), true, null);
-        return promocaoRepository.save(promocao);
     }
 
     @Test
     void testCreatePromocaoSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        PromocaoRequestDTO requestDTO = createValidPromocaoRequestDTO("Promo Teste");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        PromocaoRequestDTO requestDTO = PromocaoRequestDTOBuilder.criarValido("Promo Teste");
         String json = objectMapper.writeValueAsString(requestDTO);
 
         mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_PROMOCOES)
@@ -111,9 +90,9 @@ class PromocaoControllerTest {
 
     @Test
     void testDesativarPromocaoSuccess() throws Exception {
-        Map<String, String> authData = testUtils.createAndAuthenticateFuncionario("deact_promo");
-        String token = authData.get("token");
-        Promocao savedPromocao = createAndSavePromocao("Promo to Deactivate");
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo to Deactivate", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{idPromocao}/desativar", savedPromocao.getId())
                         .header("Authorization", "Bearer " + token))
@@ -126,9 +105,11 @@ class PromocaoControllerTest {
     @Test
     void testAssociarPromocaoAProdutoSuccess() throws Exception {
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Promocao savedPromocao = createAndSavePromocao("Promo for Product");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Categoria categoria = categoriaRepository.save(new Categoria(null, "Diversos", null));
+        Produto produto1 = produtoRepository.save(new Produto(null, "P1", BigDecimal.TEN, true, "D1", LocalDate.now().plusDays(1), null, categoria));
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo for Product", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PROMOCOES+ "/{idPromocao}/associar/{idProduto}", savedPromocao.getId(), produto1.getId())
                         .header("Authorization", "Bearer " + token))
@@ -141,9 +122,12 @@ class PromocaoControllerTest {
     @Test
     void testRemoverPromocaoProdutoSuccess() throws Exception {
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Promocao savedPromocao = createAndSavePromocao("Promo to Remove");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo to Remove", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+
+        Categoria categoria = categoriaRepository.save(new Categoria(null, "Diversos", null));
+        Produto produto2 = produtoRepository.save(new Produto(null, "P2", BigDecimal.ONE, true, "D2", LocalDate.now().plusDays(1), null, categoria));
 
         Produto produtoWithPromo = produtoRepository.findById(produto2.getId()).get();
         produtoWithPromo.setPromocao(savedPromocao);
@@ -160,9 +144,11 @@ class PromocaoControllerTest {
     @Test
     void testAssociarPromocaoAProdutoNotFound() throws Exception {
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Promocao savedPromocao = createAndSavePromocao("Promo for Product");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Categoria categoria = categoriaRepository.save(new Categoria(null, "Diversos", null));
+        Produto produto1 = produtoRepository.save(new Produto(null, "P1", BigDecimal.TEN, true, "D1", LocalDate.now().plusDays(1), null, categoria));
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo for Product", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
         Long nonExistentId = 999L;
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{idPromocao}/associar/{idProduto}", savedPromocao.getId(), nonExistentId)
@@ -176,10 +162,10 @@ class PromocaoControllerTest {
 
     @Test
     void testGetPromocaoByIdSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
 
-        Promocao savedPromocao = createAndSavePromocao("Promo Buscar ID");
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo Buscar ID", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{id}", savedPromocao.getId())
                         .header("Authorization", "Bearer " + token))
@@ -192,8 +178,8 @@ class PromocaoControllerTest {
 
     @Test
     void testGetPromocaoByIdNotFound() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.FUNCIONARIO);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
 
         Long nonExistentId = 999L;
 
@@ -204,12 +190,12 @@ class PromocaoControllerTest {
 
     @Test
     void testGetPromocoesAtivasPaginadasSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
 
-        createAndSavePromocao("Promo 1");
-        createAndSavePromocao("Promo 2");
-        createAndSavePromocao("Promo 3");
+        promocaoRepository.save(new Promocao(null, "Promo 1", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        promocaoRepository.save(new Promocao(null, "Promo 2", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        promocaoRepository.save(new Promocao(null, "Promo 3", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PROMOCOES)
                         .header("Authorization", "Bearer " + token)

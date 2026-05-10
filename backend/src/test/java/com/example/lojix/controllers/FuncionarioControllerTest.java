@@ -10,7 +10,11 @@ import com.example.lojix.dtos.funcionario.FuncionarioUpdateDTO;
 import com.example.lojix.dtos.usuario.UsuarioRequestDTO;
 import com.example.lojix.dtos.usuario.UsuarioUpdateDTO;
 import com.example.lojix.utils.ConstantesRotasEndpoints;
-import com.example.lojix.utils.TestUtils;
+import com.example.lojix.utils.AuthTestFactory;
+import com.example.lojix.utils.TestAuthContext;
+import com.example.lojix.utils.builders.FuncionarioTestBuilder;
+import com.example.lojix.utils.builders.UsuarioTestBuilder;
+import com.example.lojix.utils.builders.dtos.FuncionarioRequestDTOBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +47,7 @@ class FuncionarioControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private TestUtils testUtils;
+    private AuthTestFactory authTestFactory;
 
     @Autowired
     private FuncionarioRepository funcionarioRepository;
@@ -61,32 +65,11 @@ class FuncionarioControllerTest {
         usuarioRepository.deleteAll();
     }
 
-    private FuncionarioRequestDTO createValidFuncionarioRequestDTO(String cpfSuffix) {
-        String uniqueSuffix = UUID.randomUUID().toString().substring(0, 8);
-        String uniqueCpf = "123456789" + cpfSuffix;
-        String uniqueUsername = "func_user_" + uniqueSuffix;
-        String uniqueEmail = "func_" + uniqueSuffix + "@test.com";
-
-        UsuarioRequestDTO usuarioDTO = new UsuarioRequestDTO(
-                "Func Test " + uniqueSuffix,
-                null,
-                uniqueUsername,
-                uniqueCpf,
-                uniqueEmail,
-                TestUtils.DEFAULT_RAW_PASSWORD
-        );
-        return new FuncionarioRequestDTO("Gerente", new BigDecimal("5000.00"), usuarioDTO);
-    }
-
-    private Funcionario createAndSaveFuncionarioPrecondition(String name) {
-        return testUtils.createAndSaveFuncionarioPrecondition(name, "Vendedor", BigDecimal.valueOf(2500.00));
-    }
-
     @Test
     void testCreateFuncionarioSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("00");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        FuncionarioRequestDTO requestDTO = FuncionarioRequestDTOBuilder.criarValido("00");
         String json = objectMapper.writeValueAsString(requestDTO);
 
         mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS)
@@ -100,14 +83,19 @@ class FuncionarioControllerTest {
 
     @Test
     void testCreateFuncionarioConflictUserExists() throws Exception {
-        Funcionario preconditionFunc = createAndSaveFuncionarioPrecondition("pre_func");
+        Funcionario preconditionFunc = FuncionarioTestBuilder.novo()
+                .comCargo("Vendedor")
+                .comSalario(BigDecimal.valueOf(2500.00))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("pre_func").comRole(UserRole.FUNCIONARIO))
+                .build();
+        funcionarioRepository.save(preconditionFunc);
 
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
 
         String existingCpf = preconditionFunc.getUsuario().getCpf();
 
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("99");
+        FuncionarioRequestDTO requestDTO = FuncionarioRequestDTOBuilder.criarValido("99");
         requestDTO.getUsuarioRequestDTO().setCpf(existingCpf);
         requestDTO.getUsuarioRequestDTO().setUsername("unique_user_name_for_conflict");
         requestDTO.getUsuarioRequestDTO().setEmail("unique_email_for_conflict@test.com");
@@ -125,7 +113,7 @@ class FuncionarioControllerTest {
 
     @Test
     void testCreateFuncionarioUnauthorized() throws Exception {
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("11");
+        FuncionarioRequestDTO requestDTO = FuncionarioRequestDTOBuilder.criarValido("11");
         String json = objectMapper.writeValueAsString(requestDTO);
 
         mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS)
@@ -136,9 +124,9 @@ class FuncionarioControllerTest {
 
     @Test
     void testCreateFuncionarioForbiddenForFunctionary() throws Exception {
-        Map<String, String> authData = testUtils.createAndAuthenticateFuncionario("forbid_func");
-        String token = authData.get("token");
-        FuncionarioRequestDTO requestDTO = createValidFuncionarioRequestDTO("05");
+        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        String token = authData.token();
+        FuncionarioRequestDTO requestDTO = FuncionarioRequestDTOBuilder.criarValido("05");
         String json = objectMapper.writeValueAsString(requestDTO);
 
         mockMvc.perform(post(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS)
@@ -150,9 +138,14 @@ class FuncionarioControllerTest {
 
     @Test
     void testGetFuncionarioByIdSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Funcionario savedFuncionario = createAndSaveFuncionarioPrecondition("get_func");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Funcionario savedFuncionario = FuncionarioTestBuilder.novo()
+                .comCargo("Vendedor")
+                .comSalario(BigDecimal.valueOf(2500.00))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("get_func").comRole(UserRole.FUNCIONARIO))
+                .build();
+        funcionarioRepository.save(savedFuncionario);
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS + "/{id}", savedFuncionario.getId())
                         .header("Authorization", "Bearer " + token))
@@ -163,12 +156,12 @@ class FuncionarioControllerTest {
 
     @Test
     void testGetFuncionariosAtivosPaginadosSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
 
-        createAndSaveFuncionarioPrecondition("func1");
-        Funcionario func2 = createAndSaveFuncionarioPrecondition("func2");
-        createAndSaveFuncionarioPrecondition("func3");
+        funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func1").comRole(UserRole.FUNCIONARIO)).build());
+        Funcionario func2 = funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func2").comRole(UserRole.FUNCIONARIO)).build());
+        funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func3").comRole(UserRole.FUNCIONARIO)).build());
 
         funcionarioRepository.atualizaStatusFuncionario(func2.getId(), false);
 
@@ -183,9 +176,14 @@ class FuncionarioControllerTest {
 
     @Test
     void testUpdateFuncionarioSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Funcionario savedFuncionario = createAndSaveFuncionarioPrecondition("update_func");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Funcionario savedFuncionario = FuncionarioTestBuilder.novo()
+                .comCargo("Vendedor")
+                .comSalario(BigDecimal.valueOf(2500.00))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("update_func").comRole(UserRole.FUNCIONARIO))
+                .build();
+        funcionarioRepository.save(savedFuncionario);
 
         FuncionarioUpdateDTO updateDTO = new FuncionarioUpdateDTO(
                 "Supervisor",
@@ -205,9 +203,14 @@ class FuncionarioControllerTest {
 
     @Test
     void testDesligarFuncionarioSuccess() throws Exception {
-        Map<String, String> authData = testUtils.authenticateAs(UserRole.ADMIN);
-        String token = authData.get("token");
-        Funcionario savedFuncionario = createAndSaveFuncionarioPrecondition("deactivate_func");
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
+        String token = authData.token();
+        Funcionario savedFuncionario = FuncionarioTestBuilder.novo()
+                .comCargo("Vendedor")
+                .comSalario(BigDecimal.valueOf(2500.00))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("deactivate_func").comRole(UserRole.FUNCIONARIO))
+                .build();
+        funcionarioRepository.save(savedFuncionario);
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_FUNCIONARIOS + "/{id}/desligar", savedFuncionario.getId())
                         .header("Authorization", "Bearer " + token))
