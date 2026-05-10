@@ -6,15 +6,18 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.lojix.domain.entities.Usuario;
-import com.example.lojix.infrastructure.repositories.UsuarioRepository;
 import com.example.lojix.shared.exceptions.TokenCreationException;
 import com.example.lojix.shared.exceptions.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -29,18 +32,20 @@ public class TokenService {
     @Value("${api.security.token.issuer}")
     private String issuer;
 
-    private final UsuarioRepository usuarioRepository;
-
-    public TokenService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public TokenService() {
     }
 
     public String generateToken(Usuario usuario) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
+            List<String> authorities = usuario.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+
             return JWT.create()
                     .withIssuer(issuer)
-                    .withSubject(usuario.getUsername())
+                    .withSubject(usuario.getId().toString())
+                    .withClaim("roles", authorities)
                     .withIssuedAt(new Date())
                     .withExpiresAt(Date.from(Instant.now().plus(expirationHours, ChronoUnit.HOURS)))
                     .sign(algorithm);
@@ -49,15 +54,22 @@ public class TokenService {
         }
     }
 
-    public String validateToken(String token) {
+    public AuthenticatedUser validateToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             DecodedJWT decoded = JWT.require(algorithm)
                     .withIssuer(issuer)
                     .build()
                     .verify(token);
-            return decoded.getSubject();
-        } catch (JWTVerificationException e) {
+                    
+            UUID userId = UUID.fromString(decoded.getSubject());
+            List<String> roles = decoded.getClaim("roles").asList(String.class);
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .toList();
+                    
+            return new AuthenticatedUser(userId, authorities);
+        } catch (JWTVerificationException | IllegalArgumentException e) {
             throw new TokenValidationException("Token inválido ou expirado", e);
         }
     }

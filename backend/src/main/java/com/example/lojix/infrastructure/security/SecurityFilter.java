@@ -1,7 +1,5 @@
 package com.example.lojix.infrastructure.security;
 
-import com.example.lojix.domain.entities.Usuario;
-import com.example.lojix.infrastructure.repositories.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,17 +10,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final UsuarioRepository usuarioRepository;
 
-    public SecurityFilter(TokenService tokenService, UsuarioRepository usuarioRepository) {
+    public SecurityFilter(TokenService tokenService) {
         this.tokenService = tokenService;
-        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -31,31 +26,14 @@ public class SecurityFilter extends OncePerRequestFilter {
         try {
             String token = recoverToken(request);
             if (token != null) {
-                String username = tokenService.validateToken(token);
+                AuthenticatedUser authenticatedUser = tokenService.validateToken(token);
 
+                if (authenticatedUser != null) {
+                    var authentication = new UsernamePasswordAuthenticationToken(
+                            authenticatedUser, null, authenticatedUser.getAuthorities());
 
-
-
-
-
-                if (username != null) {
-                    Optional<Usuario> user = usuarioRepository.findByUsername(username);
-                    if (user.isPresent()) {
-
-                        var usuario = user.get();
-
-                        var authentication = new UsernamePasswordAuthenticationToken(
-                                usuario, null, user.get().getAuthorities());
-
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-
-
-
-
-
-
             }
         } catch (Exception e) {
             logger.warn("Erro na autenticação: " + e.getMessage());
