@@ -6,6 +6,7 @@ import com.example.lojix.infrastructure.security.TokenService;
 import com.example.lojix.dto.auth.LoginDTO;
 import com.example.lojix.dto.auth.TokenResponseDTO;
 import com.example.lojix.dto.usuario.UserContextDTO;
+import com.example.lojix.shared.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,7 +59,7 @@ public class AuthService {
     public UserContextDTO getUserContext(UUID userId) {
 
         Usuario usuario = usuarioRepository.findByIdWithAssociations(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         Long clienteId = usuario.getCliente() != null ? usuario.getCliente().getId() : null;
         Long funcionarioId = usuario.getFuncionario() != null ? usuario.getFuncionario().getId() : null;
