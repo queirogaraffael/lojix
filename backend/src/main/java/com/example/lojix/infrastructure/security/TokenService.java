@@ -69,7 +69,7 @@ public class TokenService {
                     .toList();
                     
             return new AuthenticatedUser(userId, authorities);
-        } catch (JWTVerificationException | IllegalArgumentException e) {
+        } catch (JWTVerificationException  e) {
             throw new TokenValidationException("Token inválido ou expirado", e);
         }
     }

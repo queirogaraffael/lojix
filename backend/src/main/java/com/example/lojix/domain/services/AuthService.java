@@ -5,11 +5,7 @@ import com.example.lojix.infrastructure.repositories.UsuarioRepository;
 import com.example.lojix.infrastructure.security.TokenService;
 import com.example.lojix.dtos.auth.LoginDTO;
 import com.example.lojix.dtos.auth.TokenResponseDTO;
-import com.example.lojix.dtos.cliente.ClienteResponseDTO;
-import com.example.lojix.dtos.funcionario.FuncionarioResponseDTO;
 import com.example.lojix.dtos.usuario.UserContextDTO;
-import com.example.lojix.mappers.ClienteMapper;
-import com.example.lojix.mappers.FuncionarioMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,20 +20,15 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final FuncionarioMapper funcionarioMapper;
-    private final ClienteMapper clienteMapper;
     private final UsuarioRepository usuarioRepository;
 
     public AuthService(
             AuthenticationManager authenticationManager,
             TokenService tokenService,
-            FuncionarioMapper funcionarioMapper,
-            ClienteMapper clienteMapper, UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository
     ) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
-        this.funcionarioMapper = funcionarioMapper;
-        this.clienteMapper = clienteMapper;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -63,16 +54,30 @@ public class AuthService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserContextDTO getUserContext(UUID userId) {
 
         Usuario usuario = usuarioRepository.findByIdWithAssociations(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        ClienteResponseDTO cliente = clienteMapper.usuarioToClienteResponseDTO(usuario);
-        FuncionarioResponseDTO funcionario = funcionarioMapper.usuarioToFuncionarioResponseDTO(usuario);
+        UUID clienteId = usuario.getCliente() != null ? usuario.getCliente().getId() : null;
+        UUID funcionarioId = usuario.getFuncionario() != null ? usuario.getFuncionario().getId() : null;
+        
+        String fotoBase64 = null;
+        if (usuario.getFoto() != null) {
+            fotoBase64 = java.util.Base64.getEncoder().encodeToString(usuario.getFoto());
+        }
 
-        return new UserContextDTO(cliente, funcionario);
+        return new UserContextDTO(
+                usuario.getId(),
+                usuario.getName(),
+                usuario.getUsername(),
+                usuario.getEmail(),
+                fotoBase64,
+                usuario.getRole(),
+                clienteId,
+                funcionarioId
+        );
     }
 
 }
