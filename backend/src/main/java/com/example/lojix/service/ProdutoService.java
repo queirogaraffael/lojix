@@ -7,7 +7,7 @@ import com.example.lojix.infrastructure.repository.ProdutoRepository;
 import com.example.lojix.dto.produto.ProdutoRequestDTO;
 import com.example.lojix.dto.produto.ProdutoResponseDTO;
 import com.example.lojix.dto.produto.ProdutoUpdateDTO;
-import com.example.lojix.shared.exception.ResourceNotFoundException;
+import com.example.lojix.common.exception.ResourceNotFoundException;
 import com.example.lojix.mapper.ProdutoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

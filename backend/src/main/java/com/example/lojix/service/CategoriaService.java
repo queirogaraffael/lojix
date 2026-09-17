@@ -5,7 +5,7 @@ import com.example.lojix.infrastructure.repository.CategoriaRepository;
 import com.example.lojix.dto.categoria.CategoriaRequestDTO;
 import com.example.lojix.dto.categoria.CategoriaResponseDTO;
 import com.example.lojix.dto.categoria.CategoriaUpdateDTO;
-import com.example.lojix.shared.exception.ResourceNotFoundException;
+import com.example.lojix.common.exception.ResourceNotFoundException;
 import com.example.lojix.mapper.CategoriaMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;

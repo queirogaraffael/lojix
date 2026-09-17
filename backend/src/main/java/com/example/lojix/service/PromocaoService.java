@@ -6,7 +6,7 @@ import com.example.lojix.infrastructure.repository.ProdutoRepository;
 import com.example.lojix.infrastructure.repository.PromocaoRepository;
 import com.example.lojix.dto.promocao.PromocaoRequestDTO;
 import com.example.lojix.dto.promocao.PromocaoResponseDTO;
-import com.example.lojix.shared.exception.ResourceNotFoundException;
+import com.example.lojix.common.exception.ResourceNotFoundException;
 import com.example.lojix.mapper.PromocaoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
