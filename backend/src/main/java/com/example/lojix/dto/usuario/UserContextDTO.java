@@ -16,7 +16,7 @@ public class UserContextDTO {
     private String name;
     private String username;
     private String email;
-    private String foto;
+    private String fotoUrl;
     private UserRole role;
     private Long clienteId;
     private Long funcionarioId;

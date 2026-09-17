@@ -24,5 +24,5 @@ public class UsuarioResponseDTO {
     private String username;
     private String email;
     private String cpf;
-    private String fotoPerfilBase64;
+    private String fotoUrl;
 }
