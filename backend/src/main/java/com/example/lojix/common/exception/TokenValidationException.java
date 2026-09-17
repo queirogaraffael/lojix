@@ -1,4 +1,4 @@
-package com.example.lojix.shared.exception;
+package com.example.lojix.common.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 

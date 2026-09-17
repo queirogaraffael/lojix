@@ -1,4 +1,4 @@
-package com.example.lojix.shared.exception;
+package com.example.lojix.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,5 +89,15 @@ public class CustomExceptionHandler {
     @ExceptionHandler(UsuarioJaExisteException.class)
     public ResponseEntity<Object> handleUsuarioJaExisteException(UsuarioJaExisteException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<Object> handleInvalidFileException(InvalidFileException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StorageException.class)
+    public ResponseEntity<Object> handleStorageException(StorageException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_GATEWAY);
     }
 }

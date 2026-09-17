@@ -1,4 +1,4 @@
-package com.example.lojix.shared.exception;
+package com.example.lojix.common.exception;
 
 public class UserAlreadyExistsException extends RuntimeException {
 
