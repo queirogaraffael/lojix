@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Modal } from '../../components/Modal/Modal';
+import Avatar from '../../components/Avatar/Avatar';
 import { FuncionarioForm } from './FuncionarioForm';
 import './Funcionarios.css';
 
@@ -152,7 +153,18 @@ export const Funcionarios = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={funcionarioAtual ? 'Editar Funcionário' : 'Novo Funcionário'}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {funcionarioAtual && (
+              <Avatar 
+                name={funcionarioAtual.usuarioResponseDTO.name} 
+                fotoUrl={funcionarioAtual.usuarioResponseDTO.fotoUrl} 
+                size="medium" 
+              />
+            )}
+            <span>{funcionarioAtual ? 'Editar Funcionário' : 'Novo Funcionário'}</span>
+          </div>
+        }
       >
         <FuncionarioForm
           funcionario={funcionarioAtual}
