@@ -1,12 +1,12 @@
 package com.example.lojix.service;
 
 import com.example.lojix.domain.entity.Usuario;
-import com.example.lojix.infrastructure.repository.UsuarioRepository;
 import com.example.lojix.infrastructure.security.TokenService;
+import com.example.lojix.infrastructure.repository.UsuarioRepository;
 import com.example.lojix.dto.auth.LoginDTO;
 import com.example.lojix.dto.auth.TokenResponseDTO;
 import com.example.lojix.dto.usuario.UserContextDTO;
-import com.example.lojix.shared.exception.ResourceNotFoundException;
+import com.example.lojix.common.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,15 +22,18 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final UsuarioRepository usuarioRepository;
+    private final StorageService storageService;
 
     public AuthService(
             AuthenticationManager authenticationManager,
             TokenService tokenService,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            StorageService storageService
     ) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
         this.usuarioRepository = usuarioRepository;
+        this.storageService = storageService;
     }
 
     public TokenResponseDTO login(LoginDTO data) {
@@ -64,17 +67,14 @@ public class AuthService {
         Long clienteId = usuario.getCliente() != null ? usuario.getCliente().getId() : null;
         Long funcionarioId = usuario.getFuncionario() != null ? usuario.getFuncionario().getId() : null;
         
-        String fotoBase64 = null;
-        if (usuario.getFoto() != null) {
-            fotoBase64 = java.util.Base64.getEncoder().encodeToString(usuario.getFoto());
-        }
+        String fotoUrl = storageService.gerarPresignedUrl(usuario.getFotoKey());
 
         return new UserContextDTO(
                 usuario.getId(),
                 usuario.getName(),
                 usuario.getUsername(),
                 usuario.getEmail(),
-                fotoBase64,
+                fotoUrl,
                 usuario.getRole(),
                 clienteId,
                 funcionarioId
