@@ -67,7 +67,12 @@ export const AuthProvider = ({ children }) => {
     return !!localStorage.getItem("token");
   };
 
-  const value = { user, login, logout, checkAuth, loading };
+  const updateUserContext = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
+  const value = { user, login, logout, checkAuth, loading, updateUserContext };
 
   return (
     <AuthContext.Provider value={value}>

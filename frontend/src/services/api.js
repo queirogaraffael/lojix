@@ -16,4 +16,10 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
+export const atualizarFoto = (arquivo) => {
+  const formData = new FormData();
+  formData.append('foto', arquivo);
+  return api.patch('/usuarios/foto', formData);
+};
+
 export default api;
