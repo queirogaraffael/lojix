@@ -6,8 +6,8 @@ import com.example.lojix.infrastructure.repository.ClienteRepository;
 import com.example.lojix.infrastructure.repository.UsuarioRepository;
 import com.example.lojix.dto.cliente.ClienteRequestDTO;
 import com.example.lojix.dto.cliente.ClienteResponseDTO;
-import com.example.lojix.shared.exception.ResourceNotFoundException;
-import com.example.lojix.shared.exception.UsuarioJaExisteException;
+import com.example.lojix.common.exception.ResourceNotFoundException;
+import com.example.lojix.common.exception.UsuarioJaExisteException;
 import com.example.lojix.mapper.ClienteMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,16 +26,22 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final ClienteMapper clienteMapper;
     private final UsuarioRepository usuarioRepository;
+    private final StorageService storageService;
+    private final PasswordEncoder passwordEncoder;
 
 
     public ClienteService(
             ClienteRepository clienteRepository,
             ClienteMapper clienteMapper,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            StorageService storageService,
+            PasswordEncoder passwordEncoder
     ) {
         this.clienteRepository = clienteRepository;
         this.clienteMapper = clienteMapper;
         this.usuarioRepository = usuarioRepository;
+        this.storageService = storageService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @CachePut(value = "clientesCache", key = "#result.id")
@@ -60,12 +67,17 @@ public class ClienteService {
         Cliente cliente = clienteMapper.toEntity(clienteRequestDTO);
 
         cliente.getUsuario().setRole(UserRole.CLIENTE);
+        cliente.getUsuario().setPassword(passwordEncoder.encode(cliente.getUsuario().getPassword()));
 
         Cliente clienteSalvo = clienteRepository.save(cliente);
 
         log.info("Cliente criado com sucesso. ID: {}", clienteSalvo.getId());
 
-        return clienteMapper.entityToResponseDTO(clienteSalvo);
+        ClienteResponseDTO responseDTO = clienteMapper.entityToResponseDTO(clienteSalvo);
+        if (clienteSalvo.getUsuario() != null && clienteSalvo.getUsuario().getFotoKey() != null) {
+            responseDTO.getUsuario().setFotoUrl(storageService.gerarPresignedUrl(clienteSalvo.getUsuario().getFotoKey()));
+        }
+        return responseDTO;
     }
 
     @Cacheable(value = "clientesCache", key = "#id")
@@ -80,7 +92,11 @@ public class ClienteService {
 
         log.info("Cliente encontrado: ID {}", id);
 
-        return clienteMapper.entityToResponseDTO(cliente);
+        ClienteResponseDTO responseDTO = clienteMapper.entityToResponseDTO(cliente);
+        if (cliente.getUsuario() != null && cliente.getUsuario().getFotoKey() != null) {
+            responseDTO.getUsuario().setFotoUrl(storageService.gerarPresignedUrl(cliente.getUsuario().getFotoKey()));
+        }
+        return responseDTO;
     }
 
     @Transactional(readOnly = true)

@@ -7,8 +7,8 @@ import com.example.lojix.infrastructure.repository.UsuarioRepository;
 import com.example.lojix.dto.funcionario.FuncionarioRequestDTO;
 import com.example.lojix.dto.funcionario.FuncionarioResponseDTO;
 import com.example.lojix.dto.funcionario.FuncionarioUpdateDTO;
-import com.example.lojix.shared.exception.ResourceNotFoundException;
-import com.example.lojix.shared.exception.UsuarioJaExisteException;
+import com.example.lojix.common.exception.ResourceNotFoundException;
+import com.example.lojix.common.exception.UsuarioJaExisteException;
 import com.example.lojix.mapper.FuncionarioMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +28,16 @@ public class FuncionarioService {
     private final FuncionarioRepository funcionarioRepository;
     private final FuncionarioMapper funcionarioMapper;
     private final UsuarioRepository usuarioRepository;
+    private final StorageService storageService;
+    private final PasswordEncoder passwordEncoder;
 
-    public FuncionarioService(FuncionarioRepository funcionarioRepository, FuncionarioMapper funcionarioMapper, UsuarioRepository usuarioRepository) {
+    public FuncionarioService(FuncionarioRepository funcionarioRepository, FuncionarioMapper funcionarioMapper,
+            UsuarioRepository usuarioRepository, StorageService storageService, PasswordEncoder passwordEncoder) {
         this.funcionarioRepository = funcionarioRepository;
         this.funcionarioMapper = funcionarioMapper;
         this.usuarioRepository = usuarioRepository;
+        this.storageService = storageService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @CachePut(value = "funcionariosCache", key = "#result.id")
@@ -51,12 +57,18 @@ public class FuncionarioService {
 
         Funcionario funcionario = funcionarioMapper.toEntity(dto);
         funcionario.getUsuario().setRole(UserRole.FUNCIONARIO);
+        funcionario.getUsuario().setPassword(passwordEncoder.encode(funcionario.getUsuario().getPassword()));
 
         Funcionario salvo = funcionarioRepository.save(funcionario);
 
         log.info("Funcionário criado com id={} para CPF={}", salvo.getId(), cpf);
 
-        return funcionarioMapper.entityToResponseDTO(salvo);
+        FuncionarioResponseDTO responseDTO = funcionarioMapper.entityToResponseDTO(salvo);
+        if (salvo.getUsuario() != null && salvo.getUsuario().getFotoKey() != null) {
+            responseDTO.getUsuarioResponseDTO()
+                    .setFotoUrl(storageService.gerarPresignedUrl(salvo.getUsuario().getFotoKey()));
+        }
+        return responseDTO;
     }
 
     @Cacheable(value = "funcionariosCache", key = "#id")
@@ -71,7 +83,12 @@ public class FuncionarioService {
                     return new ResourceNotFoundException("Funcionario com id " + id + " não encontrado");
                 });
 
-        return funcionarioMapper.entityToResponseDTO(funcionario);
+        FuncionarioResponseDTO responseDTO = funcionarioMapper.entityToResponseDTO(funcionario);
+        if (funcionario.getUsuario() != null && funcionario.getUsuario().getFotoKey() != null) {
+            responseDTO.getUsuarioResponseDTO()
+                    .setFotoUrl(storageService.gerarPresignedUrl(funcionario.getUsuario().getFotoKey()));
+        }
+        return responseDTO;
     }
 
     @Transactional(readOnly = true)
@@ -100,7 +117,12 @@ public class FuncionarioService {
 
         log.info("Funcionário id={} atualizado com sucesso", id);
 
-        return funcionarioMapper.entityToResponseDTO(salvo);
+        FuncionarioResponseDTO responseDTO = funcionarioMapper.entityToResponseDTO(salvo);
+        if (salvo.getUsuario() != null && salvo.getUsuario().getFotoKey() != null) {
+            responseDTO.getUsuarioResponseDTO()
+                    .setFotoUrl(storageService.gerarPresignedUrl(salvo.getUsuario().getFotoKey()));
+        }
+        return responseDTO;
     }
 
     @CacheEvict(value = "funcionariosCache", key = "#id")
@@ -109,8 +131,7 @@ public class FuncionarioService {
 
         Funcionario funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Funcionario com id " + id + " não encontrado"
-                ));
+                        "Funcionario com id " + id + " não encontrado"));
 
         funcionario.setAtivo(false);
     }
