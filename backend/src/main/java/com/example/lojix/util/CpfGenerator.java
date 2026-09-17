@@ -1,4 +1,4 @@
-package com.example.lojix.shared.util;
+package com.example.lojix.util;
 
 import java.util.Random;
 

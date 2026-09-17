@@ -1,4 +1,4 @@
-package com.example.lojix.config;
+package com.example.lojix.infrastructure.startup;
 
 import com.example.lojix.domain.entity.Usuario;
 import com.example.lojix.domain.enums.UserRole;
@@ -47,7 +47,7 @@ public class UserAdminInitializer implements CommandLineRunner {
             admin.setCpf(adminCpf);
             admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setRole(UserRole.ADMIN);
-            admin.setFoto(null);
+            admin.setFotoKey(null);
 
             usuarioRepository.save(admin);
             log.info("Usuário admin ({}) criado!", adminUsername);
