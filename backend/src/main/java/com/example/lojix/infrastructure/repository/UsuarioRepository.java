@@ -2,6 +2,7 @@ package com.example.lojix.infrastructure.repository;
 
 import com.example.lojix.domain.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -30,5 +31,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     WHERE u.id = :id
     """)
     Optional<Usuario> findByIdWithAssociations(@Param("id") UUID id);
+
+    @Modifying
+    @Query("UPDATE Usuario u SET u.fotoKey = :fotoKey WHERE u.id = :id")
+    void updateFotoKey(@Param("id") UUID id, @Param("fotoKey") String fotoKey);
 
 }

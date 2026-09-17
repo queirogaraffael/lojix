@@ -10,7 +10,7 @@ CREATE TABLE usuario (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL,
 
-    foto_perfil OID
+    foto_key VARCHAR(300)
 );
 
 CREATE TABLE categoria (

@@ -27,9 +27,8 @@ public class Usuario implements UserDetails {
     @NotNull
     private String name;
 
-    @Lob
-    @Column(name = "foto_perfil")
-    private byte[] foto;
+    @Column(name = "foto_key", length = 300)
+    private String fotoKey;
 
     @Column(unique = true, nullable = false)
     private String username;
