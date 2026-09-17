@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Avatar from '../Avatar/Avatar';
 import './Layout.css';
 
 export const Layout = ({ children }) => {
@@ -26,7 +27,10 @@ export const Layout = ({ children }) => {
           <NavLink to="/clientes">Clientes</NavLink>
         </div>
         <div className="navbar-user">
-          <span>Olá, {user?.username}</span>
+          <div className="user-profile-btn" onClick={() => navigate('/perfil')} title="Meu Perfil">
+            <Avatar name={user?.name || user?.username} fotoUrl={user?.fotoUrl} size="small" />
+            <span>Olá, {user?.name || user?.username}</span>
+          </div>
           <button onClick={handleLogout} className="logout-button">
             Sair
           </button>
