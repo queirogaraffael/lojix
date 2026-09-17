@@ -52,6 +52,11 @@ services:
 
       - MANAGEMENT_PORT=8081
       - LOG_LEVEL=${LOG_LEVEL}
+
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -64,6 +69,7 @@ services:
       retries: 5
       start_period: 40s
     networks:
+      - public
       - backend
       - private
       - monitoring
