@@ -8,7 +8,6 @@ public class UsuarioRequestDTOBuilder {
         String uniqueSuffix = UUID.randomUUID().toString().substring(0, 8);
         return new UsuarioRequestDTO(
                 prefixo + " Test " + uniqueSuffix,
-                null,
                 prefixo.toLowerCase() + "_user_" + uniqueSuffix,
                 "123456789" + cpfSuffix,
                 prefixo.toLowerCase() + "_" + uniqueSuffix + "@test.com",

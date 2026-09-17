@@ -184,8 +184,7 @@ class FuncionarioControllerTest {
 
         FuncionarioUpdateDTO updateDTO = new FuncionarioUpdateDTO(
                 "Supervisor",
-                new BigDecimal("6000.00"),
-                new UsuarioUpdateDTO("new_base64_photo")
+                new BigDecimal("6000.00")
         );
         String json = objectMapper.writeValueAsString(updateDTO);
 

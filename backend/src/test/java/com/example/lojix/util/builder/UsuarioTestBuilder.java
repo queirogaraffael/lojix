@@ -2,7 +2,7 @@ package com.example.lojix.util.builder;
 
 import com.example.lojix.domain.entity.Usuario;
 import com.example.lojix.domain.enums.UserRole;
-import com.example.lojix.shared.util.CpfGenerator;
+import com.example.lojix.util.CpfGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
