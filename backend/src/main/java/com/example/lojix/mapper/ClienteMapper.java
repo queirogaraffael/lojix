@@ -29,7 +29,7 @@ public interface ClienteMapper {
     Cliente toEntity(ClienteRequestDTO clienteRequestDTO);
 
     @Mapping(target = "id", source = "cliente.id")
-    @Mapping(target = "tempoFidelidade", source = "cliente.tempoFidelidade")
+    @Mapping(target = "membroDesde", source = "cliente.membroDesde")
     @Mapping(target = "usuario.id", source = "id")
     @Mapping(target = "usuario.name", source = "name")
     @Mapping(target = "usuario.username", source = "username")
