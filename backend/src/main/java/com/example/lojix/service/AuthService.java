@@ -10,6 +10,8 @@ import com.example.lojix.common.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.AccessDeniedException;
+import com.example.lojix.domain.enums.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,10 @@ public class AuthService {
             );
 
             var user = (Usuario) auth.getPrincipal();
+
+            if (user.getRole() == UserRole.CLIENTE) {
+                throw new AccessDeniedException("Acesso restrito a funcionários do sistema.");
+            }
 
             log.info("Login bem-sucedido para o usuário '{}'. Gerando token.", data.getUsername());
 
