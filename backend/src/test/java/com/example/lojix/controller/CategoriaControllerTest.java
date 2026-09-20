@@ -92,7 +92,7 @@ class CategoriaControllerTest {
 
     @Test
     void testGetCategoriaByIdSuccess() throws Exception {
-        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
         Categoria savedCategoria = categoriaRepository.save(new Categoria(null, "Livros", null));
 

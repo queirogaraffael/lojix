@@ -83,7 +83,7 @@ class FuncionarioControllerTest {
         Funcionario preconditionFunc = FuncionarioTestBuilder.novo()
                 .comCargo("Vendedor")
                 .comSalario(BigDecimal.valueOf(2500.00))
-                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("pre_func").comRole(UserRole.FUNCIONARIO))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("pre_func").comRole(UserRole.ATENDENTE))
                 .build();
         funcionarioRepository.save(preconditionFunc);
 
@@ -140,7 +140,7 @@ class FuncionarioControllerTest {
         Funcionario savedFuncionario = FuncionarioTestBuilder.novo()
                 .comCargo("Vendedor")
                 .comSalario(BigDecimal.valueOf(2500.00))
-                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("get_func").comRole(UserRole.FUNCIONARIO))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("get_func").comRole(UserRole.ATENDENTE))
                 .build();
         funcionarioRepository.save(savedFuncionario);
 
@@ -156,9 +156,9 @@ class FuncionarioControllerTest {
         TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
 
-        funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func1").comRole(UserRole.FUNCIONARIO)).build());
-        Funcionario func2 = funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func2").comRole(UserRole.FUNCIONARIO)).build());
-        funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func3").comRole(UserRole.FUNCIONARIO)).build());
+        funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func1").comRole(UserRole.ATENDENTE)).build());
+        Funcionario func2 = funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func2").comRole(UserRole.ATENDENTE)).build());
+        funcionarioRepository.save(FuncionarioTestBuilder.novo().comUsuarioBuilder(UsuarioTestBuilder.novo().comName("func3").comRole(UserRole.ATENDENTE)).build());
 
         funcionarioRepository.atualizaStatusFuncionario(func2.getId(), false);
 
@@ -178,7 +178,7 @@ class FuncionarioControllerTest {
         Funcionario savedFuncionario = FuncionarioTestBuilder.novo()
                 .comCargo("Vendedor")
                 .comSalario(BigDecimal.valueOf(2500.00))
-                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("update_func").comRole(UserRole.FUNCIONARIO))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("update_func").comRole(UserRole.ATENDENTE))
                 .build();
         funcionarioRepository.save(savedFuncionario);
 
@@ -204,7 +204,7 @@ class FuncionarioControllerTest {
         Funcionario savedFuncionario = FuncionarioTestBuilder.novo()
                 .comCargo("Vendedor")
                 .comSalario(BigDecimal.valueOf(2500.00))
-                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("deactivate_func").comRole(UserRole.FUNCIONARIO))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("deactivate_func").comRole(UserRole.ATENDENTE))
                 .build();
         funcionarioRepository.save(savedFuncionario);
 

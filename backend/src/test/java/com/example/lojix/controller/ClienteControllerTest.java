@@ -91,7 +91,7 @@ class ClienteControllerTest {
         Funcionario preconditionFunc = FuncionarioTestBuilder.novo()
                 .comCargo("Cargo")
                 .comSalario(BigDecimal.ONE)
-                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("conflict_func").comRole(UserRole.FUNCIONARIO))
+                .comUsuarioBuilder(UsuarioTestBuilder.novo().comName("conflict_func").comRole(UserRole.ATENDENTE))
                 .build();
         funcionarioRepository.save(preconditionFunc);
 

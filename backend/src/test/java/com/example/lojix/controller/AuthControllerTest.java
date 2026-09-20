@@ -121,7 +121,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.clienteId").isEmpty())
                 .andExpect(jsonPath("$.funcionarioId").isNumber())
                 .andExpect(jsonPath("$.username").value(username))
-                .andExpect(jsonPath("$.role").value(UserRole.FUNCIONARIO.name()));
+                .andExpect(jsonPath("$.role").value(UserRole.ATENDENTE.name()));
     }
 
     @Test

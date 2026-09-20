@@ -83,14 +83,14 @@ class PromocaoControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.nome").value("Promo Teste"))
-                .andExpect(jsonPath("$.taxaDeDesconto").value(0.15));
+                .andExpect(jsonPath("$.taxaDeDesconto").value(15.0));
     }
 
     @Test
     void testDesativarPromocaoSuccess() throws Exception {
-        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
-        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo to Deactivate", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo to Deactivate", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{idPromocao}/desativar", savedPromocao.getId())
                         .header("Authorization", "Bearer " + token))
@@ -106,8 +106,8 @@ class PromocaoControllerTest {
         TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
         Categoria categoria = categoriaRepository.save(new Categoria(null, "Diversos", null));
-        Produto produto1 = produtoRepository.save(new Produto(null, "P1", BigDecimal.TEN, true, "D1", LocalDate.now().plusDays(1), null, categoria));
-        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo for Product", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        Produto produto1 = produtoRepository.save(new Produto(null, "P1", BigDecimal.TEN, true, "D1", LocalDate.now().plusDays(1), 10, 0L, null, categoria));
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo for Product", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PROMOCOES+ "/{idPromocao}/associar/{idProduto}", savedPromocao.getId(), produto1.getId())
                         .header("Authorization", "Bearer " + token))
@@ -122,10 +122,10 @@ class PromocaoControllerTest {
 
         TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
-        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo to Remove", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo to Remove", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
 
         Categoria categoria = categoriaRepository.save(new Categoria(null, "Diversos", null));
-        Produto produto2 = produtoRepository.save(new Produto(null, "P2", BigDecimal.ONE, true, "D2", LocalDate.now().plusDays(1), null, categoria));
+        Produto produto2 = produtoRepository.save(new Produto(null, "P2", BigDecimal.ONE, true, "D2", LocalDate.now().plusDays(1), 10, 0L, null, categoria));
 
         Produto produtoWithPromo = produtoRepository.findById(produto2.getId()).get();
         produtoWithPromo.setPromocao(savedPromocao);
@@ -145,8 +145,8 @@ class PromocaoControllerTest {
         TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
         Categoria categoria = categoriaRepository.save(new Categoria(null, "Diversos", null));
-        Produto produto1 = produtoRepository.save(new Produto(null, "P1", BigDecimal.TEN, true, "D1", LocalDate.now().plusDays(1), null, categoria));
-        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo for Product", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        Produto produto1 = produtoRepository.save(new Produto(null, "P1", BigDecimal.TEN, true, "D1", LocalDate.now().plusDays(1), 10, 0L, null, categoria));
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo for Product", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
         Long nonExistentId = 999L;
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{idPromocao}/associar/{idProduto}", savedPromocao.getId(), nonExistentId)
@@ -163,20 +163,20 @@ class PromocaoControllerTest {
         TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
 
-        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo Buscar ID", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        Promocao savedPromocao = promocaoRepository.save(new Promocao(null, "Promo Buscar ID", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PROMOCOES + "/{id}", savedPromocao.getId())
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedPromocao.getId()))
                 .andExpect(jsonPath("$.nome").value("Promo Buscar ID"))
-                .andExpect(jsonPath("$.taxaDeDesconto").value(0.15));
+                .andExpect(jsonPath("$.taxaDeDesconto").value(15.0));
     }
 
 
     @Test
     void testGetPromocaoByIdNotFound() throws Exception {
-        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
 
         Long nonExistentId = 999L;
@@ -191,9 +191,9 @@ class PromocaoControllerTest {
         TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
 
-        promocaoRepository.save(new Promocao(null, "Promo 1", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
-        promocaoRepository.save(new Promocao(null, "Promo 2", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
-        promocaoRepository.save(new Promocao(null, "Promo 3", new BigDecimal("0.15"), LocalDate.now(), LocalDate.now().plusDays(30), true, null));
+        promocaoRepository.save(new Promocao(null, "Promo 1", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
+        promocaoRepository.save(new Promocao(null, "Promo 2", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
+        promocaoRepository.save(new Promocao(null, "Promo 3", new BigDecimal("15.0"), LocalDate.now(), LocalDate.now().plusDays(30), true, 0L, null));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PROMOCOES)
                         .header("Authorization", "Bearer " + token)

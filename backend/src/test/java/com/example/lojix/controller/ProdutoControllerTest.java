@@ -101,10 +101,10 @@ class ProdutoControllerTest {
 
     @Test
     void testGetProdutoByIdSuccess() throws Exception {
-        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
         Categoria categoria = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
-        Produto savedProduto = produtoRepository.save(new Produto(null, "Tablet Pro", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria));
+        Produto savedProduto = produtoRepository.save(new Produto(null, "Tablet Pro", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/{id}", savedProduto.getId())
                         .header("Authorization", "Bearer " + token))
@@ -121,10 +121,10 @@ class ProdutoControllerTest {
         Categoria categoria1 = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
         Categoria categoria2 = categoriaRepository.save(new Categoria(null, "Roupas", null));
 
-        produtoRepository.save(new Produto(null, "P1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
-        produtoRepository.save(new Produto(null, "P2", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
+        produtoRepository.save(new Produto(null, "P1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria1));
+        produtoRepository.save(new Produto(null, "P2", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria1));
 
-        produtoRepository.save(new Produto(null, "P3", new BigDecimal("10.00"), false, "Desc", LocalDate.now().plusDays(1), null, categoria2));
+        produtoRepository.save(new Produto(null, "P3", new BigDecimal("10.00"), false, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria2));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PRODUTOS)
                         .header("Authorization", "Bearer " + token)
@@ -142,9 +142,9 @@ class ProdutoControllerTest {
         Categoria categoria1 = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
         Categoria categoria2 = categoriaRepository.save(new Categoria(null, "Roupas", null));
 
-        produtoRepository.save(new Produto(null, "P-Cat1-1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
-        produtoRepository.save(new Produto(null, "P-Cat1-2", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria1));
-        produtoRepository.save(new Produto(null, "P-Cat2-1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria2));
+        produtoRepository.save(new Produto(null, "P-Cat1-1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria1));
+        produtoRepository.save(new Produto(null, "P-Cat1-2", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria1));
+        produtoRepository.save(new Produto(null, "P-Cat2-1", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria2));
 
         mockMvc.perform(get(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/categoria/{idCategoria}", categoria1.getId())
                         .header("Authorization", "Bearer " + token))
@@ -162,13 +162,14 @@ class ProdutoControllerTest {
         TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
         Categoria categoria = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
-        Produto savedProduto = produtoRepository.save(new Produto(null, "Old Name", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria));
+        Produto savedProduto = produtoRepository.save(new Produto(null, "Old Name", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria));
 
         ProdutoUpdateDTO updateDTO = new ProdutoUpdateDTO(
                 "New Name",
                 new BigDecimal("20.00"),
                 "New Desc",
-                LocalDate.now().plusYears(1)
+                LocalDate.now().plusYears(1),
+                20
         );
         String json = objectMapper.writeValueAsString(updateDTO);
 
@@ -178,15 +179,15 @@ class ProdutoControllerTest {
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nome").value("New Name"))
-                .andExpect(jsonPath("$.preco").value(20.00));
+                .andExpect(jsonPath("$.precoBase").value(20.00));
     }
 
     @Test
     void testDesativarProdutoSuccess() throws Exception {
-        TestAuthContext authData = authTestFactory.authenticateAsFuncionario();
+        TestAuthContext authData = authTestFactory.authenticateAsAdmin();
         String token = authData.token();
         Categoria categoria = categoriaRepository.save(new Categoria(null, "Eletrônicos", null));
-        Produto savedProduto = produtoRepository.save(new Produto(null, "Deactivate Product", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), null, categoria));
+        Produto savedProduto = produtoRepository.save(new Produto(null, "Deactivate Product", new BigDecimal("10.00"), true, "Desc", LocalDate.now().plusDays(1), 10, 0L, null, categoria));
 
         mockMvc.perform(patch(ConstantesRotasEndpoints.ROTA_PRODUTOS + "/{id}/desativar", savedProduto.getId())
                         .header("Authorization", "Bearer " + token))
