@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -99,5 +100,11 @@ public class CustomExceptionHandler {
     @ExceptionHandler(StorageException.class)
     public ResponseEntity<Object> handleStorageException(StorageException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_GATEWAY);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Object> handleOptimisticLockingException(ObjectOptimisticLockingFailureException ex) {
+        String msg = "Conflito de dados: Este registro foi modificado por outro usuário enquanto você o editava. Recarregue a página e tente novamente.";
+        return new ResponseEntity<>(msg, HttpStatus.CONFLICT);
     }
 }
