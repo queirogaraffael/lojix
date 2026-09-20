@@ -44,7 +44,7 @@ public class AuthController {
     )
     @ApiResponse(responseCode = "200", description = "Contexto retornado com sucesso")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO', 'CLIENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'ESTOQUISTA', 'CLIENTE')")
     @GetMapping("/me")
     public ResponseEntity<UserContextDTO> getUserContext(@AuthenticationPrincipal AuthenticatedUser principal) {
         UserContextDTO context = authService.getUserContext(principal.getId());
