@@ -44,7 +44,7 @@ export const Login = () => {
         )}
 
         <div className="form-control">
-          <label htmlFor="username">Usuário</label>
+          <label htmlFor="username">E-mail, CPF ou Usuário</label>
           <input
             type="text"
             id="username"
@@ -52,7 +52,7 @@ export const Login = () => {
             onChange={(e) => setUsername(e.target.value)}
             required
             disabled={isLoading}
-            placeholder="Admin"
+            placeholder="E-mail, CPF ou Usuário"
           />
         </div>
         <div className="form-control">
