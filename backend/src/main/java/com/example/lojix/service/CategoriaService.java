@@ -60,7 +60,9 @@ public class CategoriaService {
         return categoriaMapper.toResponseDTO(categoria);
     }
 
-    public Page<CategoriaResponseDTO> getCategoriasPaginados(int page, int size){
+    @Cacheable(value = "categoriasPageCache", key = "#page + '-' + #size")
+    @Transactional(readOnly = true)
+    public Page<CategoriaResponseDTO> getCategoriasPaginadas(int page, int size) {
         log.debug("Listando categorias paginadas. page={}, size={}", page, size);
 
         Pageable pageable = PageRequest.of(page, size);
