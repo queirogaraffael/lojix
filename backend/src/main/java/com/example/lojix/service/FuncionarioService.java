@@ -10,6 +10,7 @@ import com.example.lojix.dto.funcionario.FuncionarioUpdateDTO;
 import com.example.lojix.common.exception.ResourceNotFoundException;
 import com.example.lojix.common.exception.UsuarioJaExisteException;
 import com.example.lojix.mapper.FuncionarioMapper;
+import com.example.lojix.util.MaskUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -46,22 +47,26 @@ public class FuncionarioService {
 
         String cpf = dto.getUsuarioRequestDTO().getCpf();
 
-        log.info("Criando funcionário para CPF={}", cpf);
+        log.info("Criando funcionário para CPF={}", MaskUtils.maskCpf(cpf));
 
         boolean usuarioJaExiste = usuarioRepository.existsByCpf(cpf);
 
         if (usuarioJaExiste) {
-            log.warn("Tentativa de cadastrar funcionário com CPF já existente: {}", cpf);
+            log.warn("Tentativa de cadastrar funcionário com CPF já existente: {}", MaskUtils.maskCpf(cpf));
             throw new UsuarioJaExisteException("Usuario com CPF " + cpf + " já cadastrado.");
         }
 
+        if (dto.getRole() == null || (dto.getRole() != UserRole.ATENDENTE && dto.getRole() != UserRole.ESTOQUISTA)) {
+            throw new IllegalArgumentException("A Role do funcionário deve ser ATENDENTE ou ESTOQUISTA.");
+        }
+
         Funcionario funcionario = funcionarioMapper.toEntity(dto);
-        funcionario.getUsuario().setRole(UserRole.FUNCIONARIO);
+        funcionario.getUsuario().setRole(dto.getRole());
         funcionario.getUsuario().setPassword(passwordEncoder.encode(funcionario.getUsuario().getPassword()));
 
         Funcionario salvo = funcionarioRepository.save(funcionario);
 
-        log.info("Funcionário criado com id={} para CPF={}", salvo.getId(), cpf);
+        log.info("Funcionário criado com id={} para CPF={}", salvo.getId(), MaskUtils.maskCpf(cpf));
 
         FuncionarioResponseDTO responseDTO = funcionarioMapper.entityToResponseDTO(salvo);
         if (salvo.getUsuario() != null && salvo.getUsuario().getFotoKey() != null) {
@@ -91,8 +96,9 @@ public class FuncionarioService {
         return responseDTO;
     }
 
+    @Cacheable(value = "funcionariosPageCache", key = "#page + '-' + #size")
     @Transactional(readOnly = true)
-    public Page<FuncionarioResponseDTO> getFuncionariosAtivosPaginados(int page, int size) {
+    public Page<FuncionarioResponseDTO> getFuncionariosPaginados(int page, int size) {
         log.debug("Listando funcionários ativos page={} size={}", page, size);
 
         Pageable pageable = PageRequest.of(page, size);

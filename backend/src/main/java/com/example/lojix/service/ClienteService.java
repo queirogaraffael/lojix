@@ -9,6 +9,7 @@ import com.example.lojix.dto.cliente.ClienteResponseDTO;
 import com.example.lojix.common.exception.ResourceNotFoundException;
 import com.example.lojix.common.exception.UsuarioJaExisteException;
 import com.example.lojix.mapper.ClienteMapper;
+import com.example.lojix.util.MaskUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -49,14 +50,14 @@ public class ClienteService {
     public ClienteResponseDTO createCliente(ClienteRequestDTO clienteRequestDTO) {
 
         log.info("Iniciando criação de cliente com CPF {}",
-                clienteRequestDTO.getUsuarioRequestDTO().getCpf());
+                MaskUtils.maskCpf(clienteRequestDTO.getUsuarioRequestDTO().getCpf()));
 
         boolean usuarioJaExiste =
                 usuarioRepository.existsByCpf(clienteRequestDTO.getUsuarioRequestDTO().getCpf());
 
         if (usuarioJaExiste) {
             log.warn("Tentativa de cadastro com CPF já existente: {}",
-                    clienteRequestDTO.getUsuarioRequestDTO().getCpf());
+                    MaskUtils.maskCpf(clienteRequestDTO.getUsuarioRequestDTO().getCpf()));
             throw new UsuarioJaExisteException(
                     "Usuario com CPF "
                             + clienteRequestDTO.getUsuarioRequestDTO().getCpf()
@@ -65,6 +66,7 @@ public class ClienteService {
         }
 
         Cliente cliente = clienteMapper.toEntity(clienteRequestDTO);
+        cliente.setMembroDesde(java.time.LocalDate.now());
 
         cliente.getUsuario().setRole(UserRole.CLIENTE);
         cliente.getUsuario().setPassword(passwordEncoder.encode(cliente.getUsuario().getPassword()));
@@ -99,8 +101,9 @@ public class ClienteService {
         return responseDTO;
     }
 
+    @Cacheable(value = "clientesPageCache", key = "#page + '-' + #size")
     @Transactional(readOnly = true)
-    public Page<ClienteResponseDTO> getClientePaginados(int page, int size){
+    public Page<ClienteResponseDTO> getClientesPaginados(int page, int size){
         log.debug("Listando clientes paginados. page={}, size={}", page, size);
 
         Pageable pageable = PageRequest.of(page, size);
