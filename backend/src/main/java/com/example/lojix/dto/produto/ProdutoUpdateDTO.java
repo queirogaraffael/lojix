@@ -3,6 +3,7 @@ package com.example.lojix.dto.produto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,15 +16,17 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ProdutoUpdateDTO {
 
-    @Size(min = 2, max = 100, message = "O nome deve ter entre 2 e 100 caracteres.")
     private String nome;
 
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que zero.")
     private BigDecimal preco;
 
-    @Size(max = 255, message = "A descrição pode ter no máximo 255 caracteres.")
+    @Size(max = 255, message = "A descrição não pode ter mais que 255 caracteres.")
     private String descricao;
 
-    @Future(message = "A data de validade deve ser uma data futura.")
+    @Future(message = "A data de validade deve estar no futuro.")
     private LocalDate dataValidade;
+
+    @Min(value = 0, message = "O estoque não pode ser negativo")
+    private Integer quantidadeEstoque;
 }

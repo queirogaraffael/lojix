@@ -13,6 +13,6 @@ import java.time.LocalDate;
 public class ClienteResponseDTO {
 
     private Long id;
-    private LocalDate tempoFidelidade;
+    private LocalDate membroDesde;
     private UsuarioResponseDTO usuario;
 }

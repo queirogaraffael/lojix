@@ -19,7 +19,7 @@ public class PromocaoRequestDTO {
 
     @NotNull(message = "A taxa de desconto é obrigatória.")
     @DecimalMin(value = "0.0", inclusive = true, message = "A taxa de desconto deve ser no mínimo 0.")
-    @DecimalMax(value = "1.0", inclusive = true, message = "A taxa de desconto deve ser no máximo 1 (100%).")
+    @DecimalMax(value = "100.0", inclusive = true, message = "A taxa de desconto deve ser no máximo 100 (100%).")
     private BigDecimal taxaDeDesconto;
 
     @NotNull(message = "A data de início é obrigatória.")

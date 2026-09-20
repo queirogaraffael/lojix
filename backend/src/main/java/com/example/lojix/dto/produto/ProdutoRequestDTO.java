@@ -26,4 +26,10 @@ public class ProdutoRequestDTO {
 
     @NotNull(message = "A data de validade é obrigatória.")
     private LocalDate dataValidade;
+
+    @NotNull(message = "A categoria é obrigatória.")
+    private Long categoriaId;
+
+    @Min(value = 0, message = "O estoque não pode ser negativo")
+    private Integer quantidadeEstoque;
 }
