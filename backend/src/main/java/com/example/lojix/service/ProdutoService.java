@@ -61,22 +61,26 @@ public class ProdutoService {
 
         log.debug("Buscando produto id={}", id);
 
-        return produtoRepository.findProdutoById(id, true)
+        return produtoRepository.findProdutoByIdFetch(id, true)
+                .map(produtoMapper::toResponse)
                 .orElseThrow(() -> {
                     log.warn("Produto não encontrado id={}", id);
                     return new ResourceNotFoundException("Produto com id " + id + " não encontrado.");
                 });
     }
 
+    @Cacheable(value = "produtosPageCache", key = "#page + '-' + #size")
     @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> getProdutosPaginados(int page, int size) {
 
         log.debug("Listando produtos paginados page={} size={}", page, size);
 
         Pageable pageable = PageRequest.of(page, size);
-        return produtoRepository.findAllPageable(true, pageable);
+        return produtoRepository.findAllPageableFetch(true, pageable)
+                .map(produtoMapper::toResponse);
     }
 
+    @Cacheable(value = "produtosPageCache", key = "'cat-' + #idCategoria + '-' + #page + '-' + #size")
     @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> getProdutosPaginadosByCategoriaId(Long idCategoria, int page, int size) {
 
@@ -90,7 +94,8 @@ public class ProdutoService {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        return produtoRepository.findPageableByCategoriaId(categoria.getId(), true, pageable);
+        return produtoRepository.findPageableByCategoriaIdFetch(categoria.getId(), true, pageable)
+                .map(produtoMapper::toResponse);
     }
 
     @CachePut(value = "produtosCache", key = "#result.id")
