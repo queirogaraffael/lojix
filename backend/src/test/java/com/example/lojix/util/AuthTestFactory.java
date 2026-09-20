@@ -48,7 +48,7 @@ public class AuthTestFactory {
 
     public TestAuthContext authenticateAsFuncionario() {
         UsuarioTestBuilder userBuilder = UsuarioTestBuilder.novo()
-            .comRole(UserRole.FUNCIONARIO)
+            .comRole(UserRole.ATENDENTE)
             .comPasswordEncoder(passwordEncoder);
 
         String rawPassword = userBuilder.getRawPassword();
@@ -78,7 +78,7 @@ public class AuthTestFactory {
     public TestAuthContext authenticateAs(UserRole role) {
         if (role == UserRole.ADMIN) {
             return authenticateAsAdmin();
-        } else if (role == UserRole.FUNCIONARIO) {
+        } else if (role == UserRole.ATENDENTE) {
             return authenticateAsFuncionario();
         } else if (role == UserRole.CLIENTE) {
             return authenticateAsCliente();
