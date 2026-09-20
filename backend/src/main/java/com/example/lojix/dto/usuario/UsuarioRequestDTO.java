@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.example.lojix.common.validation.MaiorDeIdade;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,4 +34,10 @@ public class UsuarioRequestDTO {
     @NotBlank(message = "A senha é obrigatória.")
     @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
     private String password;
+
+    @NotNull(message = "A data de nascimento é obrigatória.")
+    @Past(message = "A data de nascimento deve estar no passado.")
+    @MaiorDeIdade
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate dataNascimento;
 }

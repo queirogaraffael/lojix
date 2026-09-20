@@ -1,5 +1,6 @@
 package com.example.lojix.dto.funcionario;
 
+import com.example.lojix.domain.enums.UserRole;
 import com.example.lojix.dto.usuario.UsuarioRequestDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -22,6 +23,9 @@ public class FuncionarioRequestDTO {
     @NotNull(message = "O salário é obrigatório.")
     @DecimalMin(value = "0.0", inclusive = true, message = "O salário deve ser um valor positivo ou zero.")
     private BigDecimal salario;
+
+    @NotNull(message = "O nível de acesso (Role) é obrigatório.")
+    private UserRole role;
 
     @Valid
     @NotNull(message = "Os dados do usuário são obrigatórios.")

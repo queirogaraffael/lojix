@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,4 +28,7 @@ public class UsuarioResponseDTO {
     private String email;
     private String cpf;
     private String fotoUrl;
+
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate dataNascimento;
 }
