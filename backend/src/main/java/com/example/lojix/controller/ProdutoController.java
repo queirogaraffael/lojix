@@ -36,7 +36,7 @@ public class ProdutoController {
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/categoria/{idCategoria}")
     public ResponseEntity<ProdutoResponseDTO> createProduto(
@@ -61,7 +61,7 @@ public class ProdutoController {
     @ApiResponse(responseCode = "200", description = "Produto encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<ProdutoResponseDTO> getProdutoById(@PathVariable Long id) {
@@ -74,7 +74,7 @@ public class ProdutoController {
     )
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
     public ResponseEntity<Page<ProdutoResponseDTO>> getProdutosPaginados(
@@ -91,7 +91,7 @@ public class ProdutoController {
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/categoria/{idCategoria}")
     public ResponseEntity<Page<ProdutoResponseDTO>> getProdutosPaginadosByCategoriaId(
@@ -110,7 +110,7 @@ public class ProdutoController {
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{idProduto}")
     public ResponseEntity<ProdutoResponseDTO> updateProdutoById(
@@ -127,7 +127,7 @@ public class ProdutoController {
     @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativarProdutoById(@PathVariable Long id) {

@@ -75,11 +75,11 @@ public class FuncionarioController {
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
-    public ResponseEntity<Page<FuncionarioResponseDTO>> getFuncionariosAtivosPaginados(
+    public ResponseEntity<Page<FuncionarioResponseDTO>> getFuncionariosPaginados(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(funcionarioService.getFuncionariosAtivosPaginados(page, size));
+        return ResponseEntity.ok(funcionarioService.getFuncionariosPaginados(page, size));
     }
 
     @Operation(
