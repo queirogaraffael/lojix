@@ -14,7 +14,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     @Query(
             value = "SELECT new com.example.lojix.dto.cliente.ClienteResponseDTO(" +
                     "c.id, " +
-                    "c.tempoFidelidade, " +
+                    "c.membroDesde, " +
                     "new com.example.lojix.dto.usuario.UsuarioResponseDTO(" +
                     "u.id, u.name, u.username, u.email, u.cpf" +
                     ")" +

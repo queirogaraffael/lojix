@@ -17,33 +17,20 @@ import java.util.Optional;
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
-    @Query("SELECT new com.example.lojix.dto.produto.ProdutoResponseDTO( " +
-            "p.id, " +
-            "p.nome, " +
-            "p.preco, " +
-            "p.descricao, " +
-            "p.dataValidade, " +
-            "p.promocao.id, " +
-            "p.categoria.id ) " +
-            "FROM Produto p " +
-            "WHERE p.id = :id AND p.produtoAtivo = :ativo")
-    Optional<ProdutoResponseDTO> findProdutoById(@Param("id") Long id,
-                                                 @Param("ativo") boolean ativo);
+    @Query("SELECT p FROM Produto p " +
+           "LEFT JOIN FETCH p.promocao " +
+           "JOIN FETCH p.categoria " +
+           "WHERE p.id = :id AND p.produtoAtivo = :ativo")
+    Optional<Produto> findProdutoByIdFetch(@Param("id") Long id, @Param("ativo") boolean ativo);
 
     @Query(
-            value = "SELECT new com.example.lojix.dto.produto.ProdutoResponseDTO(" +
-                    "p.id, " +
-                    "p.nome, " +
-                    "p.preco, " +
-                    "p.descricao, " +
-                    "p.dataValidade, " +
-                    "p.promocao.id, " +
-                    "p.categoria.id ) " +
-                    "FROM Produto p " +
+            value = "SELECT p FROM Produto p " +
+                    "LEFT JOIN FETCH p.promocao " +
+                    "JOIN FETCH p.categoria " +
                     "WHERE p.produtoAtivo = :ativo",
             countQuery = "SELECT count(p) FROM Produto p WHERE p.produtoAtivo = :ativo"
     )
-    Page<ProdutoResponseDTO> findAllPageable(@Param("ativo") boolean ativo, Pageable pageable);
+    Page<Produto> findAllPageableFetch(@Param("ativo") boolean ativo, Pageable pageable);
 
     @Transactional
     @Modifying
@@ -51,23 +38,16 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     void desativarProduto(@Param("id") Long id, @Param("produtoAtivo") boolean produtoAtivo);
 
     @Query(
-            value = "SELECT new com.example.lojix.dto.produto.ProdutoResponseDTO( " +
-                    "p.id, " +
-                    "p.nome, " +
-                    "p.preco, " +
-                    "p.descricao, " +
-                    "p.dataValidade, " +
-                    "p.promocao.id, " +
-                    "p.categoria.id ) " +
-                    "FROM Produto p " +
-                    "JOIN p.categoria c " +
+            value = "SELECT p FROM Produto p " +
+                    "LEFT JOIN FETCH p.promocao " +
+                    "JOIN FETCH p.categoria c " +
                     "WHERE p.produtoAtivo = :produtoAtivo " +
                     "AND c.id = :idCategoria",
             countQuery = "SELECT count(p) FROM Produto p JOIN p.categoria c " +
                     "WHERE p.produtoAtivo = :produtoAtivo " +
                     "AND c.id = :idCategoria"
     )
-    Page<ProdutoResponseDTO> findPageableByCategoriaId(
+    Page<Produto> findPageableByCategoriaIdFetch(
             @Param("idCategoria") Long idCategoria,
             @Param("produtoAtivo") boolean produtoAtivo,
             Pageable pageable
