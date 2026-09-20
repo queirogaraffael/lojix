@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public class FuncionarioTestBuilder {
     private String cargo = "Cargo Teste";
     private BigDecimal salario = BigDecimal.valueOf(2500.00);
-    private UsuarioTestBuilder usuarioBuilder = UsuarioTestBuilder.novo().comRole(UserRole.FUNCIONARIO);
+    private UsuarioTestBuilder usuarioBuilder = UsuarioTestBuilder.novo().comRole(UserRole.ATENDENTE);
 
     public static FuncionarioTestBuilder novo() {
         return new FuncionarioTestBuilder();

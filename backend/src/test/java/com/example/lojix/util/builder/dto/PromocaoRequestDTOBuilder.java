@@ -8,7 +8,7 @@ public class PromocaoRequestDTOBuilder {
     public static PromocaoRequestDTO criarValido(String name) {
         return new PromocaoRequestDTO(
                 name,
-                new BigDecimal("0.15"),
+                new BigDecimal("15.0"),
                 LocalDate.now(),
                 LocalDate.now().plusDays(30)
         );

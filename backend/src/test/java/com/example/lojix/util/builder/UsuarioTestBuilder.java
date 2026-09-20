@@ -16,6 +16,8 @@ public class UsuarioTestBuilder {
     private UserRole role = UserRole.CLIENTE;
     private PasswordEncoder passwordEncoder;
 
+    private java.time.LocalDate dataNascimento = java.time.LocalDate.now().minusYears(20);
+
     public static UsuarioTestBuilder novo() {
         return new UsuarioTestBuilder();
     }
@@ -25,6 +27,7 @@ public class UsuarioTestBuilder {
     public UsuarioTestBuilder comEmail(String email) { this.email = email; return this; }
     public UsuarioTestBuilder comCpf(String cpf) { this.cpf = cpf; return this; }
     public UsuarioTestBuilder comRole(UserRole role) { this.role = role; return this; }
+    public UsuarioTestBuilder comDataNascimento(java.time.LocalDate dataNascimento) { this.dataNascimento = dataNascimento; return this; }
     public UsuarioTestBuilder comRawPassword(String rawPassword) { this.rawPassword = rawPassword; return this; }
     public UsuarioTestBuilder comPasswordEncoder(PasswordEncoder passwordEncoder) { this.passwordEncoder = passwordEncoder; return this; }
 
@@ -42,6 +45,7 @@ public class UsuarioTestBuilder {
             usuario.setPassword(rawPassword);
         }
         usuario.setRole(role);
+        usuario.setDataNascimento(dataNascimento);
         return usuario;
     }
 }

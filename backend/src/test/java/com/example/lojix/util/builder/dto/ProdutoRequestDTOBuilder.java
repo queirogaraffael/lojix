@@ -10,7 +10,9 @@ public class ProdutoRequestDTOBuilder {
                 "Smartphone X",
                 new BigDecimal("1500.00"),
                 "Descrição do produto",
-                LocalDate.now().plusDays(10)
+                LocalDate.now().plusDays(10),
+                1L,
+                100
         );
     }
 }

@@ -7,20 +7,20 @@ import com.example.lojix.domain.enums.UserRole;
 import java.time.LocalDate;
 
 public class ClienteTestBuilder {
-    private LocalDate tempoFidelidade = LocalDate.now();
+    private LocalDate membroDesde = LocalDate.now();
     private UsuarioTestBuilder usuarioBuilder = UsuarioTestBuilder.novo().comRole(UserRole.CLIENTE);
 
     public static ClienteTestBuilder novo() {
         return new ClienteTestBuilder();
     }
 
-    public ClienteTestBuilder comTempoFidelidade(LocalDate tempoFidelidade) { this.tempoFidelidade = tempoFidelidade; return this; }
+    public ClienteTestBuilder comMembroDesde(LocalDate membroDesde) { this.membroDesde = membroDesde; return this; }
     public ClienteTestBuilder comUsuarioBuilder(UsuarioTestBuilder usuarioBuilder) { this.usuarioBuilder = usuarioBuilder; return this; }
 
     public Cliente build() {
         Usuario usuario = usuarioBuilder.build();
         Cliente cliente = new Cliente();
-        cliente.setTempoFidelidade(tempoFidelidade);
+        cliente.setMembroDesde(membroDesde);
         
         cliente.setUsuario(usuario);
         usuario.setCliente(cliente);

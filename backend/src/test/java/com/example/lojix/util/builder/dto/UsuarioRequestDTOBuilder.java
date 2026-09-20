@@ -11,7 +11,8 @@ public class UsuarioRequestDTOBuilder {
                 prefixo.toLowerCase() + "_user_" + uniqueSuffix,
                 "123456789" + cpfSuffix,
                 prefixo.toLowerCase() + "_" + uniqueSuffix + "@test.com",
-                "password123"
+                "password123",
+                java.time.LocalDate.now().minusYears(20)
         );
     }
 }
