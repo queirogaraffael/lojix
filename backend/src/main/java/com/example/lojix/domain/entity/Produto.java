@@ -20,9 +20,17 @@ public class Produto {
 
     private String nome;
     private BigDecimal preco;
-    private boolean produtoAtivo;
+    private boolean produtoAtivo = true;
+
     private String descricao;
     private LocalDate dataValidade;
+
+    @jakarta.validation.constraints.Min(value = 0, message = "O estoque não pode ser negativo")
+    @Column(name = "quantidade_estoque", nullable = false)
+    private Integer quantidadeEstoque = 0;
+
+    @Version
+    private Long version;
 
     @ManyToOne
     @JoinColumn(name = "promocao_id", nullable = true)
