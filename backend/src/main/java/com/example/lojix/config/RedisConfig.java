@@ -33,8 +33,7 @@ public class RedisConfig {
         objectMapper.activateDefaultTyping(
                 objectMapper.getPolymorphicTypeValidator(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-        );
+                JsonTypeInfo.As.PROPERTY);
 
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -47,8 +46,28 @@ public class RedisConfig {
             RedisConnectionFactory redisConnectionFactory,
             GenericJackson2JsonRedisSerializer jsonRedisSerializer) {
 
+        java.util.Map<String, RedisCacheConfiguration> cacheConfigurations = new java.util.HashMap<>();
+        cacheConfigurations.put("categoriasCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofHours(12)));
+        cacheConfigurations.put("promocaoCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofMinutes(60)));
+        cacheConfigurations.put("produtosCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofMinutes(30)));
+
+        cacheConfigurations.put("produtosPageCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("promocoesPageCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("categoriasPageCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("clientesPageCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put("funcionariosPageCache",
+                cacheConfiguration(jsonRedisSerializer).entryTtl(Duration.ofMinutes(5)));
+
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(cacheConfiguration(jsonRedisSerializer))
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .transactionAware()
                 .build();
     }
@@ -59,8 +78,7 @@ public class RedisConfig {
                 .entryTtl(Duration.ofSeconds(cacheTtl))
                 .disableCachingNullValues()
                 .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(jsonRedisSerializer)
-                );
+                        RedisSerializationContext.SerializationPair.fromSerializer(jsonRedisSerializer));
     }
 
     @Bean
@@ -76,7 +94,6 @@ public class RedisConfig {
 
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-
 
         return template;
     }
