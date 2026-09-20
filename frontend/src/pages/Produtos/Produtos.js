@@ -48,16 +48,7 @@ export const Produtos = () => {
     return promo ? promo.nome : '—';
   };
 
-  const calcularPrecoPromocional = (produto) => {
-    if (!produto.promocaoId) return null;
-    
-    const promo = promocoes.find(p => p.id === produto.promocaoId);
-    if (promo && promo.taxaDeDesconto) {
-      const desconto = produto.preco * promo.taxaDeDesconto;
-      return (produto.preco - desconto).toFixed(2);
-    }
-    return null;
-  };
+
 
   const formatarData = (data) => {
     if (!data) return '-';
@@ -137,6 +128,7 @@ export const Produtos = () => {
               <th>Nome</th>
               <th>Categoria</th>
               <th>Preço (R$)</th>
+              <th>Estoque</th>
               <th>Promoção</th>
               <th>Preço Final</th>
               <th>Validade</th>
@@ -145,17 +137,25 @@ export const Produtos = () => {
           </thead>
           <tbody>
             {produtos.map((prod) => {
-                const precoPromo = calcularPrecoPromocional(prod);
                 return (
                     <tr key={prod.id}>
                     <td>{prod.nome}</td>
                     <td>{getNomeCategoria(prod.categoriaId)}</td>
-                    <td style={{ textDecoration: precoPromo ? 'line-through' : 'none', color: precoPromo ? '#999' : 'inherit' }}>
-                        {prod.preco.toFixed(2)}
+                    <td style={{ textDecoration: prod.emPromocao ? 'line-through' : 'none', color: prod.emPromocao ? '#999' : 'inherit' }}>
+                        {prod.precoBase.toFixed(2)}
                     </td>
-                    <td>{getNomePromocao(prod.promocaoId)}</td>
-                    <td style={{ fontWeight: 'bold', color: precoPromo ? '#28a745' : 'inherit' }}>
-                        {precoPromo ? precoPromo : prod.preco.toFixed(2)}
+                    <td>{prod.quantidadeEstoque}</td>
+                    <td>
+                      {prod.emPromocao ? (
+                        <span style={{ backgroundColor: '#ffc107', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                          {prod.nomePromocao}
+                        </span>
+                      ) : (
+                        getNomePromocao(prod.promocaoId)
+                      )}
+                    </td>
+                    <td style={{ fontWeight: 'bold', color: prod.emPromocao ? '#28a745' : 'inherit' }}>
+                        {prod.precoPromocional.toFixed(2)}
                     </td>
                     <td>{formatarData(prod.dataValidade)}</td>
                     <td className="acoes">

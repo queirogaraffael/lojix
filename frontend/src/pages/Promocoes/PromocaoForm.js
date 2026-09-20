@@ -18,8 +18,7 @@ export const PromocaoForm = ({ onSave, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    const taxaDecimal = parseFloat(formData.taxaDeDesconto) / 100;
+    const taxaDecimal = parseFloat(formData.taxaDeDesconto);
 
     onSave({
       ...formData,

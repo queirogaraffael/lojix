@@ -97,7 +97,7 @@ export const Promocoes = () => {
             {promocoes.map((promo) => (
               <tr key={promo.id}>
                 <td>{promo.nome}</td>
-                <td>{(promo.taxaDeDesconto * 100).toFixed(0)}%</td>
+                <td>{(promo.taxaDeDesconto).toFixed(0)}%</td>
                 <td>{formatarData(promo.inicio)}</td>
                 <td>{formatarData(promo.fim)}</td>
                 <td className="acoes">

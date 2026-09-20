@@ -8,7 +8,8 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
     descricao: '',
     dataValidade: '',
     categoriaId: '',
-    promocaoId: ''
+    promocaoId: '',
+    quantidadeEstoque: ''
   });
 
   const isEditMode = !!produto;
@@ -17,11 +18,12 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
     if (produto) {
       setFormData({
         nome: produto.nome,
-        preco: produto.preco,
+        preco: produto.precoBase,
         descricao: produto.descricao || '',
         dataValidade: produto.dataValidade || '',
         categoriaId: produto.categoriaId,
-        promocaoId: produto.promocaoId || ''
+        promocaoId: produto.promocaoId || '',
+        quantidadeEstoque: produto.quantidadeEstoque || 0
       });
     } else {
       setFormData({
@@ -30,7 +32,8 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
         descricao: '',
         dataValidade: '',
         categoriaId: categorias.length > 0 ? categorias[0].id : '',
-        promocaoId: ''
+        promocaoId: '',
+        quantidadeEstoque: ''
       });
     }
   }, [produto, categorias]);
@@ -54,6 +57,7 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
     onSave({
       ...formData,
       preco: parseFloat(formData.preco),
+      quantidadeEstoque: parseInt(formData.quantidadeEstoque || 0, 10),
       promocaoId: formData.promocaoId ? parseInt(formData.promocaoId) : null
     });
   };
@@ -103,6 +107,19 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
             onChange={handleChange}
             step="0.01"
             min="0.01"
+            required
+          />
+        </div>
+
+        <div className="form-control">
+          <label htmlFor="quantidadeEstoque">Estoque</label>
+          <input
+            type="number"
+            id="quantidadeEstoque"
+            name="quantidadeEstoque"
+            value={formData.quantidadeEstoque}
+            onChange={handleChange}
+            min="0"
             required
           />
         </div>
