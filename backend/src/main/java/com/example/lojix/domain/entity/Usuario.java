@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -42,9 +43,13 @@ public class Usuario implements UserDetails {
     @NotNull
     private String password;
 
+    @NotNull
+    @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
     private UserRole role;
+
+    @Column(nullable = false)
+    private LocalDate dataNascimento;
 
     @OneToOne(mappedBy = "usuario")
     @ToString.Exclude
@@ -59,9 +64,12 @@ public class Usuario implements UserDetails {
         if(this.role == UserRole.ADMIN)
             return List.of(
                     new SimpleGrantedAuthority("ROLE_ADMIN"),
-                    new SimpleGrantedAuthority("ROLE_FUNCIONARIO"));
-        else if(this.role == UserRole.FUNCIONARIO)
-            return List.of(new SimpleGrantedAuthority("ROLE_FUNCIONARIO"));
+                    new SimpleGrantedAuthority("ROLE_ATENDENTE"),
+                    new SimpleGrantedAuthority("ROLE_ESTOQUISTA"));
+        else if(this.role == UserRole.ATENDENTE)
+            return List.of(new SimpleGrantedAuthority("ROLE_ATENDENTE"));
+        else if(this.role == UserRole.ESTOQUISTA)
+            return List.of(new SimpleGrantedAuthority("ROLE_ESTOQUISTA"));
         else {
             return List.of(new SimpleGrantedAuthority("ROLE_CLIENTE"));
         }

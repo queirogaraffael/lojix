@@ -2,7 +2,8 @@ package com.example.lojix.domain.enums;
 
 public enum UserRole {
     ADMIN("admin"),
-    FUNCIONARIO("funcionario"),
+    ATENDENTE("atendente"),
+    ESTOQUISTA("estoquista"),
     CLIENTE("cliente");
 
     private String role;
