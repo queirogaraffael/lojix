@@ -21,7 +21,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/categorias")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+@PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
@@ -77,7 +77,7 @@ public class CategoriaController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(categoriaService.getCategoriasPaginados(page, size));
+        return ResponseEntity.ok(categoriaService.getCategoriasPaginadas(page, size));
     }
 
     @Operation(

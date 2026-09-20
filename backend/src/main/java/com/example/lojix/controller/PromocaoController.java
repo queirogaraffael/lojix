@@ -40,7 +40,7 @@ public class PromocaoController {
             @ApiResponse(responseCode = "400", description = "Erro de validação"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro de regra de negócio")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<PromocaoResponseDTO> createPromocao(
@@ -66,7 +66,7 @@ public class PromocaoController {
             @ApiResponse(responseCode = "404", description = "Promoção não encontrada"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{idPromocao}/desativar")
     public ResponseEntity<Void> desativarPromocao(@PathVariable Long idPromocao) {
@@ -83,7 +83,7 @@ public class PromocaoController {
             @ApiResponse(responseCode = "404", description = "Produto ou promoção não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{idPromocao}/associar/{idProduto}")
     public ResponseEntity<Void> associarPromocao(
@@ -103,7 +103,7 @@ public class PromocaoController {
             @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/remover/{idProduto}")
     public ResponseEntity<Void> removerPromocaoProduto(@PathVariable Long idProduto) {
@@ -120,7 +120,7 @@ public class PromocaoController {
             @ApiResponse(responseCode = "404", description = "Promoção não encontrada"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<PromocaoResponseDTO> getPromocaoById(@PathVariable Long id) {
@@ -159,7 +159,7 @@ public class PromocaoController {
             @ApiResponse(responseCode = "200", description = "Promoções listadas com sucesso"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
     public ResponseEntity<Page<PromocaoResponseDTO>> getPromocoesAtivasPaginadas(
