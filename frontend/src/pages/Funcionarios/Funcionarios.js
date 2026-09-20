@@ -52,12 +52,14 @@ export const Funcionarios = () => {
         const payload = {
           cargo: dadosFuncionario.cargo,
           salario: dadosFuncionario.salario,
+          role: dadosFuncionario.role,
           usuarioRequestDTO: {
             name: dadosFuncionario.name,
             email: dadosFuncionario.email,
             username: dadosFuncionario.username,
             cpf: dadosFuncionario.cpf,
-            password: dadosFuncionario.password
+            password: dadosFuncionario.password,
+            dataNascimento: dadosFuncionario.dataNascimento.split('-').reverse().join('-')
           }
         };
         await api.post('/funcionarios', payload);

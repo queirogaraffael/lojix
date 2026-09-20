@@ -37,13 +37,13 @@ export const Clientes = () => {
   const handleSave = async (dadosCliente) => {
     try {
       const payload = {
-        tempoFidelidade: dadosCliente.tempoFidelidade,
         usuarioRequestDTO: {
             name: dadosCliente.name,
             email: dadosCliente.email,
             username: dadosCliente.username,
             cpf: dadosCliente.cpf,
-            password: dadosCliente.password
+            password: dadosCliente.password,
+            dataNascimento: dadosCliente.dataNascimento.split('-').reverse().join('-')
         }
       };
 
@@ -91,7 +91,7 @@ export const Clientes = () => {
               <th>Nome</th>
               <th>Email</th>
               <th>CPF</th>
-              <th>Fidelidade Desde</th>
+              <th>Membro Desde</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -101,7 +101,7 @@ export const Clientes = () => {
                 <td>{cliente.usuario.name}</td>
                 <td>{cliente.usuario.email}</td>
                 <td>{cliente.usuario.cpf}</td>
-                <td>{formatarData(cliente.tempoFidelidade)}</td>
+                <td>{formatarData(cliente.membroDesde)}</td>
                 <td className="acoes">
                   <button
                     className="btn-editar"

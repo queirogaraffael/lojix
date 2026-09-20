@@ -7,7 +7,7 @@ export const ClienteForm = ({ onSave, onCancel }) => {
     username: '',
     cpf: '',
     password: '',
-    tempoFidelidade: ''
+    dataNascimento: ''
   });
 
   const handleChange = (e) => {
@@ -89,17 +89,16 @@ export const ClienteForm = ({ onSave, onCancel }) => {
           />
         </div>
         <div className="form-control">
-          <label htmlFor="tempoFidelidade">Data de Início (Fidelidade)</label>
+          <label htmlFor="dataNascimento">Data de Nascimento</label>
           <input
             type="date"
-            id="tempoFidelidade"
-            name="tempoFidelidade"
-            value={formData.tempoFidelidade}
+            id="dataNascimento"
+            name="dataNascimento"
+            value={formData.dataNascimento}
             onChange={handleChange}
             required
-            max={new Date().toISOString().split("T")[0]} 
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
           />
-          <small style={{fontSize: '0.8em', color: '#666'}}>Data passada ou atual.</small>
         </div>
       </div>
 

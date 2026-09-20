@@ -20,11 +20,19 @@ export const Layout = ({ children }) => {
         </div>
         <div className="navbar-links">
           <NavLink to="/">Dashboard</NavLink>
-          <NavLink to="/produtos">Produtos</NavLink>
-          <NavLink to="/categorias">Categorias</NavLink> {/* Link Novo */}
-          <NavLink to="/funcionarios">Funcionários</NavLink>
-          <NavLink to="/promocoes">Promoções</NavLink>
-          <NavLink to="/clientes">Clientes</NavLink>
+          {(user?.role === 'ADMIN' || user?.role === 'ESTOQUISTA') && (
+            <>
+              <NavLink to="/produtos">Produtos</NavLink>
+              <NavLink to="/categorias">Categorias</NavLink>
+              <NavLink to="/promocoes">Promoções</NavLink>
+            </>
+          )}
+          {user?.role === 'ADMIN' && (
+            <NavLink to="/funcionarios">Funcionários</NavLink>
+          )}
+          {(user?.role === 'ADMIN' || user?.role === 'ATENDENTE') && (
+            <NavLink to="/clientes">Clientes</NavLink>
+          )}
         </div>
         <div className="navbar-user">
           <div className="user-profile-btn" onClick={() => navigate('/perfil')} title="Meu Perfil">

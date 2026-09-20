@@ -7,8 +7,10 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
     username: '',
     cpf: '',
     cargo: '',
+    role: 'ATENDENTE',
     salario: '',
-    password: ''
+    password: '',
+    dataNascimento: ''
   });
 
   const isEditMode = !!funcionario;
@@ -21,8 +23,10 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         username: funcionario.usuarioResponseDTO.username,
         cpf: funcionario.usuarioResponseDTO.cpf,
         cargo: funcionario.cargo,
+        role: funcionario.usuarioResponseDTO.role || 'ATENDENTE',
         salario: funcionario.salario,
-        password: ''
+        password: '',
+        dataNascimento: funcionario.usuarioResponseDTO.dataNascimento ? funcionario.usuarioResponseDTO.dataNascimento.split('-').reverse().join('-') : ''
       });
     } else {
       setFormData({
@@ -31,8 +35,10 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         username: '',
         cpf: '',
         cargo: '',
+        role: 'ATENDENTE',
         salario: '',
-        password: ''
+        password: '',
+        dataNascimento: ''
       });
     }
   }, [funcionario]);
@@ -110,8 +116,24 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
             disabled={isEditMode}
           />
         </div>
+        <div className="form-control">
+          <label htmlFor="dataNascimento">Data de Nasc.</label>
+          <input
+            type="date"
+            id="dataNascimento"
+            name="dataNascimento"
+            value={formData.dataNascimento}
+            onChange={handleChange}
+            required={!isEditMode}
+            disabled={isEditMode}
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
+          />
+        </div>
+      </div>
+
+      <div className="form-group">
          <div className="form-control">
-          <label htmlFor="cargo">Cargo</label>
+          <label htmlFor="cargo">Cargo (Ex: Gerente Geral)</label>
           <input
             type="text"
             id="cargo"
@@ -120,6 +142,21 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
             onChange={handleChange}
             required
           />
+        </div>
+        <div className="form-control">
+          <label htmlFor="role">Nível de Acesso no Sistema</label>
+          <select
+            id="role"
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            required={!isEditMode}
+            disabled={isEditMode}
+          >
+            <option value="ATENDENTE">Atendente (Acesso a Clientes)</option>
+            <option value="ESTOQUISTA">Estoquista (Acesso a Produtos e Promoções)</option>
+            <option value="ADMIN">Administrador (Acesso Total)</option>
+          </select>
         </div>
       </div>
 
