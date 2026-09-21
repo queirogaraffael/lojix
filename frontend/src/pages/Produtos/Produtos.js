@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { listarProdutos, criarProduto, atualizarProduto, desativarProduto } from '../../services/produtosService';
+import { listarCategorias } from '../../services/categoriasService';
+import { listarPromocoes, associarProduto, removerAssociacaoProduto } from '../../services/promocoesService';
 import { Modal } from '../../components/Modal/Modal';
 import { ProdutoForm } from './ProdutoForm';
 import './Produtos.css';
@@ -17,9 +19,9 @@ export const Produtos = () => {
     try {
       setLoading(true);
       const [prodRes, catRes, promoRes] = await Promise.all([
-        api.get('/produtos?page=0&size=50'),
-        api.get('/categorias?page=0&size=100'),
-        api.get('/promocoes?page=0&size=100')
+        listarProdutos(0, 50),
+        listarCategorias(0, 50),
+        listarPromocoes(0, 50)
       ]);
 
       setProdutos(prodRes.data.content);
@@ -70,23 +72,23 @@ export const Produtos = () => {
       const { categoriaId, promocaoId, ...produtoDto } = dados;
 
       if (produtoAtual) {
-        await api.put(`/produtos/${produtoAtual.id}`, produtoDto);
+        await atualizarProduto(produtoAtual.id, produtoDto);
 
         if (promocaoId !== produtoAtual.promocaoId) {
             if (promocaoId) {
-                await api.patch(`/promocoes/${promocaoId}/associar/${produtoAtual.id}`);
+                await associarProduto(promocaoId, produtoAtual.id);
             } else {
-                await api.patch(`/promocoes/remover/${produtoAtual.id}`);
+                await removerAssociacaoProduto(produtoAtual.id);
             }
         }
         alert('Produto atualizado com sucesso!');
 
       } else {
-        const response = await api.post(`/produtos/categoria/${categoriaId}`, produtoDto);
+        const response = await criarProduto(categoriaId, produtoDto);
         const novoId = response.data.id;
 
         if (promocaoId) {
-            await api.patch(`/promocoes/${promocaoId}/associar/${novoId}`);
+            await associarProduto(promocaoId, novoId);
         }
         alert('Produto criado com sucesso!');
       }
@@ -103,7 +105,7 @@ export const Produtos = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja desativar este produto?')) {
       try {
-        await api.patch(`/produtos/${id}/desativar`);
+        await desativarProduto(id);
         alert('Produto desativado!');
         fetchData();
       } catch (error) {

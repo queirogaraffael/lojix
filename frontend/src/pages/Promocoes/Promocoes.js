@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { listarPromocoes, criarPromocao, desativarPromocao } from '../../services/promocoesService';
 import { Modal } from '../../components/Modal/Modal';
 import { PromocaoForm } from './PromocaoForm';
 import './Promocoes.css';
@@ -12,7 +12,7 @@ export const Promocoes = () => {
   const fetchPromocoes = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/promocoes?page=0&size=20');
+      const response = await listarPromocoes(0, 20);
       setPromocoes(response.data.content);
     } catch (error) {
       console.error(error);
@@ -36,7 +36,7 @@ export const Promocoes = () => {
 
   const handleSave = async (dadosPromocao) => {
     try {
-      await api.post('/promocoes', dadosPromocao);
+      await criarPromocao(dadosPromocao);
       alert('Promoção criada com sucesso!');
       fetchPromocoes();
       handleCloseModal();
@@ -58,7 +58,7 @@ export const Promocoes = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja desativar esta promoção?')) {
       try {
-        await api.patch(`/promocoes/${id}/desativar`);
+        await desativarPromocao(id);
         alert('Promoção desativada com sucesso!');
         fetchPromocoes();
       } catch (error) {

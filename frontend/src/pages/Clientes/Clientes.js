@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { listarClientes, criarCliente } from '../../services/clientesService';
 import { Modal } from '../../components/Modal/Modal';
 import { ClienteForm } from './ClienteForm';
 import './Clientes.css';
@@ -12,7 +12,7 @@ export const Clientes = () => {
   const fetchClientes = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/clientes?page=0&size=20');
+      const response = await listarClientes(0, 20);
       setClientes(response.data.content);
     } catch (error) {
       console.error(error);
@@ -47,7 +47,7 @@ export const Clientes = () => {
         }
       };
 
-      await api.post('/clientes', payload);
+      await criarCliente(payload);
       alert('Cliente cadastrado com sucesso!');
       fetchClientes();
       handleCloseModal();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { listarCategorias, criarCategoria, atualizarCategoria } from '../../services/categoriasService';
 import { Modal } from '../../components/Modal/Modal';
 import { CategoriaForm } from './CategoriaForm';
 import './Categorias.css';
@@ -13,8 +13,7 @@ export const Categorias = () => {
   const fetchCategorias = async () => {
     try {
       setLoading(true);
-      // Buscando tamanho maior para listar todas por enquanto
-      const response = await api.get('/categorias?page=0&size=100');
+      const response = await listarCategorias(0, 50);
       setCategorias(response.data.content);
     } catch (error) {
       console.error(error);
@@ -41,10 +40,10 @@ export const Categorias = () => {
   const handleSave = async (dadosCategoria) => {
     try {
       if (categoriaAtual) {
-        await api.put(`/categorias/${categoriaAtual.id}`, dadosCategoria);
+        await atualizarCategoria(categoriaAtual.id, dadosCategoria);
         alert('Categoria atualizada com sucesso!');
       } else {
-        await api.post('/categorias', dadosCategoria);
+        await criarCategoria(dadosCategoria);
         alert('Categoria criada com sucesso!');
       }
       fetchCategorias();
@@ -53,10 +52,9 @@ export const Categorias = () => {
       console.error(error);
       let msg = "Erro ao salvar categoria.";
       if (error.response && error.response.data) {
-          // Tratamento simples de erro
-           if (error.response.data.message) {
-               msg = error.response.data.message;
-           }
+        if (error.response.data.message) {
+          msg = error.response.data.message;
+        }
       }
       alert(msg);
     }

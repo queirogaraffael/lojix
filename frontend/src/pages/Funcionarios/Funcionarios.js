@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { listarFuncionarios, criarFuncionario, atualizarFuncionario, desligarFuncionario } from '../../services/funcionariosService';
 import { Modal } from '../../components/Modal/Modal';
 import Avatar from '../../components/Avatar/Avatar';
 import { FuncionarioForm } from './FuncionarioForm';
@@ -14,7 +14,7 @@ export const Funcionarios = () => {
   const fetchFuncionarios = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/funcionarios?page=0&size=20');
+      const response = await listarFuncionarios(0, 20);
       setFuncionarios(response.data.content);
     } catch (error) {
       console.error(error);
@@ -46,7 +46,7 @@ export const Funcionarios = () => {
           salario: dadosFuncionario.salario,
           usuarioUpdateDTO: {}
         };
-        await api.put(`/funcionarios/${funcionarioAtual.id}`, payload);
+        await atualizarFuncionario(funcionarioAtual.id, payload);
         alert('Funcionário atualizado com sucesso!');
       } else {
         const payload = {
@@ -62,7 +62,7 @@ export const Funcionarios = () => {
             dataNascimento: dadosFuncionario.dataNascimento.split('-').reverse().join('-')
           }
         };
-        await api.post('/funcionarios', payload);
+        await criarFuncionario(payload);
         alert('Funcionário criado com sucesso!');
       }
       fetchFuncionarios();
@@ -93,7 +93,7 @@ export const Funcionarios = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja desligar este funcionário?')) {
       try {
-        await api.patch(`/funcionarios/${id}/desligar`);
+        await desligarFuncionario(id);
         alert('Funcionário desligado com sucesso!');
         fetchFuncionarios();
       } catch (error) {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import * as authService from "../services/authService";
 
 const AuthContext = createContext(null);
 
@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
 
       if (storedUser && storedToken) {
         setUser(JSON.parse(storedUser));
-        api.defaults.headers.Authorization = `Bearer ${storedToken}`;
       }
       setLoading(false);
     };
@@ -26,13 +25,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await api.post('/auth/login', { username, password });
+      const response = await authService.login(username, password);
       const { token } = response.data;
 
       localStorage.setItem("token", token);
-      api.defaults.headers.Authorization = `Bearer ${token}`;
 
-      const userResponse = await api.get("/auth/me");
+      const userResponse = await authService.getMe();
       const userData = userResponse.data;
 
       setUser(userData);
@@ -44,7 +42,6 @@ export const AuthProvider = ({ children }) => {
       console.error("Erro no login:", error);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      delete api.defaults.headers.Authorization;
 
       return {
         success: false,
@@ -59,7 +56,6 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    delete api.defaults.headers.Authorization;
     navigate("/login");
   };
 

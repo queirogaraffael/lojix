@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import api from '../../services/api';
+import { listarProdutos } from '../../services/produtosService';
+import { listarFuncionarios } from '../../services/funcionariosService';
+import { listarPromocoes } from '../../services/promocoesService';
+import { listarClientes } from '../../services/clientesService';
 import './Dashboard.css';
 
 export const Dashboard = () => {
@@ -19,10 +22,10 @@ export const Dashboard = () => {
       try {
         // Busca apenas 1 item de cada para obter o metadado "totalElements" do Spring Page de forma leve
         const [produtosRes, funcionariosRes, promocoesRes, clientesRes] = await Promise.all([
-          api.get('/produtos?page=0&size=1'),
-          api.get('/funcionarios?page=0&size=1'),
-          api.get('/promocoes?page=0&size=1'),
-          api.get('/clientes?page=0&size=1')
+          listarProdutos(0, 1),
+          listarFuncionarios(0, 1),
+          listarPromocoes(0, 1),
+          listarClientes(0, 1)
         ]);
 
         setCounts({
