@@ -8,8 +8,9 @@ import { Produtos } from './pages/Produtos/Produtos';
 import { Funcionarios } from './pages/Funcionarios/Funcionarios';
 import { Promocoes } from './pages/Promocoes/Promocoes';
 import { Clientes } from './pages/Clientes/Clientes';
-import { Categorias } from './pages/Categorias/Categorias'; // Importação Nova
+import { Categorias } from './pages/Categorias/Categorias';
 import { Perfil } from './pages/Perfil/Perfil';
+import { Unauthorized } from './pages/Unauthorized/Unauthorized';
 import './App.css';
 
 function App() {
@@ -23,12 +24,13 @@ function App() {
             <Layout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/produtos" element={<Produtos />} />
-                <Route path="/funcionarios" element={<Funcionarios />} />
-                <Route path="/promocoes" element={<Promocoes />} />
-                <Route path="/clientes" element={<Clientes />} />
-                <Route path="/categorias" element={<Categorias />} /> {/* Rota Nova */}
+                <Route path="/produtos" element={<ProtectedRoute allowedRoles={['ADMIN', 'ESTOQUISTA']}><Produtos /></ProtectedRoute>} />
+                <Route path="/funcionarios" element={<ProtectedRoute allowedRoles={['ADMIN']}><Funcionarios /></ProtectedRoute>} />
+                <Route path="/promocoes" element={<ProtectedRoute allowedRoles={['ADMIN', 'ESTOQUISTA']}><Promocoes /></ProtectedRoute>} />
+                <Route path="/clientes" element={<ProtectedRoute allowedRoles={['ADMIN', 'ATENDENTE']}><Clientes /></ProtectedRoute>} />
+                <Route path="/categorias" element={<ProtectedRoute allowedRoles={['ADMIN', 'ESTOQUISTA']}><Categorias /></ProtectedRoute>} />
                 <Route path="/perfil" element={<Perfil />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
               </Routes>
             </Layout>
           </ProtectedRoute>
