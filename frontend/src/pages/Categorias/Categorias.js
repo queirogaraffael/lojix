@@ -1,31 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listarCategorias, criarCategoria, atualizarCategoria } from '../../services/categoriasService';
 import { Modal } from '../../components/Modal/Modal';
 import { CategoriaForm } from './CategoriaForm';
 import './Categorias.css';
 
 export const Categorias = () => {
-  const [categorias, setCategorias] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [paginaAtual, setPaginaAtual] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoriaAtual, setCategoriaAtual] = useState(null);
+  const queryClient = useQueryClient();
 
-  const fetchCategorias = async () => {
-    try {
-      setLoading(true);
-      const response = await listarCategorias(0, 50);
-      setCategorias(response.data.content);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao carregar categorias.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const categoriasQuery = useQuery({
+    queryKey: ['categorias', 'paginated', paginaAtual],
+    queryFn: () => listarCategorias(paginaAtual, 15)
+  });
 
-  useEffect(() => {
-    fetchCategorias();
-  }, []);
+  const categorias = categoriasQuery.data?.data?.content || [];
+  const loading = categoriasQuery.isLoading;
 
   const handleOpenModal = (categoria = null) => {
     setCategoriaAtual(categoria);
@@ -37,18 +29,20 @@ export const Categorias = () => {
     setIsModalOpen(false);
   };
 
-  const handleSave = async (dadosCategoria) => {
-    try {
+  const mutationSalvar = useMutation({
+    mutationFn: async (dadosCategoria) => {
       if (categoriaAtual) {
         await atualizarCategoria(categoriaAtual.id, dadosCategoria);
-        alert('Categoria atualizada com sucesso!');
       } else {
         await criarCategoria(dadosCategoria);
-        alert('Categoria criada com sucesso!');
       }
-      fetchCategorias();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['categorias']);
+      alert('Categoria salva com sucesso!');
       handleCloseModal();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error(error);
       let msg = "Erro ao salvar categoria.";
       if (error.response && error.response.data) {
@@ -58,7 +52,9 @@ export const Categorias = () => {
       }
       alert(msg);
     }
-  };
+  });
+
+  const handleSave = (dadosCategoria) => mutationSalvar.mutate(dadosCategoria);
 
   return (
     <div className="categorias-container">
@@ -70,6 +66,7 @@ export const Categorias = () => {
       </div>
 
       {loading ? <p>Carregando...</p> : (
+        <>
         <table className="categorias-tabela">
           <thead>
             <tr>
@@ -95,6 +92,25 @@ export const Categorias = () => {
             ))}
           </tbody>
         </table>
+        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <button 
+            onClick={() => setPaginaAtual(0)} 
+            disabled={paginaAtual === 0 || categoriasQuery.isFetching}>
+            {'<< Primeira'}
+          </button>
+          <button 
+            onClick={() => setPaginaAtual(old => Math.max(old - 1, 0))} 
+            disabled={paginaAtual === 0 || categoriasQuery.isFetching}>
+            {'< Anterior'}
+          </button>
+          <span style={{ padding: '5px 10px' }}>Página {paginaAtual + 1}</span>
+          <button 
+            onClick={() => setPaginaAtual(old => old + 1)} 
+            disabled={categoriasQuery.data?.data?.last || categoriasQuery.isFetching}>
+            {'Próxima >'}
+          </button>
+        </div>
+      </>
       )}
 
       <Modal

@@ -1,30 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listarClientes, criarCliente } from '../../services/clientesService';
 import { Modal } from '../../components/Modal/Modal';
 import { ClienteForm } from './ClienteForm';
 import './Clientes.css';
 
 export const Clientes = () => {
-  const [clientes, setClientes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [paginaAtual, setPaginaAtual] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchClientes = async () => {
-    try {
-      setLoading(true);
-      const response = await listarClientes(0, 20);
-      setClientes(response.data.content);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao carregar clientes.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const clientesQuery = useQuery({
+    queryKey: ['clientes', paginaAtual],
+    queryFn: () => listarClientes(paginaAtual, 15)
+  });
 
-  useEffect(() => {
-    fetchClientes();
-  }, []);
+  const clientes = clientesQuery.data?.data?.content || [];
+  const loading = clientesQuery.isLoading;
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -34,24 +26,14 @@ export const Clientes = () => {
     setIsModalOpen(false);
   };
 
-  const handleSave = async (dadosCliente) => {
-    try {
-      const payload = {
-        usuarioRequestDTO: {
-            name: dadosCliente.name,
-            email: dadosCliente.email,
-            username: dadosCliente.username,
-            cpf: dadosCliente.cpf,
-            password: dadosCliente.password,
-            dataNascimento: dadosCliente.dataNascimento.split('-').reverse().join('-')
-        }
-      };
-
-      await criarCliente(payload);
+  const mutationSalvar = useMutation({
+    mutationFn: (payload) => criarCliente(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clientes']);
       alert('Cliente cadastrado com sucesso!');
-      fetchClientes();
       handleCloseModal();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error(error);
       let msg = "Erro ao salvar cliente.";
       if (error.response && error.response.data) {
@@ -64,6 +46,20 @@ export const Clientes = () => {
       }
       alert(msg);
     }
+  });
+
+  const handleSave = (dadosCliente) => {
+    const payload = {
+      usuarioRequestDTO: {
+          name: dadosCliente.name,
+          email: dadosCliente.email,
+          username: dadosCliente.username,
+          cpf: dadosCliente.cpf,
+          password: dadosCliente.password,
+          dataNascimento: dadosCliente.dataNascimento.split('-').reverse().join('-')
+      }
+    };
+    mutationSalvar.mutate(payload);
   };
 
   const handleNotImplemented = () => {
@@ -85,6 +81,7 @@ export const Clientes = () => {
       </div>
 
       {loading ? <p>Carregando...</p> : (
+        <>
         <table className="clientes-tabela">
           <thead>
             <tr>
@@ -122,6 +119,25 @@ export const Clientes = () => {
             ))}
           </tbody>
         </table>
+        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <button 
+            onClick={() => setPaginaAtual(0)} 
+            disabled={paginaAtual === 0 || clientesQuery.isFetching}>
+            {'<< Primeira'}
+          </button>
+          <button 
+            onClick={() => setPaginaAtual(old => Math.max(old - 1, 0))} 
+            disabled={paginaAtual === 0 || clientesQuery.isFetching}>
+            {'< Anterior'}
+          </button>
+          <span style={{ padding: '5px 10px' }}>Página {paginaAtual + 1}</span>
+          <button 
+            onClick={() => setPaginaAtual(old => old + 1)} 
+            disabled={clientesQuery.data?.data?.last || clientesQuery.isFetching}>
+            {'Próxima >'}
+          </button>
+        </div>
+      </>
       )}
 
       <Modal

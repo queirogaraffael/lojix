@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listarFuncionarios, criarFuncionario, atualizarFuncionario, desligarFuncionario } from '../../services/funcionariosService';
 import { Modal } from '../../components/Modal/Modal';
 import Avatar from '../../components/Avatar/Avatar';
@@ -6,27 +7,18 @@ import { FuncionarioForm } from './FuncionarioForm';
 import './Funcionarios.css';
 
 export const Funcionarios = () => {
-  const [funcionarios, setFuncionarios] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [paginaAtual, setPaginaAtual] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [funcionarioAtual, setFuncionarioAtual] = useState(null);
+  const queryClient = useQueryClient();
 
-  const fetchFuncionarios = async () => {
-    try {
-      setLoading(true);
-      const response = await listarFuncionarios(0, 20);
-      setFuncionarios(response.data.content);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao carregar lista de funcionários.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const funcionariosQuery = useQuery({
+    queryKey: ['funcionarios', paginaAtual],
+    queryFn: () => listarFuncionarios(paginaAtual, 15)
+  });
 
-  useEffect(() => {
-    fetchFuncionarios();
-  }, []);
+  const funcionarios = funcionariosQuery.data?.data?.content || [];
+  const loading = funcionariosQuery.isLoading;
 
   const handleOpenModal = (funcionario = null) => {
     setFuncionarioAtual(funcionario);
@@ -38,8 +30,8 @@ export const Funcionarios = () => {
     setIsModalOpen(false);
   };
 
-  const handleSave = async (dadosFuncionario) => {
-    try {
+  const mutationSalvar = useMutation({
+    mutationFn: async (dadosFuncionario) => {
       if (funcionarioAtual) {
         const payload = {
           cargo: dadosFuncionario.cargo,
@@ -47,7 +39,6 @@ export const Funcionarios = () => {
           usuarioUpdateDTO: {}
         };
         await atualizarFuncionario(funcionarioAtual.id, payload);
-        alert('Funcionário atualizado com sucesso!');
       } else {
         const payload = {
           cargo: dadosFuncionario.cargo,
@@ -63,14 +54,16 @@ export const Funcionarios = () => {
           }
         };
         await criarFuncionario(payload);
-        alert('Funcionário criado com sucesso!');
       }
-      fetchFuncionarios();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['funcionarios']);
+      alert('Funcionário salvo com sucesso!');
       handleCloseModal();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error(error);
       let msg = "Erro desconhecido ao salvar.";
-      
       if (error.response && error.response.data) {
         const data = error.response.data;
         if (typeof data === 'object' && !data.message && !data.error) {
@@ -88,18 +81,24 @@ export const Funcionarios = () => {
       }
       alert(msg);
     }
-  };
+  });
 
-  const handleDelete = async (id) => {
+  const mutationExcluir = useMutation({
+    mutationFn: (id) => desligarFuncionario(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['funcionarios']);
+      alert('Funcionário desligado com sucesso!');
+    },
+    onError: (error) => {
+      console.error(error);
+      alert("Erro ao tentar desligar o funcionário.");
+    }
+  });
+
+  const handleSave = (dados) => mutationSalvar.mutate(dados);
+  const handleDelete = (id) => {
     if (window.confirm('Tem certeza que deseja desligar este funcionário?')) {
-      try {
-        await desligarFuncionario(id);
-        alert('Funcionário desligado com sucesso!');
-        fetchFuncionarios();
-      } catch (error) {
-        console.error(error);
-        alert("Erro ao tentar desligar o funcionário.");
-      }
+      mutationExcluir.mutate(id);
     }
   };
 
@@ -113,6 +112,7 @@ export const Funcionarios = () => {
       </div>
 
       {loading ? <p>Carregando...</p> : (
+        <>
         <table className="funcionarios-tabela">
           <thead>
             <tr>
@@ -150,6 +150,25 @@ export const Funcionarios = () => {
             ))}
           </tbody>
         </table>
+        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <button 
+            onClick={() => setPaginaAtual(0)} 
+            disabled={paginaAtual === 0 || funcionariosQuery.isFetching}>
+            {'<< Primeira'}
+          </button>
+          <button 
+            onClick={() => setPaginaAtual(old => Math.max(old - 1, 0))} 
+            disabled={paginaAtual === 0 || funcionariosQuery.isFetching}>
+            {'< Anterior'}
+          </button>
+          <span style={{ padding: '5px 10px' }}>Página {paginaAtual + 1}</span>
+          <button 
+            onClick={() => setPaginaAtual(old => old + 1)} 
+            disabled={funcionariosQuery.data?.data?.last || funcionariosQuery.isFetching}>
+            {'Próxima >'}
+          </button>
+        </div>
+      </>
       )}
 
       <Modal

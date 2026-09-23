@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listarProdutos, criarProduto, atualizarProduto, desativarProduto } from '../../services/produtosService';
 import { listarCategorias } from '../../services/categoriasService';
 import { listarPromocoes, associarProduto, removerAssociacaoProduto } from '../../services/promocoesService';
@@ -7,37 +8,33 @@ import { ProdutoForm } from './ProdutoForm';
 import './Produtos.css';
 
 export const Produtos = () => {
-  const [produtos, setProdutos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [promocoes, setPromocoes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
+  const [paginaAtual, setPaginaAtual] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [produtoAtual, setProdutoAtual] = useState(null);
+  
+  const queryClient = useQueryClient();
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [prodRes, catRes, promoRes] = await Promise.all([
-        listarProdutos(0, 50),
-        listarCategorias(0, 50),
-        listarPromocoes(0, 50)
-      ]);
+  const produtosQuery = useQuery({
+    queryKey: ['produtos', paginaAtual],
+    queryFn: () => listarProdutos(paginaAtual, 15)
+  });
 
-      setProdutos(prodRes.data.content);
-      setCategorias(catRes.data.content);
-      setPromocoes(promoRes.data.content);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao carregar produtos.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const categoriasQuery = useQuery({
+    queryKey: ['categorias'],
+    queryFn: () => listarCategorias(0, 500),
+    staleTime: Infinity, // Cache eterno na sessão
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const promocoesQuery = useQuery({
+    queryKey: ['promocoes'],
+    queryFn: () => listarPromocoes(0, 500),
+    staleTime: Infinity,
+  });
+
+  const loading = produtosQuery.isLoading || categoriasQuery.isLoading || promocoesQuery.isLoading;
+  const produtos = produtosQuery.data?.data?.content || [];
+  const categorias = categoriasQuery.data?.data?.content || [];
+  const promocoes = promocoesQuery.data?.data?.content || [];
 
   const getNomeCategoria = (catId) => {
     const cat = categorias.find(c => c.id === catId);
@@ -67,50 +64,48 @@ export const Produtos = () => {
     setIsModalOpen(false);
   };
 
-  const handleSave = async (dados) => {
-    try {
+  const mutationSalvar = useMutation({
+    mutationFn: async (dados) => {
       const { categoriaId, promocaoId, ...produtoDto } = dados;
-
       if (produtoAtual) {
         await atualizarProduto(produtoAtual.id, produtoDto);
-
         if (promocaoId !== produtoAtual.promocaoId) {
-            if (promocaoId) {
-                await associarProduto(promocaoId, produtoAtual.id);
-            } else {
-                await removerAssociacaoProduto(produtoAtual.id);
-            }
+            if (promocaoId) await associarProduto(promocaoId, produtoAtual.id);
+            else await removerAssociacaoProduto(produtoAtual.id);
         }
-        alert('Produto atualizado com sucesso!');
-
       } else {
         const response = await criarProduto(categoriaId, produtoDto);
-        const novoId = response.data.id;
-
-        if (promocaoId) {
-            await associarProduto(promocaoId, novoId);
-        }
-        alert('Produto criado com sucesso!');
+        if (promocaoId) await associarProduto(promocaoId, response.data.id);
       }
-
-      fetchData();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['produtos']);
+      alert('Produto salvo com sucesso!');
       handleCloseModal();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error(error);
       const msg = error.response?.data?.message || "Erro ao salvar.";
       alert(`Erro: ${msg}`);
     }
-  };
+  });
 
-  const handleDelete = async (id) => {
+  const mutationExcluir = useMutation({
+    mutationFn: (id) => desativarProduto(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['produtos']);
+      alert('Produto desativado!');
+    },
+    onError: (error) => {
+      console.error(error);
+      alert('Erro ao excluir.');
+    }
+  });
+
+  const handleSave = (dados) => mutationSalvar.mutate(dados);
+  const handleDelete = (id) => {
     if (window.confirm('Tem certeza que deseja desativar este produto?')) {
-      try {
-        await desativarProduto(id);
-        alert('Produto desativado!');
-        fetchData();
-      } catch (error) {
-        console.error(error);
-      }
+      mutationExcluir.mutate(id);
     }
   };
 
@@ -124,6 +119,7 @@ export const Produtos = () => {
       </div>
 
       {loading ? <p>Carregando...</p> : (
+        <>
         <table className="produtos-tabela">
           <thead>
             <tr>
@@ -169,6 +165,25 @@ export const Produtos = () => {
             })}
           </tbody>
         </table>
+        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <button 
+            onClick={() => setPaginaAtual(0)} 
+            disabled={paginaAtual === 0 || produtosQuery.isFetching}>
+            {'<< Primeira'}
+          </button>
+          <button 
+            onClick={() => setPaginaAtual(old => Math.max(old - 1, 0))} 
+            disabled={paginaAtual === 0 || produtosQuery.isFetching}>
+            {'< Anterior'}
+          </button>
+          <span style={{ padding: '5px 10px' }}>Página {paginaAtual + 1}</span>
+          <button 
+            onClick={() => setPaginaAtual(old => old + 1)} 
+            disabled={produtosQuery.data?.data?.last || produtosQuery.isFetching}>
+            {'Próxima >'}
+          </button>
+        </div>
+      </>
       )}
 
       <Modal
