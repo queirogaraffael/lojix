@@ -69,7 +69,6 @@ public class ProdutoService {
                 });
     }
 
-    @Cacheable(value = "produtosPageCache", key = "#page + '-' + #size")
     @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> getProdutosPaginados(int page, int size) {
 
@@ -80,7 +79,6 @@ public class ProdutoService {
                 .map(produtoMapper::toResponse);
     }
 
-    @Cacheable(value = "produtosPageCache", key = "'cat-' + #idCategoria + '-' + #page + '-' + #size")
     @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> getProdutosPaginadosByCategoriaId(Long idCategoria, int page, int size) {
 

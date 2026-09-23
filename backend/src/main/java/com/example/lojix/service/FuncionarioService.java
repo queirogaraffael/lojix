@@ -96,7 +96,6 @@ public class FuncionarioService {
         return responseDTO;
     }
 
-    @Cacheable(value = "funcionariosPageCache", key = "#page + '-' + #size")
     @Transactional(readOnly = true)
     public Page<FuncionarioResponseDTO> getFuncionariosPaginados(int page, int size) {
         log.debug("Listando funcionários ativos page={} size={}", page, size);

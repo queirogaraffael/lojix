@@ -101,7 +101,6 @@ public class ClienteService {
         return responseDTO;
     }
 
-    @Cacheable(value = "clientesPageCache", key = "#page + '-' + #size")
     @Transactional(readOnly = true)
     public Page<ClienteResponseDTO> getClientesPaginados(int page, int size){
         log.debug("Listando clientes paginados. page={}, size={}", page, size);

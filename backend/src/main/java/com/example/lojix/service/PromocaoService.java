@@ -67,7 +67,6 @@ public class PromocaoService {
                 });
     }
 
-    @Cacheable(value = "promocoesPageCache", key = "#page + '-' + #size")
     @Transactional(readOnly = true)
     public Page<PromocaoResponseDTO> getPromocoesAtivasPaginadas(int page, int size) {
 
