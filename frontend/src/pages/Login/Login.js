@@ -26,7 +26,7 @@ export const Login = () => {
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
-        <h1>SuperGestor</h1>
+        <h1>Lojix</h1>
 
         {error && (
           <div

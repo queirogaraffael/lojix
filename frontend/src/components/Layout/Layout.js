@@ -16,7 +16,7 @@ export const Layout = ({ children }) => {
     <div className="layout-container">
       <nav className="navbar">
         <div className="navbar-brand" onClick={() => navigate('/')}>
-          SuperGestor
+          Lojix
         </div>
         <div className="navbar-links">
           <NavLink to="/">Dashboard</NavLink>
