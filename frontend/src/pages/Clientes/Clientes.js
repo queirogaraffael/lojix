@@ -71,6 +71,13 @@ export const Clientes = () => {
     return new Date(data).toLocaleDateString('pt-BR');
   };
 
+  const formatarCPF = (cpf) => {
+    if (!cpf) return '-';
+    const nums = cpf.replace(/\D/g, '');
+    if (nums.length !== 11) return cpf;
+    return nums.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
   return (
     <div className={styles['clientes-container']}>
       <div className={styles['header-container']}>
@@ -97,7 +104,7 @@ export const Clientes = () => {
               <tr key={cliente.id}>
                 <td>{cliente.usuario.name}</td>
                 <td>{cliente.usuario.email}</td>
-                <td>{cliente.usuario.cpf}</td>
+                <td>{formatarCPF(cliente.usuario.cpf)}</td>
                 <td>{formatarData(cliente.membroDesde)}</td>
                 <td className={styles.acoes}>
                   <button

@@ -70,15 +70,13 @@ export const Categorias = () => {
         <table className={styles['categorias-tabela']}>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nome</th>
+              <th>Nome da Categoria</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {categorias.map((cat) => (
               <tr key={cat.id}>
-                <td>{cat.id}</td>
                 <td>{cat.nome}</td>
                 <td className={styles.acoes}>
                   <button
