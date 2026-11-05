@@ -95,6 +95,40 @@ export const Funcionarios = () => {
     }
   });
 
+  const formatarSalario = (valor) => {
+    if (valor === null || valor === undefined) return '-';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+  };
+
+  const formatarCPF = (cpf) => {
+    if (!cpf) return '-';
+    const nums = cpf.replace(/\D/g, '');
+    if (nums.length !== 11) return cpf;
+    return nums.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
+  const renderRoleBadge = (role) => {
+    const roleMap = {
+      ADMIN: { label: 'Administrador', bg: '#cce5ff', color: '#004085' },
+      ATENDENTE: { label: 'Atendente', bg: '#d4edda', color: '#155724' },
+      ESTOQUISTA: { label: 'Estoquista', bg: '#fff3cd', color: '#856404' }
+    };
+    const config = roleMap[role] || { label: role || 'Geral', bg: '#e2e3e5', color: '#383d41' };
+    return (
+      <span style={{
+        backgroundColor: config.bg,
+        color: config.color,
+        padding: '2px 8px',
+        borderRadius: '12px',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        display: 'inline-block'
+      }}>
+        {config.label}
+      </span>
+    );
+  };
+
   const handleSave = (dados) => mutationSalvar.mutate(dados);
   const handleDelete = (id) => {
     if (window.confirm('Tem certeza que deseja desligar este funcionário?')) {
@@ -118,6 +152,7 @@ export const Funcionarios = () => {
             <tr>
               <th>Nome</th>
               <th>Cargo</th>
+              <th>Nível de Acesso</th>
               <th>Salário</th>
               <th>Email</th>
               <th>CPF</th>
@@ -129,9 +164,10 @@ export const Funcionarios = () => {
               <tr key={func.id}>
                 <td>{func.usuarioResponseDTO.name}</td>
                 <td>{func.cargo}</td>
-                <td>R$ {func.salario?.toFixed(2)}</td>
+                <td>{renderRoleBadge(func.usuarioResponseDTO.role)}</td>
+                <td>{formatarSalario(func.salario)}</td>
                 <td>{func.usuarioResponseDTO.email}</td>
-                <td>{func.usuarioResponseDTO.cpf}</td>
+                <td>{formatarCPF(func.usuarioResponseDTO.cpf)}</td>
                 <td className={styles.acoes}>
                   <button
                     className={styles['btn-editar']}
