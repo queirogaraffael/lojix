@@ -2,14 +2,29 @@ name: CI - Backend
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "develop"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
   pull_request:
+    branches: ["main", "develop"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  testes-integracao:
-    name: Testes de Integração
+  testes-backend:
+    name: Testes e Build do Backend
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
       - name: Checkout do código
@@ -22,7 +37,16 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Executar testes com Maven
-        run: |
-          cd backend
-          mvn test -Dspring.profiles.active=test
+      - name: Executar testes automatizados
+        run: mvn test -Dspring.profiles.active=test
+
+      - name: Validar empacotamento do JAR
+        run: mvn package -DskipTests
+
+      - name: Salvar relatório de testes em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-test-reports
+          path: backend/target/surefire-reports/
+          retention-days: 7
