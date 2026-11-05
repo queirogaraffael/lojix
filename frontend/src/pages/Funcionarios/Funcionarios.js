@@ -4,7 +4,7 @@ import { listarFuncionarios, criarFuncionario, atualizarFuncionario, desligarFun
 import { Modal } from '../../components/Modal/Modal';
 import Avatar from '../../components/Avatar/Avatar';
 import { FuncionarioForm } from './FuncionarioForm';
-import './Funcionarios.css';
+import styles from './Funcionarios.module.css';
 
 export const Funcionarios = () => {
   const [paginaAtual, setPaginaAtual] = useState(0);
@@ -103,17 +103,17 @@ export const Funcionarios = () => {
   };
 
   return (
-    <div className="funcionarios-container">
-      <div className="header-container">
+    <div className={styles['funcionarios-container']}>
+      <div className={styles['header-container']}>
         <h2>Gestão de Funcionários</h2>
-        <button className="btn-novo" onClick={() => handleOpenModal(null)}>
+        <button className={styles['btn-novo']} onClick={() => handleOpenModal(null)}>
           Novo Funcionário
         </button>
       </div>
 
       {loading ? <p>Carregando...</p> : (
         <>
-        <table className="funcionarios-tabela">
+        <table className={styles['funcionarios-tabela']}>
           <thead>
             <tr>
               <th>Nome</th>
@@ -132,15 +132,15 @@ export const Funcionarios = () => {
                 <td>R$ {func.salario?.toFixed(2)}</td>
                 <td>{func.usuarioResponseDTO.email}</td>
                 <td>{func.usuarioResponseDTO.cpf}</td>
-                <td className="acoes">
+                <td className={styles.acoes}>
                   <button
-                    className="btn-editar"
+                    className={styles['btn-editar']}
                     onClick={() => handleOpenModal(func)}
                   >
                     Editar
                   </button>
                   <button
-                    className="btn-remover"
+                    className={styles['btn-remover']}
                     onClick={() => handleDelete(func.id)}
                   >
                     Desligar
@@ -150,7 +150,7 @@ export const Funcionarios = () => {
             ))}
           </tbody>
         </table>
-        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className={styles['paginacao-controles']} style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 
             onClick={() => setPaginaAtual(0)} 
             disabled={paginaAtual === 0 || funcionariosQuery.isFetching}>

@@ -5,7 +5,7 @@ import { listarProdutos } from '../../services/produtosService';
 import { listarFuncionarios } from '../../services/funcionariosService';
 import { listarPromocoes } from '../../services/promocoesService';
 import { listarClientes } from '../../services/clientesService';
-import './Dashboard.css';
+import styles from './Dashboard.module.css';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -45,8 +45,8 @@ export const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-container">
-        <div className="header-container">
+      <div className={styles['dashboard-container']}>
+        <div className={styles['header-container']}>
             <h2>Bem-vindo ao Painel, {user?.name || user?.username}!</h2>
         </div>
         <p>Carregando dados do sistema...</p>
@@ -55,24 +55,24 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="header-container">
+    <div className={styles['dashboard-container']}>
+      <div className={styles['header-container']}>
         <h2>Bem-vindo ao Painel, {user?.name || user?.username}!</h2>
       </div>
       <p>Este é o resumo atual do seu sistema:</p>
 
-      <div className="dashboard-cards">
+      <div className={styles['dashboard-cards']}>
         {podeVerEstoque && (
           <>
-            <div className="card">
+            <div className={styles.card}>
               <h3>Total de Produtos</h3>
-              <p className="card-value">
+              <p className={styles['card-value']}>
                 {queryProdutos.isError ? 'Erro' : (queryProdutos.data?.data?.totalElements || 0)}
               </p>
             </div>
-            <div className="card">
+            <div className={styles.card}>
               <h3>Total de Promoções</h3>
-              <p className="card-value">
+              <p className={styles['card-value']}>
                 {queryPromocoes.isError ? 'Erro' : (queryPromocoes.data?.data?.totalElements || 0)}
               </p>
             </div>
@@ -80,18 +80,18 @@ export const Dashboard = () => {
         )}
         
         {podeVerFuncionarios && (
-          <div className="card">
+          <div className={styles.card}>
             <h3>Total de Funcionários</h3>
-            <p className="card-value">
+            <p className={styles['card-value']}>
               {queryFuncionarios.isError ? 'Erro' : (queryFuncionarios.data?.data?.totalElements || 0)}
             </p>
           </div>
         )}
 
         {podeVerClientes && (
-          <div className="card">
+          <div className={styles.card}>
             <h3>Total de Clientes</h3>
-            <p className="card-value">
+            <p className={styles['card-value']}>
               {queryClientes.isError ? 'Erro' : (queryClientes.data?.data?.totalElements || 0)}
             </p>
           </div>

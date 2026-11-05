@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styles from './ClienteForm.module.css';
 
 export const ClienteForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -24,8 +25,8 @@ export const ClienteForm = ({ onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="produto-form">
-      <div className="form-control">
+    <form onSubmit={handleSubmit} className={styles['cliente-form']}>
+      <div className={styles['form-control']}>
         <label htmlFor="name">Nome Completo</label>
         <input
           type="text"
@@ -37,8 +38,8 @@ export const ClienteForm = ({ onSave, onCancel }) => {
         />
       </div>
 
-      <div className="form-group">
-         <div className="form-control">
+      <div className={styles['form-group']}>
+         <div className={styles['form-control']}>
           <label htmlFor="username">Usuário (Login)</label>
           <input
             type="text"
@@ -49,7 +50,7 @@ export const ClienteForm = ({ onSave, onCancel }) => {
             required
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="cpf">CPF</label>
           <input
             type="text"
@@ -63,7 +64,7 @@ export const ClienteForm = ({ onSave, onCancel }) => {
         </div>
       </div>
 
-      <div className="form-control">
+      <div className={styles['form-control']}>
         <label htmlFor="email">Email</label>
         <input
           type="email"
@@ -75,8 +76,8 @@ export const ClienteForm = ({ onSave, onCancel }) => {
         />
       </div>
 
-      <div className="form-group">
-        <div className="form-control">
+      <div className={styles['form-group']}>
+        <div className={styles['form-control']}>
           <label htmlFor="password">Senha</label>
           <input
             type="password"
@@ -88,7 +89,7 @@ export const ClienteForm = ({ onSave, onCancel }) => {
             minLength="6"
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="dataNascimento">Data de Nascimento</label>
           <input
             type="date"
@@ -102,11 +103,11 @@ export const ClienteForm = ({ onSave, onCancel }) => {
         </div>
       </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-cancel" onClick={onCancel}>
+      <div className={styles['form-actions']}>
+        <button type="button" className={styles['btn-cancel']} onClick={onCancel}>
           Cancelar
         </button>
-        <button type="submit" className="btn-save">
+        <button type="submit" className={styles['btn-save']}>
           Salvar
         </button>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './ProdutoForm.css';
+import styles from './ProdutoForm.module.css';
 
 export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -63,8 +63,8 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="produto-form">
-      <div className="form-control">
+    <form onSubmit={handleSubmit} className={styles['produto-form']}>
+      <div className={styles['form-control']}>
         <label htmlFor="nome">Nome do Produto</label>
         <input
           type="text"
@@ -76,8 +76,8 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
         />
       </div>
 
-      <div className="form-group">
-        <div className="form-control">
+      <div className={styles['form-group']}>
+        <div className={styles['form-control']}>
           <label htmlFor="categoriaId">Categoria</label>
           <select
             id="categoriaId"
@@ -97,7 +97,7 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
           </select>
         </div>
 
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="preco">Preço (R$)</label>
           <input
             type="number"
@@ -111,7 +111,7 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
           />
         </div>
 
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="quantidadeEstoque">Estoque</label>
           <input
             type="number"
@@ -125,7 +125,7 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
         </div>
       </div>
 
-      <div className="form-control">
+      <div className={styles['form-control']}>
         <label htmlFor="descricao">Descrição</label>
         <textarea
           id="descricao"
@@ -137,8 +137,8 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
         ></textarea>
       </div>
 
-      <div className="form-group">
-        <div className="form-control">
+      <div className={styles['form-group']}>
+        <div className={styles['form-control']}>
           <label htmlFor="dataValidade">Data de Validade</label>
           <input
             type="date"
@@ -149,7 +149,7 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
             required
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="promocaoId">Promoção (Opcional)</label>
           <select
             id="promocaoId"
@@ -167,11 +167,11 @@ export const ProdutoForm = ({ produto, categorias, promocoes, onSave, onCancel }
         </div>
       </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-cancel" onClick={onCancel}>
+      <div className={styles['form-actions']}>
+        <button type="button" className={styles['btn-cancel']} onClick={onCancel}>
           Cancelar
         </button>
-        <button type="submit" className="btn-save">
+        <button type="submit" className={styles['btn-save']}>
           Salvar
         </button>
       </div>

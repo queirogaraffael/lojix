@@ -5,7 +5,7 @@ import { listarCategorias } from '../../services/categoriasService';
 import { listarPromocoes, associarProduto, removerAssociacaoProduto } from '../../services/promocoesService';
 import { Modal } from '../../components/Modal/Modal';
 import { ProdutoForm } from './ProdutoForm';
-import './Produtos.css';
+import styles from './Produtos.module.css';
 
 export const Produtos = () => {
   const [paginaAtual, setPaginaAtual] = useState(0);
@@ -110,17 +110,17 @@ export const Produtos = () => {
   };
 
   return (
-    <div className="produtos-container">
-      <div className="header-container">
+    <div className={styles['produtos-container']}>
+      <div className={styles['header-container']}>
         <h2>Gestão de Produtos</h2>
-        <button className="btn-novo" onClick={() => handleOpenModal(null)}>
+        <button className={styles['btn-novo']} onClick={() => handleOpenModal(null)}>
           Novo Produto
         </button>
       </div>
 
       {loading ? <p>Carregando...</p> : (
         <>
-        <table className="produtos-tabela">
+        <table className={styles['produtos-tabela']}>
           <thead>
             <tr>
               <th>Nome</th>
@@ -156,16 +156,16 @@ export const Produtos = () => {
                         {prod.precoPromocional.toFixed(2)}
                     </td>
                     <td>{formatarData(prod.dataValidade)}</td>
-                    <td className="acoes">
-                        <button className="btn-editar" onClick={() => handleOpenModal(prod)}>Editar</button>
-                        <button className="btn-remover" onClick={() => handleDelete(prod.id)}>Excluir</button>
+                    <td className={styles.acoes}>
+                        <button className={styles['btn-editar']} onClick={() => handleOpenModal(prod)}>Editar</button>
+                        <button className={styles['btn-remover']} onClick={() => handleDelete(prod.id)}>Excluir</button>
                     </td>
                     </tr>
                 );
             })}
           </tbody>
         </table>
-        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className={styles['paginacao-controles']} style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 
             onClick={() => setPaginaAtual(0)} 
             disabled={paginaAtual === 0 || produtosQuery.isFetching}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from './CategoriaForm.module.css';
 
 export const CategoriaForm = ({ categoria, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -31,8 +32,8 @@ export const CategoriaForm = ({ categoria, onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="produto-form">
-      <div className="form-control">
+    <form onSubmit={handleSubmit} className={styles['categoria-form']}>
+      <div className={styles['form-control']}>
         <label htmlFor="nome">Nome da Categoria</label>
         <input
           type="text"
@@ -44,11 +45,11 @@ export const CategoriaForm = ({ categoria, onSave, onCancel }) => {
         />
       </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-cancel" onClick={onCancel}>
+      <div className={styles['form-actions']}>
+        <button type="button" className={styles['btn-cancel']} onClick={onCancel}>
           Cancelar
         </button>
-        <button type="submit" className="btn-save">
+        <button type="submit" className={styles['btn-save']}>
           Salvar
         </button>
       </div>

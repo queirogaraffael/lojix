@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from './FuncionarioForm.module.css';
 
 export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -53,16 +54,12 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!isEditMode && !formData.password) {
-      alert('A senha é obrigatória para criar um novo funcionário.');
-      return;
-    }
     onSave(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="produto-form">
-      <div className="form-control">
+    <form onSubmit={handleSubmit} className={styles['funcionario-form']}>
+      <div className={styles['form-control']}>
         <label htmlFor="name">Nome Completo</label>
         <input
           type="text"
@@ -75,8 +72,8 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         />
       </div>
 
-      <div className="form-group">
-         <div className="form-control">
+      <div className={styles['form-group']}>
+         <div className={styles['form-control']}>
           <label htmlFor="username">Usuário (Login)</label>
           <input
             type="text"
@@ -88,7 +85,7 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
             disabled={isEditMode}
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="cpf">CPF (somente números)</label>
           <input
             type="text"
@@ -103,8 +100,8 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         </div>
       </div>
 
-      <div className="form-group">
-        <div className="form-control">
+      <div className={styles['form-group']}>
+        <div className={styles['form-control']}>
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -116,7 +113,7 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
             disabled={isEditMode}
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="dataNascimento">Data de Nasc.</label>
           <input
             type="date"
@@ -131,8 +128,8 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         </div>
       </div>
 
-      <div className="form-group">
-         <div className="form-control">
+      <div className={styles['form-group']}>
+         <div className={styles['form-control']}>
           <label htmlFor="cargo">Cargo (Ex: Gerente Geral)</label>
           <input
             type="text"
@@ -143,7 +140,7 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
             required
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="role">Nível de Acesso no Sistema</label>
           <select
             id="role"
@@ -160,8 +157,8 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         </div>
       </div>
 
-      <div className="form-group">
-        <div className="form-control">
+      <div className={styles['form-group']}>
+        <div className={styles['form-control']}>
           <label htmlFor="salario">Salário</label>
           <input
             type="number"
@@ -175,7 +172,7 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         </div>
         
         {!isEditMode && (
-          <div className="form-control">
+          <div className={styles['form-control']}>
             <label htmlFor="password">Senha</label>
             <input
               type="password"
@@ -190,11 +187,11 @@ export const FuncionarioForm = ({ funcionario, onSave, onCancel }) => {
         )}
       </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-cancel" onClick={onCancel}>
+      <div className={styles['form-actions']}>
+        <button type="button" className={styles['btn-cancel']} onClick={onCancel}>
           Cancelar
         </button>
-        <button type="submit" className="btn-save">
+        <button type="submit" className={styles['btn-save']}>
           Salvar
         </button>
       </div>
