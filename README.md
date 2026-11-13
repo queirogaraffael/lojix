@@ -10,7 +10,7 @@
 ![Nginx](https://img.shields.io/badge/Nginx-Reverse_Proxy-009639?logo=nginx&logoColor=white)
 ![Prometheus](https://img.shields.io/badge/Prometheus-Metrics-E6522C?logo=prometheus&logoColor=white)
 ![Grafana](https://img.shields.io/badge/Grafana-Dashboards-F46800?logo=grafana&logoColor=white)
-![ArchUnit](https://img.shields.io/badge/ArchUnit-1.2.1-6B46C1)
+![ArchUnit](https://img.shields.io/badge/ArchUnit-1.3.0-6B46C1)
 ![SonarCloud](https://img.shields.io/badge/SonarCloud-SAST_&_Coverage-F3705A?logo=sonarcloud&logoColor=white)
 ![License](https://img.shields.io/badge/Licen%C3%A7a-MIT-blue)
 
@@ -18,7 +18,9 @@
 
 ## Visão Geral
 
-> **Deploy em produção:** O frontend está publicado na **Vercel** em **[lojix-frontend.vercel.app](https://lojix-frontend.vercel.app/)** consumindo a API REST hospedada em container gerenciado no **Render**. Para execução self-hosted com toda a infraestrutura de rede, cache e observabilidade (7 containers em 6 redes isoladas), utilize o `docker-compose.yml` detalhado abaixo.
+> **Ambientes de Deploy e Execução:**
+> - **Demonstração em Nuvem (Live Demo):** O frontend está publicado na **Vercel** em **[lojix-frontend.vercel.app](https://lojix-frontend.vercel.app/)**, consumindo a API REST, o banco de dados PostgreSQL e o cache Redis hospedados em containers gerenciados no **Render**.
+> - **Stack Completa Local / Self-Hosted (Docker Compose):** As ferramentas de infraestrutura e observabilidade (**Nginx Reverse Proxy**, **Prometheus** e **Grafana**) foram projetadas especificamente para execução local e ambientes dedicados/self-hosted (7 containers em 6 redes isoladas). Como plataformas PaaS/Serverless de entrada não comportam nativamente redes multi-container privadas para telemetria contínua sem custos elevados de instâncias, essa suíte completa opera como código no Docker Compose para testes de carga, auditoria e simulação de produção corporativa.
 
 Sistema web completo para gestão operacional e administrativa de pequeno e médio varejo, cobrindo controle de catálogo de produtos, categorias, campanhas promocionais com vigência temporal, gestão de colaboradores com controle de acesso baseado em papéis (**RBAC**: `ADMIN`, `ATENDENTE`, `ESTOQUISTA`) e cadastro expresso de clientes de balcão.
 
@@ -27,7 +29,7 @@ Diferente de projetos focados apenas em operações CRUD básicas, o objetivo ce
 - **Segmentação de redes em containers** sem exposição de bancos ou serviços internos ao host;
 - **Governança arquitetural automatizada** impedindo degradação de camadas via testes com ArchUnit;
 - **Observabilidade como código** com coleta de métricas via Micrometer/Prometheus e provisionamento automático de templates no Grafana;
-- **Eficiência de acesso a dados** com pool HikariCP calibrado, eliminação de queries *N+1*, invalidação cirúrgica de cache no Redis sincronizada com transações JPA e mapeamento em tempo de compilação via MapStruct;
+- **Eficiência de acesso a dados** com pool HikariCP calibrado, indexação explícita de Foreign Keys e índices funcionais no PostgreSQL, eliminação de queries *N+1*, invalidação cirúrgica de cache no Redis sincronizada com transações JPA e mapeamento em tempo de compilação via MapStruct;
 - **Segurança defensiva** com inspeção binária de *Magic Bytes* para uploads no AWS S3, mascaramento de CPF em logs/e-mails (LGPD), *Optimistic Locking* mapeado para `HTTP 409 Conflict`, rate-limiting contra força bruta no Nginx e proteção contra ataques de exaustão de memória (*OOM*) em endpoints paginados.
 
 **Contexto e Dimensionamento Operacional:** O sistema foi projetado e calibrado considerando a realidade de uma unidade de varejo com **até 20 operadores administrativos simultâneos** realizando consultas frequentes de catálogo, ajustes concorrentes de preços/estoque e cadastros rápidos de clientes no balcão. Esse recorte realista guiou escolhas concretas — do tamanho do pool de conexões no PostgreSQL até o TTL individualizado de cada região de cache no Redis.
@@ -94,23 +96,23 @@ flowchart TD
 | `monitoring` | `true` | `backend`, `prometheus`, `grafana` | Tráfego exclusivo de telemetria; o Prometheus coleta métricas na porta administrativa separada (`8081`). |
 | `proxy-monitoring` | `true` | `reverse-proxy`, `grafana` | Permite servir os painéis do Grafana em `/grafana/` restrito por ACL de IPs privados no Nginx. |
 
-**Boas práticas adicionais nos containers:**
+**Boas práticas de confiabilidade e segurança nos containers:**
 
-1. **Execução Non-Root (`backend/Dockerfile`)**: O build *multi-stage* compila o artefato com `maven:3.9.9-eclipse-temurin-17` e copia apenas o `.jar` final para uma imagem enxuta `eclipse-temurin:17-jre-alpine`, criando explicitamente `appgroup` e `appuser` (`USER appuser`) para que o processo Java nunca rode como `root`.
-2. **Separação de Porta de Gestão (`8081` vs `8080`)**: O Actuator responde na porta `8081` (`management.server.port=8081`). Assim, o proxy reverso encaminha `/api/*` apenas para `backend:8080`, tornando estruturalmente impossível que um cliente externo alcance endpoints internos do Actuator mesmo em caso de erro de roteamento.
-3. **Orquestração Ordenada por Healthchecks Reais**: O `reverse-proxy` só inicia após `backend` e `grafana` reportarem `service_healthy`, e o `backend` só inicia após `pg_isready` no PostgreSQL e `redis-cli ping` autenticado no Redis responderem com sucesso, respeitando `start_period: 60s` para absorver o tempo de boot da JVM e migrações do Flyway.
+1. **Segurança no Container (Execução sem Root)**: Por padrão, processos em containers rodam como superusuário (`root`), o que representaria um risco severo caso uma biblioteca sofresse invasão. No Lojix, o processo Java roda sob um usuário sem privilégios (`appuser`), garantindo isolamento total do sistema operacional, além de utilizar imagem enxuta (Alpine) sem compiladores ou ferramentas desnecessárias em produção.
+2. **Isolamento Físico de Portas (`8080` da API vs. `8081` de Métricas)**: Endpoints administrativos do Actuator e Prometheus contêm dados sensíveis da infraestrutura. Em vez de depender apenas de bloqueios por software, a API escuta em portas separadas: a porta `8080` atende as requisições públicas da loja, enquanto a `8081` é acessível exclusivamente pelo Prometheus dentro da rede interna. O Nginx sequer possui rota para a porta `8081`, tornando impossível o acesso externo às métricas.
+3. **Inicialização à Prova de Falhas (*Healthchecks* Reais)**: Em sistemas distribuídos, containers que sobem fora de ordem costumam travar tentando conectar em bancos que ainda estão inicializando. No Docker Compose do projeto, cada serviço só é liberado após testes reais de prontidão (o PostgreSQL aceitando comandos via `pg_isready` e o Redis respondendo ao `ping` autenticado), com tolerância de tempo calibrada para a subida tranquila da JVM e das migrações do Flyway.
 
 ---
 
-## Hardening no Nginx Reverse Proxy
+## Proteções e Otimizações no Nginx (Edge Gateway)
 
-O Nginx (`nginx/nginx.conf`) atua como *Edge Gateway* na frente de toda a stack e concentra proteções de infraestrutura que evitam sobrecarregar a JVM desnecessariamente:
+O Nginx (`nginx/nginx.conf`) atua como o "porteiro" de toda a infraestrutura, resolvendo problemas de rede e segurança antes mesmo que a requisição chegue ao Spring Boot ou ao React:
 
-- **Rate Limiting contra Força Bruta no Login**: Define uma zona em memória compartilhada (`limit_req_zone $binary_remote_addr zone=auth_limit:10m rate=5r/s`) aplicada especificamente em `/api/auth/` com `burst=10 nodelay`, mitigando *credential stuffing* antes mesmo da requisição tocar o filtro do Spring Security e o hash BCrypt (que é propositalmente custoso em CPU).
-- **Pool de Conexões Persistentes (`keepalive`)**: Configura `keepalive 32` nos upstreams com `proxy_http_version 1.1` e limpeza do header `Connection ""`, reaproveitando conexões TCP abertas entre Nginx e Tomcat e eliminando o custo repetitivo de *TCP three-way handshake* a cada chamada REST.
-- **Interceptação Padronizada de Falhas de Upstream (`@api_gateway_error`)**: Caso o container da API esteja reiniciando (`502`, `503` ou `504`), o Nginx não devolve uma página HTML quebrada para o Axios no React, mas sim um JSON válido (`{"status":502,"error":"Bad Gateway","message":"..."}`).
-- **Cache Imutável para Assets Estáticos da SPA**: No Nginx interno do frontend (`frontend/nginx.conf`), bundles versionados por hash em `/static/` recebem `Cache-Control: public, max-age=31536000, immutable`, enquanto `index.html` recebe `no-cache, no-store, must-revalidate` para garantir que novos deploys entrem em vigor imediatamente sem cache preso no navegador.
-- **Headers de Segurança e Limite de Payload**: Aplica `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, oculta versão do servidor (`server_tokens off`) e limita `client_max_body_size 10m`.
+- **Proteção contra Força Bruta no Login (*Rate Limiting*)**: O cálculo de hash de senhas (**BCrypt**) é propositalmente pesado para a CPU. Para evitar que ataques automatizados de adivinhação de senhas (*credential stuffing*) sobrecarreguem o processamento da JVM, o Nginx limita o endpoint `/api/auth/` a no máximo 5 tentativas por segundo por IP, barrando robôs na borda da rede antes mesmo de tocar o Spring Security.
+- **Conexões Persistentes com o Backend (*Keepalive*)**: Em vez de abrir e encerrar uma conexão de rede a cada clique do operador na tela, o Nginx mantém até 32 conexões ativas e reutilizáveis com o servidor Tomcat, reduzindo a latência das chamadas REST e economizando threads da JVM.
+- **Respostas de Erro Padronizadas em JSON**: Se o container do backend estiver reiniciando ou temporariamente fora do ar (erros `502`, `503` ou `504`), o Nginx não devolve aquela página crua em HTML do servidor. Ele intercepta a falha e entrega um JSON limpo (`{"status":502,"message":"..."}`), permitindo que o Axios no React trate o erro e mostre um aviso amigável na interface em vez de quebrar a tela.
+- **Estratégia de Cache Inteligente na SPA**: No servidor estático do frontend, arquivos versionados por hash (`.js` e `.css`) são cacheados no navegador por até 1 ano para carregamento quase instantâneo. Em contrapartida, o arquivo `index.html` nunca é cacheado, garantindo que qualquer nova versão do sistema entre em vigor para os usuários na hora, sem necessidade de `Ctrl + F5`.
+- **Blindagem contra Arquivos Excessivos e Ataques Web**: O Nginx descarta imediatamente qualquer upload maior que 10 MB para impedir estouro de memória no backend, esconde a versão exata do servidor para dificultar varreduras de invasão e injeta cabeçalhos de segurança contra ataques de clique falso (*clickjacking*) e injeção de scripts.
 
 ---
 
@@ -118,17 +120,17 @@ O Nginx (`nginx/nginx.conf`) atua como *Edge Gateway* na frente de toda a stack 
 
 Em vez de depender apenas da leitura manual de logs, o Lojix instrumenta toda a aplicação com **Spring Boot Actuator + Micrometer**, exportando séries temporais consumidas pelo **Prometheus** a cada **5 segundos** (`prometheus.yml` apontando para `backend:8081/actuator/prometheus`).
 
-### Provisionamento Declarativo (Zero Click-Ops)
+### Observabilidade Pronta no Startup (Dashboard como Código)
 
-Um problema recorrente ao subir Grafana em Docker é perder os datasources e painéis toda vez que o volume é recriado. Para resolver isso, tanto a conexão com o Prometheus quanto os **templates de dashboard do Grafana** são provisionados automaticamente como código ao iniciar o container:
+Um problema muito comum ao usar Grafana em containers é a dependência de configurações manuais pela interface ("Click-Ops"): ter que adicionar fontes de dados, desenhar gráficos com o mouse e perder tudo caso o container seja recriado.
 
-- `grafana/provisioning/datasources/prometheus.yaml`: Registra automaticamente `http://prometheus:9090` como datasource default (`access: proxy`).
-- `grafana/provisioning/dashboards/dashboards.yaml`: Mapeia o diretório `/etc/grafana/dashboards` no startup do Grafana.
-- `grafana/dashboards/spring-boot-statistics.json`: Template completo de observabilidade para Spring Boot 3 / Micrometer já versionado no repositório, exibindo imediatamente ao abrir `http://localhost/grafana`:
-  - **Saúde da JVM**: Uso de memória Heap/Non-Heap, threads vivas/bloqueadas, carga de CPU do processo e pausas do *Garbage Collector*;
-  - **Tráfego HTTP**: Vazão de requisições por segundo (RPS), taxa de erros `4xx`/`5xx` e latência por endpoint;
-  - **Pool HikariCP (`LojixHikariPool`)**: Conexões ativas vs. ociosas, tempo de aquisição de conexão e eventuais threads aguardando na fila (`pending`);
-  - **Cache Redis**: Contadores de *cache hits* e *cache misses* por região (`produtosCache`, `categoriasCache`, `promocaoCache`).
+No Lojix, toda a observabilidade opera como código (`grafana/provisioning/`). Ao subir a stack com `docker compose up -d`, a conexão com o Prometheus e os painéis já nascem 100% configurados, exibindo imediatamente em `http://localhost/grafana`:
+
+- **Saúde da JVM e Recursos**: Consumo de memória (Heap e Non-Heap), uso de CPU, contagem de threads ativas e impacto de pausas do *Garbage Collector*.
+- **Vazão e Desempenho HTTP**: Volume de requisições por segundo (RPS), tempo médio de resposta por rota e taxa de erros de cliente e servidor (`4xx` e `5xx`).
+- **Eficiência do Pool HikariCP**: Conexões com o PostgreSQL ativas vs. ociosas, tempo de espera para obter conexões JDBC e identificação de filas (`pending`).
+- **Gatilho Visual de Falhas de Banco**: Cartão de status em tempo real que fica **Verde** em operação normal e muda para **Vermelho vivo** se qualquer query quebrar, com gráfico diagnóstico detalhando a rota afetada e a causa (`DataIntegrityViolationException`, conflito concorrente ou timeout).
+- **Aproveitamento do Cache Redis**: Medição de acertos (*cache hits*) e buscas diretas no banco (*cache misses*) por região (`produtos`, `categorias` e `promoções`).
 
 ---
 
@@ -136,31 +138,7 @@ Um problema recorrente ao subir Grafana em Docker é perder os datasources e pai
 
 Em projetos que crescem ao longo do tempo, a arquitetura planejada no início costuma sofrer erosão silenciosa: um desenvolvedor com pressa injeta um `Repository` direto no `Controller`, usa `@Autowired` em atributo privado ou deixa um `System.out.println` esquecido.
 
-Para tornar as fronteiras arquiteturais **executáveis e verificáveis a cada commit**, o projeto utiliza **ArchUnit** (`ArchitectureTest.java`), validando o bytecode compilado durante a fase `test` do Maven:
-
-```java
-@AnalyzeClasses(packages = "com.example.lojix", importOptions = ImportOption.DoNotIncludeTests.class)
-public class ArchitectureTest {
-
-    @ArchTest
-    static final ArchRule controllers_should_not_depend_on_repositories =
-            noClasses().that().resideInAPackage("..controller..")
-                    .should().dependOnClassesThat().resideInAPackage("..infrastructure.repository..");
-
-    @ArchTest
-    static final ArchRule domain_should_not_depend_on_outside =
-            noClasses().that().resideInAPackage("..domain..")
-                    .should().dependOnClassesThat().resideInAPackage("..controller..")
-                    .orShould().dependOnClassesThat().resideInAPackage("..service..")
-                    .orShould().dependOnClassesThat().resideInAPackage("..infrastructure..");
-
-    @ArchTest
-    static final ArchRule no_field_injection =
-            noFields().that().areDeclaredInClassesThat().haveSimpleNameNotEndingWith("Impl")
-                    .should().beAnnotatedWith(Autowired.class);
-    // ... + 5 regras adicionais
-}
-```
+Para tornar as fronteiras arquiteturais **executáveis e verificáveis a cada commit**, o projeto utiliza o **ArchUnit** ([`ArchitectureTest.java`](backend/src/test/java/com/example/lojix/architecture/ArchitectureTest.java)), validando o bytecode compilado durante a fase `test` do Maven:
 
 | Regra ArchUnit | O que protege |
 | :--- | :--- |
@@ -241,116 +219,129 @@ erDiagram
     }
 ```
 
-### Salvaguardas no Nível do Banco (PostgreSQL)
+### Salvaguardas e Inteligência no Banco de Dados (PostgreSQL)
 
-As validações não confiam apenas no código Java; o próprio DDL impõe invariantes de domínio:
+A integridade e o desempenho do sistema não dependem apenas da camada Java; o próprio schema relacional impõe regras rígidas de consistência e estratégias conscientes de indexação:
 
-- **UUID como PK em `usuario`**: Evita enumeração sequencial de identificadores de contas (`/usuarios/1`, `/usuarios/2`).
-- **Índice Único Funcional Case-Insensitive**: `CREATE UNIQUE INDEX idx_usuario_email_lower ON usuario (LOWER(email))` impede duplicidade de cadastros mudando apenas maiúsculas/minúsculas.
-- **Constraints `CHECK` Declarativas**: Garante no motor relacional que `preco >= 0`, `quantidade_estoque >= 0`, `taxa_de_desconto BETWEEN 0 AND 100` e `fim >= inicio` em promoções.
-- **Políticas Explícitas de Foreign Key**:
-  - `ON DELETE RESTRICT` em `produto.categoria_id`: impede apagar acidentalmente uma categoria que possua produtos vinculados;
-  - `ON DELETE SET NULL` em `produto.promocao_id`: se uma promoção for removida, os produtos permanecem intactos e voltam automaticamente ao preço base;
-  - **Soft Delete (`produto_ativo`)**: Produtos desativados saem de linha sem destruir referências históricas.
-- **Precisão Monetária (`NUMERIC(10, 2)` + `BigDecimal`)**: Elimina erros de representação binária de ponto flutuante (`double`/`float`), utilizando `RoundingMode.HALF_UP` nos cálculos de desconto.
+- **Indexação Estratégica de Chaves Estrangeiras**: Diferente de outros bancos (como o MySQL InnoDB), o PostgreSQL **não** cria índices automáticos para Foreign Keys. Foram criados índices explícitos nas relações mais consultadas (Produtos com Categorias e Promoções), garantindo que consultas com `JOIN` ocorram em alta velocidade via índice e eliminando travamentos de tabela inteira (*table locks*) ao atualizar ou excluir registros relacionados.
+- **Autenticação Rápida e Prevenção de E-mails Duplicados**: Em vez de fazer varreduras lentas linha por linha (*Sequential Scan*) quando o usuário digita seu e-mail no login, foi criado um **índice funcional que normaliza o texto em minúsculas**. Isso acelera a autenticação e impede no nível de banco que duas contas sejam criadas com o mesmo e-mail apenas mudando maiúsculas e minúsculas (`Admin@teste.com` vs. `admin@teste.com`).
+- **Segurança contra Enumeração de URLs (UUID)**: O identificador de usuários utiliza UUID em vez de IDs sequenciais (`1, 2, 3`), impedindo que agentes externos descubram o volume total de usuários da loja ou tentem adivinhar rotas administrativas na URL.
+- **Regras de Negócio Blindadas no Banco (*Constraints CHECK*)**: O banco rejeita diretamente qualquer dado inconsistente na raiz — impedindo preços e estoques negativos, taxas de desconto fora da faixa de 0% a 100%, ou promoções cuja data de término seja anterior ao início.
+- **Políticas de Integridade Referencial (*Foreign Keys*)**:
+  - **Bloqueio de exclusão acidental (`RESTRICT`)**: Impede apagar categorias que ainda possuam produtos vinculados a elas no catálogo.
+  - **Preservação de catálogo (`SET NULL`)**: Se uma campanha promocional for encerrada ou removida, os produtos voltam automaticamente ao preço original sem serem apagados.
+  - **Desativação Lógica (*Soft Delete*)**: Produtos desativados saem da vitrine da loja sem destruir referências históricas de vendas anteriores.
+- **Precisão Financeira Estrita**: Armazenamento com precisão decimal exata (`NUMERIC`) no banco acoplado a `BigDecimal` no Java, eliminando erros clássicos de arredondamento de centavos causados por tipos de ponto flutuante (`double`/`float`).
 
 ---
 
 ## Engenharia de Backend, Performance e Resiliência
 
-### 1. Caching Distribuído no Redis com Invalidação Cirúrgica e `transactionAware`
+### 1. Caching Distribuído no Redis com Invalidação Cirúrgica e Consistência Transacional
 
-Em produção (`@Profile("prod")`), o `RedisConfig` configura um `RedisCacheManager` utilizando `GenericJackson2JsonRedisSerializer` customizado com `JavaTimeModule` (suporte nativo a `LocalDate`/`LocalDateTime` em ISO-8601) e **TTLs diferenciados conforme a volatilidade de cada agregado**:
+Em vez de sobrecarregar o PostgreSQL a cada consulta de catálogo, o sistema utiliza o **Redis** como camada de cache de baixa latência em memória. A estratégia foi desenhada com três cuidados fundamentais de produção:
 
-| Cache | TTL | Justificativa |
+#### A. Tempo de Vida (TTL) Calibrado por Tipo de Dado
+Nem toda informação muda na mesma velocidade. Cada região de cache possui um prazo de expiração (*TTL*) proporcional à sua frequência de alteração no varejo:
+
+| Região de Cache | Tempo de Vida (TTL) | Motivação no Negócio |
 | :--- | :---: | :--- |
-| `categoriasCache` | **12 horas** | Dados estruturais de baixíssima mutação durante o expediente. |
-| `promocaoCache` | **60 minutos** | Campanhas promocionais alteradas pontualmente pela gerência. |
-| `produtosCache` | **30 minutos** | Consultas frequentes por ID; equilibra baixa latência e frescor de estoque/preço. |
-| `*PageCache` | **5 minutos** | Listagens paginadas administrativas com expiração curta. |
+| `categoriasCache` | **12 horas** | Dados estruturais de catálogo que raramente sofrem alteração durante o expediente. |
+| `promocaoCache` | **60 minutos** | Campanhas promocionais que costumam ser ativadas ou ajustadas pontualmente. |
+| `produtosCache` | **30 minutos** | Consultas individuais por ID; equilibra respostas em milissegundos com o frescor de estoque e preço. |
+| `clientesCache` / `funcionariosCache` | **10 minutos** | Dados operacionais de colaboradores e clientes consultados com frequência no atendimento. |
 
-**Dois detalhes críticos de implementação:**
+*(Nota de arquitetura: Listagens paginadas não são cacheadas no Redis devido à alta variabilidade de filtros e conhecidas restrições de serialização do `PageImpl` do Spring; em vez disso, a paginação é acelerada diretamente no PostgreSQL via projeções DTO enxutas e índices dedicados).*
 
-1. **Prevenção de *Cache Stampede* na Desativação de Promoções (`PromocaoService`)**: Ao desativar uma promoção vinculada a alguns produtos, a abordagem ingênua seria usar `@CacheEvict(value = "produtosCache", allEntries = true)`, derrubando o catálogo inteiro do Redis de uma só vez. Em vez disso, o serviço busca apenas os IDs afetados (`SELECT p.id FROM Produto p WHERE p.promocao.id = :promocaoId`) e invalida **cirurgicamente chave por chave**:
-   ```java
-   List<Long> idsProdutos = produtoRepository.findProdutoIdsByPromocaoId(idPromocao);
-   Cache produtosCache = cacheManager.getCache("produtosCache");
-   if (produtosCache != null) {
-       idsProdutos.forEach(produtosCache::evict);
-   }
-   ```
-2. **Sincronia com Transações JPA (`.transactionAware()`)**: O `RedisCacheManager` é construído com `.transactionAware()`. Assim, comandos de escrita/remoção no Redis só são disparados **após o commit efetivo da transação no PostgreSQL**, evitando que um *rollback* deixe dados fantasmas ("sujos") cacheados em memória.
+#### B. Invalidação Cirúrgica (Prevenção de *Cache Stampede*)
+Ao encerrar uma promoção que afetava apenas alguns itens, a abordagem ingênua seria limpar o cache de produtos inteiro (`allEntries = true`). Isso derrubaria milhares de itens da memória de uma só vez, fazendo com que as próximas requisições sobrecarregassem o PostgreSQL simultaneamente para reconstruir o cache (*Cache Stampede*). 
 
-### 2. Dimensionamento do Pool HikariCP e Detecção de Vazamentos
+No Lojix, o serviço consulta quais produtos pertenciam àquela promoção e **remove exclusivamente as chaves desses itens específicos**, mantendo todo o restante do catálogo aquecido no Redis.
 
-Um erro comum é configurar pools de banco com `50` ou `100` conexões achando que "quanto mais, mais rápido", o que na verdade degrada o PostgreSQL por *context switching* excessivo de processos e contenção de I/O.
+#### C. Sincronização Estrita com o Banco (`transactionAware`)
+Se a aplicação gravasse ou apagasse dados no Redis antes de o banco confirmar a transação, qualquer falha ou *rollback* no PostgreSQL deixaria dados falsos ("fantasmas") salvos no cache. 
 
-Seguindo a fórmula clássica recomendada pela documentação do PostgreSQL e do próprio HikariCP (`conexões = (núcleos * 2) + discos`), o pool `LojixHikariPool` foi dimensionado em `application-prod.properties` para o perfil real de até 20 operadores administrativos simultâneos:
+Ao ativar `.transactionAware()` no gerenciador de cache, as operações no Redis só são disparadas **após a confirmação definitiva (*commit*) da transação relacional**, garantindo consistência total entre o que está no cache e o que está gravado no banco.
 
-```properties
-spring.datasource.hikari.pool-name=LojixHikariPool
-spring.datasource.hikari.maximum-pool-size=${HIKARI_MAX_POOL_SIZE:12}
-spring.datasource.hikari.minimum-idle=${HIKARI_MIN_IDLE:5}
-spring.datasource.hikari.connection-timeout=20000
-spring.datasource.hikari.idle-timeout=300000
-spring.datasource.hikari.max-lifetime=1200000
-spring.datasource.hikari.leak-detection-threshold=15000
-```
+*(A serialização em JSON conta ainda com suporte nativo a datas em formato ISO-8601 via `JavaTimeModule`, evitando erros de compatibilidade com campos `LocalDate` e `LocalDateTime` do Java).*
 
-Como requisições REST bem otimizadas retêm uma conexão JDBC por poucos milissegundos, **12 conexões ativas** suportam centenas de transações por segundo com folga, enquanto `leak-detection-threshold=15000` emite alerta automático com *stack trace* caso qualquer transação segure uma conexão por mais de 15 segundos.
+### 2. Dimensionamento do Pool de Conexões (HikariCP) e Detecção de Vazamentos
 
-### 3. Eliminação de Queries *N+1* e Paginação Segura no Hibernate
+Um erro clássico em backend é inflar o pool de conexões com 50 ou 100 conexões achando que "mais conexões = mais velocidade". No PostgreSQL (onde cada conexão gera um processo separado no Linux), o excesso de conexões causa o efeito contrário: degradação de CPU por troca excessiva de contexto (*context switching*) e contenção de disco.
 
-- **Constructor Expression Projections (`ClienteRepository`)**: Listagens paginadas usam projeção direta para DTO em JPQL (`SELECT new ...ClienteResponseDTO(...) FROM Cliente c JOIN c.usuario u`), trazendo apenas as colunas necessárias em uma única viagem ao banco e sem custo de *dirty checking* de entidades gerenciadas.
-- **`JOIN FETCH` com `countQuery` Desacoplada (`ProdutoRepository`)**: Nas consultas paginadas de produtos com `Categoria` e `Promocao`, o uso de `JOIN FETCH` junto com `Pageable` exige uma `countQuery` explícita sem `FETCH`. Sem isso, o Hibernate emite o alerta `HHH90003004` e carrega toda a tabela na memória da JVM para paginar. Separar as duas queries resolve o *N+1* mantendo paginação `LIMIT/OFFSET` nativa no SQL.
-- **Teto Global contra Ataques de OOM (`application.properties`)**: `spring.data.web.pageable.max-page-size=50` bloqueia tentativas de passar `?size=9999999` para exaurir o Heap da aplicação.
+O pool de banco do Lojix foi calibrado em [`application-prod.properties`](backend/src/main/resources/application-prod.properties) sob dois pilares:
 
-### 4. Concorrência Web via Optimistic Locking (`HTTP 409 Conflict`)
+- **Dimensionamento Consciente e Parametrizável (Baseline de 12 Conexões)**: O tamanho ideal de um pool varia conforme o hardware hospedeiro (núcleos de processador e I/O de disco). Com base na fórmula oficial do HikariCP (`conexões = núcleos * 2 + discos`), estipulou-se um *baseline* padrão de **12 conexões máximas** (calibrado para servidores típicos de 4 a 6 vCPUs com folga para até 20 operadores simultâneos). Esse valor é totalmente parametrizável via variável de ambiente (`${HIKARI_MAX_POOL_SIZE:12}`), permitindo ajuste dinâmico conforme a infraestrutura de deploy crescer.
+- **Alerta Automático de Vazamento de Conexão (*Leak Detection*)**: Um dos piores problemas em produção é uma transação travar ou esquecer de devolver a conexão para o pool — aos poucos todas as conexões somem e a API congela. Configuramos um limite de 15 segundos (`leak-detection-threshold=15000`): se qualquer consulta segurar uma conexão por mais tempo que isso, o HikariCP emite um alerta imediato no log com o *stack trace* exato da linha de código que causou o problema.
+- **Renovação Saudável de Conexões**: Conexões ociosas são recicladas periodicamente (`idle-timeout` e `max-lifetime`), evitando que o banco de dados ou firewalls de nuvem derrubem conexões antigas de surpresa.
 
-As entidades `Produto` e `Promocao` possuem controle de versão otimista (`@Version`). Se dois operadores abrirem a tela do mesmo produto e tentarem salvar edições conflitantes de preço ou estoque, a segunda requisição dispara `ObjectOptimisticLockingFailureException`, interceptada globalmente pelo `CustomExceptionHandler` e convertida em **`HTTP 409 Conflict`** orientando o operador a recarregar os dados atualizados, evitando o problema de *Lost Update* sem bloquear linhas no banco.
+### 3. Eliminação do Problema N+1 e Paginação Otimizada no Hibernate
 
-### 5. Uploads Seguros no AWS S3 (Magic Bytes + Presigned URLs + Timeouts)
+Consultas mal estruturadas no Spring Data JPA são as maiores causas de lentidão e estouro de memória em produção. No Lojix, o acesso a dados foi desenhado sob três salvaguardas:
 
-O armazenamento de fotos de perfil (`S3StorageService` + `S3Config`) aplica múltiplas camadas de segurança e resiliência com o **AWS SDK v2**:
+- **Busca Cirúrgica com Projeções em DTO**: Em listagens como a de Clientes, a API não carrega entidades JPA completas para a memória da aplicação. A consulta JPQL projeta o DTO diretamente no banco, trazendo apenas os dados necessários para a interface em uma única ida ao PostgreSQL, sem o overhead de gerenciar instâncias e rastrear alterações (*dirty checking*) na JVM.
+- **Resolução do N+1 com Paginação Nativa no Banco**: Ao listar produtos vinculados a categorias e promoções, a abordagem padrão do JPA dispararia dezenas de queries extras no banco — uma para cada linha exibida (o clássico problema *N+1*). O Lojix resolve isso combinando `JOIN FETCH` com uma consulta de contagem desacoplada (`countQuery` dedicada), permitindo que o PostgreSQL resolva os relacionamentos e a paginação (`LIMIT`/`OFFSET`) diretamente no SQL, sem que o Hibernate precise carregar a tabela inteira na memória para paginar.
+- **Teto Protetor de Paginação contra Ataques de Memória**: Para impedir que um usuário mal-intencionado envie `?size=1000000` na URL e tente estourar a memória RAM da JVM com milhões de registros de uma vez (*Denial of Service por Out of Memory*), uma trava global (`max-page-size=50`) limita qualquer listagem a no máximo 50 registros por requisição.
 
-1. **Validação Binária por *Magic Bytes***: Confiar apenas em `MultipartFile.getContentType()` ou na extensão do nome do arquivo é inseguro, pois ambos são facilmente forjados pelo cliente (*MIME Spoofing*). O `validarMagicBytes` inspeciona os primeiros bytes hexadecimais reais do arquivo (`FF D8 FF` para JPEG, `89 50 4E 47` para PNG e assinatura `RIFF....WEBP` para WebP) antes de aceitar o upload.
-2. **Prevenção de *Path Traversal***: O nome original enviado pelo usuário é descartado; a chave no bucket segue o padrão determinístico `usuarios/{usuarioId}/foto-perfil.{ext}`.
-3. **Bucket 100% Privado com Presigned URLs**: Os objetos no S3 não são públicos. A leitura ocorre por meio de URLs temporárias assinadas criptograficamente pelo `S3Presigner` (`aws.s3.presigned-url-expiration-minutes`).
-4. **Timeouts Fail-Fast no Cliente HTTP da AWS**: `S3Config` define `apiCallTimeout(10s)` e `apiCallAttemptTimeout(5s)`, impedindo que uma degradação externa na rede da AWS congele threads do Tomcat indefinidamente.
+### 4. Controle de Concorrência Web com Versão Otimista (`HTTP 409 Conflict`)
 
-### 6. Notificações de E-mail Assíncronas e Isolamento de Falhas (`@Async` + LGPD)
+No varejo, é comum dois operadores abrirem a tela do mesmo produto ao mesmo tempo. Se um alterar o preço e o outro alterar o estoque logo em seguida, a gravação tradicional faria com que o último sobrescrevesse as mudanças do primeiro sem ninguém perceber (o clássico problema de *Lost Update*).
 
-Ao cadastrar um novo cliente no balcão, o `ClienteService` aciona o envio de um e-mail HTML de boas-vindas (`SmtpEmailService`):
+No Lojix, as entidades de catálogo e campanhas (`Produto` e `Promocao`) possuem controle de versão otimista (`@Version`):
+- O banco valida se o número da versão do registro ainda é o mesmo no momento da gravação.
+- Se outro usuário já tiver alterado o produto, a segunda requisição é interceptada pelo `CustomExceptionHandler` e devolve **`HTTP 409 Conflict`**, orientando o operador a recarregar a tela para ver os dados atualizados.
+- **Vantagem:** Garante consistência total sem precisar travar linhas no banco de dados (*Pessimistic Locks*), mantendo a API rápida e destravada.
 
-- **Processamento Não-Bloqueante (`@Async`)**: O operador da loja recebe a resposta `201 Created` em milissegundos, enquanto a negociação TLS/SMTP ocorre em thread separada.
-- **Isolamento de Falhas e Degradação Graciosa**: O serviço opera com *feature toggle* (`app.mail.enabled`) — simulando o disparo em log nos ambientes sem credenciais SMTP — e encapsula falhas de rede para que uma indisponibilidade do provedor de e-mail **jamais cause rollback** no cadastro do cliente já salvo no banco.
-- **Privacidade por Design (LGPD)**: Utilitário `MaskUtils.maskCpf(...)` mascara o CPF tanto nos logs estruturados da aplicação quanto no corpo do e-mail enviado (`***.456.789-**`), evitando exposição de dados pessoais sensíveis.
+---
 
-### 7. MapStruct em Compile-Time e Bean Validation Customizada
+### 5. Armazenamento Seguro de Imagens no AWS S3 (Proteção Multicamadas)
 
-- **MapStruct (`*Mapper`)**: Toda conversão Entidade ↔ DTO é gerada em código Java puro em tempo de compilação (sem overhead de *reflection* como no `ModelMapper`), utilizando `@AfterMapping` no `ProdutoMapper` para calcular dinamicamente o `precoPromocional` caso a promoção associada esteja ativa e dentro da janela de datas `inicio`/`fim`.
-- **Annotation Customizada `@MaiorDeIdade`**: Implementa `ConstraintValidator<MaiorDeIdade, LocalDate>` (`MaiorDeIdadeValidator`) integrada nativamente ao ciclo do Jakarta Bean Validation (`@Valid`), barrando cadastros de menores de 18 anos já na borda do DTO com retorno estruturado `400 Bad Request`.
+O upload de fotos de perfil (`S3StorageService`) com o **AWS SDK v2** foi blindado contra os principais vetores de ataque em uploads web:
+
+- **Inspeção Real por *Magic Bytes* (Adeus a Extensões Falsas)**: Um invasor pode facilmente renomear um arquivo malicioso executável para `foto.jpg` para burlar validações simples (*MIME Spoofing*). O sistema inspeciona a assinatura binária real nos primeiros bytes do arquivo, aceitando exclusivamente formatos legítimos de imagem (JPEG, PNG e WebP).
+- **Prevenção contra Sobrescrita de Pastas (*Path Traversal*)**: O nome original enviado pelo usuário é descartado. A imagem é salva sob um identificador determinístico isolado (`usuarios/{id}/foto-perfil`), impedindo que nomes maliciosos tentem navegar entre diretórios.
+- **Bucket 100% Privado com URLs Temporárias (*Presigned URLs*)**: Nenhuma imagem no S3 fica aberta publicamente na internet. A visualização ocorre através de links assinados criptograficamente com prazo de validade curto, expirando automaticamente após o uso.
+- **Proteção contra Falhas de Rede (*Timeouts Fail-Fast*)**: O cliente da AWS possui timeouts rigorosos (10s para chamadas e 5s por tentativa), garantindo que uma instabilidade na nuvem externa nunca congele as threads do servidor Tomcat.
+
+---
+
+### 6. Notificações Assíncronas de Boas-Vindas e Resiliência (@Async + LGPD)
+
+Ao cadastrar um cliente no balcão, o sistema dispara um e-mail de boas-vindas com três cuidados de arquitetura:
+
+- **Sem Espera no Balcão (`@Async`)**: A negociação com servidores SMTP leva de 2 a 5 segundos. O envio roda em uma thread paralela em segundo plano, permitindo que o atendente receba a confirmação do cadastro (`201 Created`) em milissegundos.
+- **Falha de E-mail Não Cancela Cadastro**: Caso o servidor de e-mail esteja temporariamente fora do ar ou sem conexão, a falha é registrada apenas no log e **jamais cancela o cadastro do cliente** que já foi salvo com sucesso no banco. Além disso, em desenvolvimento local o envio pode ser desativado, permitindo testar toda a aplicação sem precisar configurar credenciais reais de e-mail.
+- **Privacidade por Design (LGPD)**: O CPF do cliente é automaticamente mascarado tanto nos logs da aplicação quanto no corpo do e-mail enviado (`***.456.789-**`), impedindo a exposição de dados pessoais.
+
+---
+
+### 7. Conversão de Alta Performance (MapStruct) e Validação de Negócio
+
+- **Mapeamento em Tempo de Compilação (MapStruct)**: Toda conversão entre Entidades e DTOs é gerada pelo compilador em código Java puro. Isso elimina o custo de processamento de bibliotecas antigas que usavam *Reflection* (como o ModelMapper) e permite aplicar regras dinâmicas no próprio mapeamento — como calcular na hora se o produto tem desconto promocional ativo.
+- **Validação de Maioridade na Borda (`@MaiorDeIdade`)**: Regra de negócio personalizada integrada ao Jakarta Bean Validation (`@Valid`), barrando cadastros de menores de 18 anos diretamente na entrada do DTO com retorno limpo `400 Bad Request`, antes mesmo de acionar a camada de serviço.
 
 ---
 
 ## Frontend em React Puro, CSS Modules e Decisões de UX
 
-O frontend foi construído deliberadamente em **React 18 puro**, sem bibliotecas pesadas de componentes prontos (sem Material UI, Ant Design, Bootstrap ou Tailwind):
+O frontend foi desenvolvido deliberadamente em **React 18 puro**, sem depender de bibliotecas visuais pesadas de componentes de terceiros (como Material UI, Ant Design ou Bootstrap), garantindo controle total da estilização e performance máxima:
 
-- **Bundle Enxuto (~90 kB gzipped)**: Sem dependências visuais inchadas, o carregamento inicial é imediato mesmo em redes modestas.
-- **Isolamento de Estilos com CSS Modules (`*.module.css`)**: Todos os componentes e páginas utilizam escopo local gerado no build, eliminando colisão global de classes CSS e facilitando manutenção modular.
-- **Gestão de Estado Assíncrono com TanStack React Query v5**: Substitui cascatas manuais de `useEffect` + `useState` por cache declarativo no cliente (`staleTime: 5 min`), controle de estados de carregamento (`isFetching`) e invalidação automática (`invalidateQueries`) após cadastros e edições.
-- **Axios Interceptors + Rotas Protegidas por Papel (`ProtectedRoute`)**: Injeção automática do token Bearer JWT e redirecionamento imediato em caso de sessão expirada (`401`), além de filtragem visual e funcional das rotas conforme a role do colaborador autenticado.
-- **Refinamento de UX Voltado à Operação de Loja**:
-  - **Remoção de Ruído Técnico**: IDs internos de banco foram removidos de listagens como Categorias, priorizando atributos significativos para o operador.
-  - **Cadastro de Cliente sem Atrito no Balcão**: Clientes da loja não fazem login no painel administrativo; por isso, campos de `usuário` e `senha` foram eliminados do modal de Novo Cliente (sendo gerados internamente de forma transparente para manter o contrato relacional), restando apenas Nome, CPF com máscara dinâmica, Data de Nascimento e E-mail.
-  - **Indicadores Visuais de Operação**: Formatação monetária em Real (`Intl.NumberFormat('pt-BR')`), badges coloridos por nível de acesso e alertas visuais automáticos na tabela de produtos para **estoque crítico (≤ 5 unidades / esgotado)** e **validade vencida ou próxima do vencimento (≤ 15 dias)**.
+### 1. Arquitetura e Engenharia do Cliente
+- **Bundle Extremamente Leve (~90 kB gzipped)**: Sem o peso de frameworks de UI inchados, a aplicação carrega instantaneamente mesmo em conexões modestas.
+- **Isolamento de Estilos com CSS Modules (`*.module.css`)**: Todo componente possui estilos com escopo local gerado no build, eliminando riscos de colisão global de classes e facilitando a manutenção.
+- **Gestão de Estado com TanStack React Query v5**: Substitui cascatas manuais e propensas a bugs de `useEffect` e `useState` por cache declarativo no navegador (5 minutos de *staleTime*), estados visuais automáticos de carregamento e sincronização imediata após cadastros e edições.
+- **Interceptors Axios e Controle de Sessão**: Injeção automática do token Bearer JWT em todas as requisições e redirecionamento instantâneo para o login em caso de expiração (`401`), além de bloqueio de rotas por papel (`ProtectedRoute`).
+
+### 2. Design e Experiência do Operador de Loja (UX)
+- **Cadastro Ágil de Clientes no Balcão**: Formulário enxuto e sem atrito, focado exclusivamente nos dados essenciais de contato (Nome, CPF com máscara dinâmica, Data de Nascimento e E-mail), gerando os vínculos relacionais internamente de forma transparente para o atendente.
+- **Tabelas Focadas na Operação**: As listagens priorizam atributos relevantes para o negócio (como Nome da Categoria, Preços e Quantidade), mantendo a tela limpa de chaves primárias e ruídos técnicos de banco de dados.
+- **Indicadores Visuais Inteligentes**: Valores monetários em Real (`R$ XX,XX`), badges de cores por nível de acesso dos funcionários e alertas visuais automáticos na tabela de produtos para **estoque crítico (≤ 5 unidades ou esgotado)** e **validade próxima ou vencida (≤ 15 dias)**.
 
 ---
 
 ## Estratégia de Testes Automatizados
 
-Diferente de projetos que testam apenas mocks isolados, a suíte do backend conta com **56 testes automatizados** combinando **testes de arquitetura (ArchUnit)**, **testes unitários de infraestrutura** e **testes de integração ponta a ponta (`@SpringBootTest` + `MockMvc`)** rodando no perfil `test` com `@Transactional` (garantindo *rollback* automático e isolamento total entre cenários).
+Diferente de projetos que testam apenas mocks isolados, a suíte do backend conta com **59 testes automatizados** combinando **testes de arquitetura (ArchUnit)**, **testes unitários de infraestrutura** e **testes de integração ponta a ponta (`@SpringBootTest` + `MockMvc`)** rodando no perfil `test` com `@Transactional` (garantindo *rollback* automático e isolamento total entre cenários).
 
 Para manter os testes legíveis e evitar duplicação de código de setup, foi implementado o padrão **Test Data Builder** (`UsuarioTestBuilder`, `FuncionarioTestBuilder`, `ClienteTestBuilder`, `ProdutoRequestDTOBuilder`, `AuthTestFactory`) aliado a um *Test Double* para armazenamento em nuvem (`MockStorageService`).
 
@@ -364,8 +355,9 @@ Para manter os testes legíveis e evitar duplicação de código de setup, foi i
 | `AuthControllerTest` | 6 | Autenticação com credenciais válidas/inválidas, emissão de token JWT e bloqueio de rotas protegidas (`401`/`403`). |
 | `ClienteControllerTest` | 6 | Cadastro de clientes, unicidade de CPF, paginação com projeção DTO e consulta por ID. |
 | `S3StorageServiceTest` | 4 | Upload válido, rejeição por tamanho máximo excedido, tipo inválido e inspeção de assinatura binária (*Magic Bytes*). |
+| `CustomExceptionHandlerTest` | 3 | Tratamento global de exceções, mapeamento de status HTTP e instrumentação de métricas de erros de banco no Micrometer (`db.query.errors`). |
 | `LojixApplicationTests` | 1 | Smoke test de subida íntegra do contexto do Spring Boot no perfil de testes. |
-| **Total** | **56** | |
+| **Total** | **59** | |
 
 ---
 
@@ -375,14 +367,30 @@ Para manter os testes legíveis e evitar duplicação de código de setup, foi i
 
 O repositório possui **3 workflows independentes** em `.github/workflows/` configurados com filtros de caminho (`paths`) e cancelamento automático de execuções concorrentes obsoletas (`concurrency.cancel-in-progress: true`), evitando gastar minutos de CI em áreas que não foram tocadas no commit:
 
-1. **`backend-ci.yml`**: Compila o projeto em Java 17 com cache Maven, executa toda a suíte de **56 testes (incluindo ArchUnit)**, gera o relatório XML de cobertura com **JaCoCo** e envia a análise estática de qualidade, *code smells* e vulnerabilidades (SAST) para o **SonarCloud**.
+1. **`backend-ci.yml`**: Compila o projeto em Java 17 com cache Maven, executa toda a suíte de **59 testes (incluindo ArchUnit)**, gera o relatório XML de cobertura com **JaCoCo** e envia a análise estática de qualidade, *code smells* e vulnerabilidades (SAST) para o **SonarCloud**.
 2. **`frontend-ci.yml`**: Instala dependências limpas via `npm ci` em Node 18, executa testes e valida o build otimizado de produção (`npm run build`).
 3. **`docker-ci.yml`**: Valida o schema estrutural do `docker-compose.yml` (`docker compose config -q`) e testa a sintaxe real dos arquivos de configuração do Nginx (`nginx -t`) dentro de containers `nginx:alpine` efêmeros.
 
-### Ambientes de Deploy em Nuvem
+### Governança e Análise Estática de Código (SonarCloud + JaCoCo)
 
-- **Frontend — Vercel ([lojix-frontend.vercel.app](https://lojix-frontend.vercel.app/))**: Deploy contínuo da SPA React servida via Edge CDN global com HTTPS nativo.
-- **Backend — Render**: Deploy containerizado da API Spring Boot conectada ao banco PostgreSQL em nuvem sob perfil de produção.
+A cada commit no backend, a pipeline dispara uma auditoria estática automatizada no **SonarCloud** combinada ao relatório de cobertura do **JaCoCo**, assegurando a saúde do código através de 4 dimensões:
+
+- **Quality Gate Rigoroso:** Bloqueio automático de pull requests e deploys que introduzam débitos técnicos ou violem critérios de qualidade do repositório;
+- **Segurança da Aplicação (SAST):** Varredura contínua contra vulnerabilidades conhecidas, falhas de injeção e violações de boas práticas de segurança;
+- **Manutenibilidade e *Clean Code*:** Detecção precoce de *code smells*, trechos duplicados e complexidade ciclomática excessiva em métodos de negócio;
+- **Auditoria de Cobertura de Testes:** Validação linha a linha de cobertura nas camadas de serviço, domínio e controladores RESTful testadas pela suíte de 59 testes.
+
+### Estratégia de Deploy e Ambientes de Execução
+
+O projeto conta com uma abordagem híbrida consciente entre demonstração pública ágil em nuvem e infraestrutura corporativa completa conteinerizada:
+
+#### 1. Demonstração Pública em Nuvem (Cloud PaaS)
+- **Frontend — Vercel ([lojix-frontend.vercel.app](https://lojix-frontend.vercel.app/))**: Deploy contínuo da SPA React servida via Edge CDN global de baixa latência e com HTTPS nativo.
+- **Backend, Banco e Cache — Render**: Deploy conteinerizado da API Spring Boot conectado a instâncias em nuvem gerenciadas de **PostgreSQL 15** e **Redis** sob perfil de produção (`prod`).
+
+#### 2. Infraestrutura Completa e Observabilidade (Local / Self-Hosted com Docker Compose)
+- **Nginx Reverse Proxy, Prometheus e Grafana**: A suíte de infraestrutura de rede e telemetria foi configurada para execução local (`docker compose up -d`) e ambientes dedicados (*on-premise*, VPS ou clusters Kubernetes).
+- **Por que Nginx, Prometheus e Grafana operam localmente?** Plataformas PaaS/Serverless gratuitas ou de entrada (como Vercel e Render Free) são focadas na entrega simplificada de aplicações web públicas e não comportam nativamente redes multi-container privadas para scraping contínuo de métricas sem custos expressivos de infraestrutura. Manter toda a observabilidade como código no Docker Compose permite simular e auditar a operação corporativa completa (JVM, HikariCP, logs e tráfego Nginx) com zero custo e total fidelidade técnica.
 
 ---
 
@@ -407,7 +415,8 @@ lojix/
 │   │   ├── db.migration/       # Migrações SQL versionadas pelo Flyway
 │   │   ├── application.properties
 │   │   ├── application-dev.properties
-│   │   └── application-prod.properties
+│   │   ├── application-prod.properties
+│   │   └── application-test.properties
 │   ├── src/test/java/          # Suíte JUnit 5, MockMvc, ArchUnit e Test Data Builders
 │   └── Dockerfile              # Build multi-stage Maven -> JRE 17 Alpine (non-root)
 ├── frontend/
@@ -488,7 +497,7 @@ npm start
 ![Gestão de Promoções](assets/07-gestao-promocoes.png)
 ![Modal Nova Promoção](assets/08-modal-nova-promocao.png)
 
-### Gestão de Categorias (Sem Exposição de IDs Internos)
+### Gestão de Categorias
 
 ![Gestão de Categorias](assets/05-gestao-categorias.png)
 ![Modal Nova Categoria](assets/06-modal-nova-categoria.png)
@@ -513,13 +522,20 @@ Enquanto no projeto anterior o objetivo foi implementar **manualmente em Java pu
 | **Arquitetura e Interface** | Desktop MVC (Swing) | Arquitetura em Camadas Estrita + DIP nas integrações (REST API) + SPA em React Puro (CSS Modules) |
 | **Injeção de Dependência e Persistência** | IoC manual + `EntityManager` isolado por tentativa | Spring IoC (construtor estrito validado por ArchUnit) + Spring Data JPA + Flyway + HikariCP calibrado |
 | **Concorrência** | Optimistic Locking (`@Version`) + Retry com Backoff Exponencial e Jitter | Optimistic Locking (`@Version`) traduzido para semântica REST (`HTTP 409 Conflict`) |
-| **Performance e Cache** | Batch `SELECT ... IN` no MySQL | Redis distribuído (`transactionAware`, TTLs por agregado e invalidação cirúrgica) + MapStruct + `JOIN FETCH` |
+| **Performance e Cache** | Batch `SELECT ... IN` no MySQL | Redis distribuído (`transactionAware`, TTLs por agregado e invalidação cirúrgica) + MapStruct + `JOIN FETCH` + Indexação explícita de FKs e índices funcionais |
 | **Infraestrutura e Redes** | Uma JVM local por terminal | 7 containers orquestrados em **6 redes Docker isoladas (DMZ)** + Nginx Reverse Proxy |
 | **Observabilidade** | Logs locais | **Prometheus + Grafana** com templates e datasources provisionados como código |
 | **Integrações Externas** | Geração de NF em arquivo local | **AWS S3** (Magic Bytes + Presigned URLs) e **SMTP Assíncrono (`@Async`)** |
-| **Qualidade, Testes e CI/CD** | 30 testes unitários (JUnit 4 + Mockito) | **56 testes** (Integração `MockMvc` + Unitários + **ArchUnit**) em pipelines GitHub Actions + JaCoCo + SonarCloud + Deploy (Vercel/Render) |
+| **Qualidade, Testes e CI/CD** | 30 testes unitários (JUnit 4 + Mockito) | **59 testes** (Integração `MockMvc` + Unitários + **ArchUnit**) em pipelines GitHub Actions + JaCoCo + SonarCloud + Deploy (Vercel/Render) |
 
 Construir primeiro os mecanismos "na unha" sem Spring no projeto desktop e depois projetar o Lojix com Spring Boot, Redis, S3, redes Docker segmentadas e observabilidade tornou cada configuração deliberada — sabendo exatamente qual problema cada ferramenta resolve e quais *trade-offs* ela introduz.
+
+---
+
+## Autores e Contribuições
+
+- **[Raffael Queiroga](https://github.com/queirogaraffael)** — Concepção geral, Arquitetura e Engenharia de Backend, Modelagem de Banco de Dados, Infraestrutura Docker/Nginx, Observabilidade, Segurança e Refatoração/Evolução Completa do Frontend.
+- **[Felipe Azevedo](https://github.com/Lipe-Azevedo)** — Colaboração inicial na prototipagem e estruturação base das primeiras telas em React.
 
 ---
 
