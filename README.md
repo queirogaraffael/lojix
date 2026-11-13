@@ -341,7 +341,7 @@ O frontend foi desenvolvido deliberadamente em **React 18 puro**, sem depender d
 
 ## Estratégia de Testes Automatizados
 
-Diferente de projetos que testam apenas mocks isolados, a suíte do backend conta com **59 testes automatizados** combinando **testes de arquitetura (ArchUnit)**, **testes unitários de infraestrutura** e **testes de integração ponta a ponta (`@SpringBootTest` + `MockMvc`)** rodando no perfil `test` com `@Transactional` (garantindo *rollback* automático e isolamento total entre cenários).
+Diferente de projetos que testam apenas mocks isolados, a suíte do backend conta com **62 testes automatizados** combinando **testes de arquitetura (ArchUnit)**, **testes unitários de infraestrutura** e **testes de integração ponta a ponta (`@SpringBootTest` + `MockMvc`)** rodando no perfil `test` com `@Transactional` (garantindo *rollback* automático e isolamento total entre cenários).
 
 Para manter os testes legíveis e evitar duplicação de código de setup, foi implementado o padrão **Test Data Builder** (`UsuarioTestBuilder`, `FuncionarioTestBuilder`, `ClienteTestBuilder`, `ProdutoRequestDTOBuilder`, `AuthTestFactory`) aliado a um *Test Double* para armazenamento em nuvem (`MockStorageService`).
 
@@ -355,9 +355,10 @@ Para manter os testes legíveis e evitar duplicação de código de setup, foi i
 | `AuthControllerTest` | 6 | Autenticação com credenciais válidas/inválidas, emissão de token JWT e bloqueio de rotas protegidas (`401`/`403`). |
 | `ClienteControllerTest` | 6 | Cadastro de clientes, unicidade de CPF, paginação com projeção DTO e consulta por ID. |
 | `S3StorageServiceTest` | 4 | Upload válido, rejeição por tamanho máximo excedido, tipo inválido e inspeção de assinatura binária (*Magic Bytes*). |
+| `SmtpEmailServiceTest` | 3 | Montagem do template HTML de boas-vindas, disparo via `JavaMailSender`, modo simulado (`mailEnabled=false`) e isolamento de falhas SMTP. |
 | `CustomExceptionHandlerTest` | 3 | Tratamento global de exceções, mapeamento de status HTTP e instrumentação de métricas de erros de banco no Micrometer (`db.query.errors`). |
 | `LojixApplicationTests` | 1 | Smoke test de subida íntegra do contexto do Spring Boot no perfil de testes. |
-| **Total** | **59** | |
+| **Total** | **62** | |
 
 ---
 
@@ -367,7 +368,7 @@ Para manter os testes legíveis e evitar duplicação de código de setup, foi i
 
 O repositório possui **3 workflows independentes** em `.github/workflows/` configurados com filtros de caminho (`paths`) e cancelamento automático de execuções concorrentes obsoletas (`concurrency.cancel-in-progress: true`), evitando gastar minutos de CI em áreas que não foram tocadas no commit:
 
-1. **`backend-ci.yml`**: Compila o projeto em Java 17 com cache Maven, executa toda a suíte de **59 testes (incluindo ArchUnit)**, gera o relatório XML de cobertura com **JaCoCo** e envia a análise estática de qualidade, *code smells* e vulnerabilidades (SAST) para o **SonarCloud**.
+1. **`backend-ci.yml`**: Compila o projeto em Java 17 com cache Maven, executa toda a suíte de **62 testes (incluindo ArchUnit)**, gera o relatório XML de cobertura com **JaCoCo** e envia a análise estática de qualidade, *code smells* e vulnerabilidades (SAST) para o **SonarCloud**.
 2. **`frontend-ci.yml`**: Instala dependências limpas via `npm ci` em Node 18, executa testes e valida o build otimizado de produção (`npm run build`).
 3. **`docker-ci.yml`**: Valida o schema estrutural do `docker-compose.yml` (`docker compose config -q`) e testa a sintaxe real dos arquivos de configuração do Nginx (`nginx -t`) dentro de containers `nginx:alpine` efêmeros.
 
@@ -378,7 +379,7 @@ A cada commit no backend, a pipeline dispara uma auditoria estática automatizad
 - **Quality Gate Rigoroso:** Bloqueio automático de pull requests e deploys que introduzam débitos técnicos ou violem critérios de qualidade do repositório;
 - **Segurança da Aplicação (SAST):** Varredura contínua contra vulnerabilidades conhecidas, falhas de injeção e violações de boas práticas de segurança;
 - **Manutenibilidade e *Clean Code*:** Detecção precoce de *code smells*, trechos duplicados e complexidade ciclomática excessiva em métodos de negócio;
-- **Auditoria de Cobertura de Testes:** Validação linha a linha de cobertura nas camadas de serviço, domínio e controladores RESTful testadas pela suíte de 59 testes.
+- **Auditoria de Cobertura de Testes:** Validação linha a linha de cobertura nas camadas de serviço, domínio e controladores RESTful testadas pela suíte de 62 testes.
 
 ### Estratégia de Deploy e Ambientes de Execução
 
@@ -532,7 +533,7 @@ Enquanto no projeto anterior o objetivo foi implementar **manualmente em Java pu
 | **Infraestrutura e Redes** | Uma JVM local por terminal | 7 containers orquestrados em **6 redes Docker isoladas (DMZ)** + Nginx Reverse Proxy |
 | **Observabilidade** | Logs locais | **Prometheus + Grafana** com templates e datasources provisionados como código |
 | **Integrações Externas** | Geração de NF em arquivo local | **AWS S3** (Magic Bytes + Presigned URLs) e **SMTP Assíncrono (`@Async`)** |
-| **Qualidade, Testes e CI/CD** | 30 testes unitários (JUnit 4 + Mockito) | **59 testes** (Integração `MockMvc` + Unitários + **ArchUnit**) em pipelines GitHub Actions + JaCoCo + SonarCloud + Deploy (Vercel/Render) |
+| **Qualidade, Testes e CI/CD** | 30 testes unitários (JUnit 4 + Mockito) | **62 testes** (Integração `MockMvc` + Unitários + **ArchUnit**) em pipelines GitHub Actions + JaCoCo + SonarCloud + Deploy (Vercel/Render) |
 
 Construir primeiro os mecanismos "na unha" sem Spring no projeto desktop e depois projetar o Lojix com Spring Boot, Redis, S3, redes Docker segmentadas e observabilidade tornou cada configuração deliberada — sabendo exatamente qual problema cada ferramenta resolve e quais *trade-offs* ela introduz.
 
