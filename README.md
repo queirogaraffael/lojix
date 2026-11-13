@@ -450,7 +450,7 @@ Sobe todos os 7 containers (`reverse-proxy`, `frontend`, `backend`, `postgres`, 
 git clone https://github.com/queirogaraffael/lojix.git
 cd lojix
 
-# 2. Crie o arquivo .env a partir do modelo e ajuste as senhas se desejar
+# 2. Crie o arquivo .env a partir do modelo e configure as variáveis
 cp .env.example .env
 
 # 3. Construa as imagens e suba toda a stack em background
@@ -464,7 +464,13 @@ docker compose ps
 - **Dashboards do Grafana:** `http://localhost/grafana` (usuário `admin` e senha definida em `GF_ADMIN_PASSWORD` no `.env`)
 - **Healthcheck do Gateway:** `http://localhost/healthz`
 
-*(No primeiro boot, o `UserAdminInitializer` cria de forma idempotente o usuário administrador inicial definido pelas variáveis `ADMIN_USERNAME` e `ADMIN_PASSWORD` do `.env`).*
+> **Guia de preenchimento do `.env`:**
+> - **Banco de Dados e JWT:** Configure credenciais para `DB_NAME`, `DB_USER`, `DB_PASSWORD` e uma chave segura para `JWT_SECRET`;
+> - **Acesso Inicial do Administrador:** `ADMIN_USERNAME` e `ADMIN_PASSWORD` definem o operador administrador inicial da loja (criado de forma idempotente pelo `UserAdminInitializer` no primeiro boot);
+> - **Acesso ao Grafana:** `GF_ADMIN_PASSWORD` define a senha de acesso aos dashboards de métricas;
+> - **Integrações Externas (Opcionais no modo local):**
+>   - **AWS S3:** Só precisa ser preenchido caso deseje testar o upload real de fotos de perfil;
+>   - **E-mail (SMTP):** Mantido como `MAIL_ENABLED=false` por padrão, simulando os disparos em log sem travar a aplicação nem exigir credenciais SMTP reais.
 
 ### Opção 2: Execução em Modo Desenvolvimento (Sem Docker)
 
