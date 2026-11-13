@@ -1,5 +1,5 @@
 import React from 'react';
-import './Avatar.css';
+import styles from './Avatar.module.css';
 
 const Avatar = ({ name, fotoUrl, size = 'medium' }) => {
   const getInitials = (name) => {
@@ -8,11 +8,11 @@ const Avatar = ({ name, fotoUrl, size = 'medium' }) => {
   };
 
   return (
-    <div className={`avatar avatar-${size}`}>
+    <div className={`${styles.avatar} ${styles[`avatar-${size}`] || ''}`}>
       {fotoUrl ? (
-        <img src={fotoUrl} alt={`Avatar de ${name}`} className="avatar-img" />
+        <img src={fotoUrl} alt={`Avatar de ${name}`} className={styles['avatar-img']} />
       ) : (
-        <div className="avatar-initials">
+        <div className={styles['avatar-initials']}>
           {getInitials(name)}
         </div>
       )}

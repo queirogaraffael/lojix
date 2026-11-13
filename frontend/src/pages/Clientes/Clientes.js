@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listarClientes, criarCliente } from '../../services/clientesService';
 import { Modal } from '../../components/Modal/Modal';
 import { ClienteForm } from './ClienteForm';
-import './Clientes.css';
+import styles from './Clientes.module.css';
 
 export const Clientes = () => {
   const [paginaAtual, setPaginaAtual] = useState(0);
@@ -71,18 +71,25 @@ export const Clientes = () => {
     return new Date(data).toLocaleDateString('pt-BR');
   };
 
+  const formatarCPF = (cpf) => {
+    if (!cpf) return '-';
+    const nums = cpf.replace(/\D/g, '');
+    if (nums.length !== 11) return cpf;
+    return nums.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
   return (
-    <div className="clientes-container">
-      <div className="header-container">
+    <div className={styles['clientes-container']}>
+      <div className={styles['header-container']}>
         <h2>Gestão de Clientes</h2>
-        <button className="btn-novo" onClick={handleOpenModal}>
+        <button className={styles['btn-novo']} onClick={handleOpenModal}>
           Novo Cliente
         </button>
       </div>
 
       {loading ? <p>Carregando...</p> : (
         <>
-        <table className="clientes-tabela">
+        <table className={styles['clientes-tabela']}>
           <thead>
             <tr>
               <th>Nome</th>
@@ -97,18 +104,18 @@ export const Clientes = () => {
               <tr key={cliente.id}>
                 <td>{cliente.usuario.name}</td>
                 <td>{cliente.usuario.email}</td>
-                <td>{cliente.usuario.cpf}</td>
+                <td>{formatarCPF(cliente.usuario.cpf)}</td>
                 <td>{formatarData(cliente.membroDesde)}</td>
-                <td className="acoes">
+                <td className={styles.acoes}>
                   <button
-                    className="btn-editar"
+                    className={styles['btn-editar']}
                     onClick={handleNotImplemented}
                     style={{ opacity: 0.5, cursor: 'not-allowed' }}
                   >
                     Editar
                   </button>
                   <button
-                    className="btn-remover"
+                    className={styles['btn-remover']}
                     onClick={handleNotImplemented}
                     style={{ opacity: 0.5, cursor: 'not-allowed' }}
                   >
@@ -119,7 +126,7 @@ export const Clientes = () => {
             ))}
           </tbody>
         </table>
-        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className={styles['paginacao-controles']} style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 
             onClick={() => setPaginaAtual(0)} 
             disabled={paginaAtual === 0 || clientesQuery.isFetching}>

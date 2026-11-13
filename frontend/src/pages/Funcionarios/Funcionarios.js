@@ -4,7 +4,7 @@ import { listarFuncionarios, criarFuncionario, atualizarFuncionario, desligarFun
 import { Modal } from '../../components/Modal/Modal';
 import Avatar from '../../components/Avatar/Avatar';
 import { FuncionarioForm } from './FuncionarioForm';
-import './Funcionarios.css';
+import styles from './Funcionarios.module.css';
 
 export const Funcionarios = () => {
   const [paginaAtual, setPaginaAtual] = useState(0);
@@ -95,6 +95,40 @@ export const Funcionarios = () => {
     }
   });
 
+  const formatarSalario = (valor) => {
+    if (valor === null || valor === undefined) return '-';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+  };
+
+  const formatarCPF = (cpf) => {
+    if (!cpf) return '-';
+    const nums = cpf.replace(/\D/g, '');
+    if (nums.length !== 11) return cpf;
+    return nums.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
+  const renderRoleBadge = (role) => {
+    const roleMap = {
+      ADMIN: { label: 'Administrador', bg: '#cce5ff', color: '#004085' },
+      ATENDENTE: { label: 'Atendente', bg: '#d4edda', color: '#155724' },
+      ESTOQUISTA: { label: 'Estoquista', bg: '#fff3cd', color: '#856404' }
+    };
+    const config = roleMap[role] || { label: role || 'Geral', bg: '#e2e3e5', color: '#383d41' };
+    return (
+      <span style={{
+        backgroundColor: config.bg,
+        color: config.color,
+        padding: '2px 8px',
+        borderRadius: '12px',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        display: 'inline-block'
+      }}>
+        {config.label}
+      </span>
+    );
+  };
+
   const handleSave = (dados) => mutationSalvar.mutate(dados);
   const handleDelete = (id) => {
     if (window.confirm('Tem certeza que deseja desligar este funcionário?')) {
@@ -103,21 +137,22 @@ export const Funcionarios = () => {
   };
 
   return (
-    <div className="funcionarios-container">
-      <div className="header-container">
+    <div className={styles['funcionarios-container']}>
+      <div className={styles['header-container']}>
         <h2>Gestão de Funcionários</h2>
-        <button className="btn-novo" onClick={() => handleOpenModal(null)}>
+        <button className={styles['btn-novo']} onClick={() => handleOpenModal(null)}>
           Novo Funcionário
         </button>
       </div>
 
       {loading ? <p>Carregando...</p> : (
         <>
-        <table className="funcionarios-tabela">
+        <table className={styles['funcionarios-tabela']}>
           <thead>
             <tr>
               <th>Nome</th>
               <th>Cargo</th>
+              <th>Nível de Acesso</th>
               <th>Salário</th>
               <th>Email</th>
               <th>CPF</th>
@@ -129,18 +164,19 @@ export const Funcionarios = () => {
               <tr key={func.id}>
                 <td>{func.usuarioResponseDTO.name}</td>
                 <td>{func.cargo}</td>
-                <td>R$ {func.salario?.toFixed(2)}</td>
+                <td>{renderRoleBadge(func.usuarioResponseDTO.role)}</td>
+                <td>{formatarSalario(func.salario)}</td>
                 <td>{func.usuarioResponseDTO.email}</td>
-                <td>{func.usuarioResponseDTO.cpf}</td>
-                <td className="acoes">
+                <td>{formatarCPF(func.usuarioResponseDTO.cpf)}</td>
+                <td className={styles.acoes}>
                   <button
-                    className="btn-editar"
+                    className={styles['btn-editar']}
                     onClick={() => handleOpenModal(func)}
                   >
                     Editar
                   </button>
                   <button
-                    className="btn-remover"
+                    className={styles['btn-remover']}
                     onClick={() => handleDelete(func.id)}
                   >
                     Desligar
@@ -150,7 +186,7 @@ export const Funcionarios = () => {
             ))}
           </tbody>
         </table>
-        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className={styles['paginacao-controles']} style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 
             onClick={() => setPaginaAtual(0)} 
             disabled={paginaAtual === 0 || funcionariosQuery.isFetching}>

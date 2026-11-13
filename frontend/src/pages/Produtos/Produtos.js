@@ -5,7 +5,7 @@ import { listarCategorias } from '../../services/categoriasService';
 import { listarPromocoes, associarProduto, removerAssociacaoProduto } from '../../services/promocoesService';
 import { Modal } from '../../components/Modal/Modal';
 import { ProdutoForm } from './ProdutoForm';
-import './Produtos.css';
+import styles from './Produtos.module.css';
 
 export const Produtos = () => {
   const [paginaAtual, setPaginaAtual] = useState(0);
@@ -49,9 +49,52 @@ export const Produtos = () => {
 
 
 
-  const formatarData = (data) => {
+  const formatarMoeda = (valor) => {
+    if (valor === null || valor === undefined) return '-';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+  };
+
+  const renderEstoque = (qtd) => {
+    if (qtd <= 0) {
+      return (
+        <span className={styles['badge-esgotado']}>
+          0 <small>(Esgotado)</small>
+        </span>
+      );
+    }
+    if (qtd <= 5) {
+      return (
+        <span className={styles['badge-estoque-baixo']}>
+          {qtd} <small>(Baixo)</small>
+        </span>
+      );
+    }
+    return <span>{qtd}</span>;
+  };
+
+  const renderValidade = (data) => {
     if (!data) return '-';
-    return new Date(data + 'T12:00:00').toLocaleDateString('pt-BR');
+    const dataVal = new Date(data + 'T23:59:59');
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const diffDias = Math.ceil((dataVal - hoje) / (1000 * 60 * 60 * 24));
+    const formatada = new Date(data + 'T12:00:00').toLocaleDateString('pt-BR');
+
+    if (diffDias < 0) {
+      return (
+        <span className={styles['validade-vencido']} title="Produto Vencido!">
+          {formatada} ⚠️
+        </span>
+      );
+    }
+    if (diffDias <= 15) {
+      return (
+        <span className={styles['validade-alerta']} title={`Vence em ${diffDias} dias`}>
+          {formatada} ⏳
+        </span>
+      );
+    }
+    return <span>{formatada}</span>;
   };
 
   const handleOpenModal = (produto = null) => {
@@ -110,17 +153,17 @@ export const Produtos = () => {
   };
 
   return (
-    <div className="produtos-container">
-      <div className="header-container">
+    <div className={styles['produtos-container']}>
+      <div className={styles['header-container']}>
         <h2>Gestão de Produtos</h2>
-        <button className="btn-novo" onClick={() => handleOpenModal(null)}>
+        <button className={styles['btn-novo']} onClick={() => handleOpenModal(null)}>
           Novo Produto
         </button>
       </div>
 
       {loading ? <p>Carregando...</p> : (
         <>
-        <table className="produtos-tabela">
+        <table className={styles['produtos-tabela']}>
           <thead>
             <tr>
               <th>Nome</th>
@@ -140,9 +183,9 @@ export const Produtos = () => {
                     <td>{prod.nome}</td>
                     <td>{getNomeCategoria(prod.categoriaId)}</td>
                     <td style={{ textDecoration: prod.emPromocao ? 'line-through' : 'none', color: prod.emPromocao ? '#999' : 'inherit' }}>
-                        {prod.precoBase.toFixed(2)}
+                        {formatarMoeda(prod.precoBase)}
                     </td>
-                    <td>{prod.quantidadeEstoque}</td>
+                    <td>{renderEstoque(prod.quantidadeEstoque)}</td>
                     <td>
                       {prod.emPromocao ? (
                         <span style={{ backgroundColor: '#ffc107', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
@@ -153,19 +196,19 @@ export const Produtos = () => {
                       )}
                     </td>
                     <td style={{ fontWeight: 'bold', color: prod.emPromocao ? '#28a745' : 'inherit' }}>
-                        {prod.precoPromocional.toFixed(2)}
+                        {formatarMoeda(prod.precoPromocional)}
                     </td>
-                    <td>{formatarData(prod.dataValidade)}</td>
-                    <td className="acoes">
-                        <button className="btn-editar" onClick={() => handleOpenModal(prod)}>Editar</button>
-                        <button className="btn-remover" onClick={() => handleDelete(prod.id)}>Excluir</button>
+                    <td>{renderValidade(prod.dataValidade)}</td>
+                    <td className={styles.acoes}>
+                        <button className={styles['btn-editar']} onClick={() => handleOpenModal(prod)}>Editar</button>
+                        <button className={styles['btn-remover']} onClick={() => handleDelete(prod.id)}>Excluir</button>
                     </td>
                     </tr>
                 );
             })}
           </tbody>
         </table>
-        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className={styles['paginacao-controles']} style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 
             onClick={() => setPaginaAtual(0)} 
             disabled={paginaAtual === 0 || produtosQuery.isFetching}>

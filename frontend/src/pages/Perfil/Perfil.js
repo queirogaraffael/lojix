@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { atualizarFoto } from '../../services/usuariosService';
 import Avatar from '../../components/Avatar/Avatar';
-import './Perfil.css';
+import styles from './Perfil.module.css';
 
 export const Perfil = () => {
   const { user, updateUserContext } = useAuth();
@@ -34,16 +34,16 @@ export const Perfil = () => {
   if (!user) return <p>Carregando...</p>;
 
   return (
-    <div className="perfil-container">
-      <div className="perfil-card">
+    <div className={styles['perfil-container']}>
+      <div className={styles['perfil-card']}>
         <h2>Meu Perfil</h2>
 
-        <div className="perfil-avatar-section">
+        <div className={styles['perfil-avatar-section']}>
           <Avatar name={user.name || user.username} fotoUrl={user.fotoUrl} size="large" />
 
-          <div className="perfil-avatar-actions">
+          <div className={styles['perfil-avatar-actions']}>
             <button
-              className="btn-mudar-foto"
+              className={styles['btn-mudar-foto']}
               onClick={() => fileInputRef.current?.click()}
               disabled={loading}
             >
@@ -59,12 +59,12 @@ export const Perfil = () => {
           </div>
         </div>
 
-        <div className="perfil-info">
-          <div className="form-group">
+        <div className={styles['perfil-info']}>
+          <div className={styles['form-group']}>
             <label>Nome / Username</label>
             <input type="text" value={user.name || user.username} readOnly disabled />
           </div>
-          <div className="form-group">
+          <div className={styles['form-group']}>
             <label>Papéis (Roles)</label>
             <input type="text" value={user.roles?.join(', ')} readOnly disabled />
           </div>

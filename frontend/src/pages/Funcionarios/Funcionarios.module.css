@@ -1,0 +1,101 @@
+.funcionarios-container {
+  width: 100%;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.btn-novo {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-novo:hover {
+  background-color: #218838;
+}
+
+.funcionarios-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.funcionarios-tabela th,
+.funcionarios-tabela td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+.funcionarios-tabela th {
+  background-color: #f4f6f8;
+  font-weight: 600;
+}
+
+.funcionarios-tabela tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.funcionarios-tabela tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.funcionario-foto {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.funcionario-foto-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+}
+
+.acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-editar, .btn-remover {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: white;
+}
+
+.btn-editar {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.btn-remover {
+  background-color: #dc3545;
+}
+
+.paginacao-controles {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}

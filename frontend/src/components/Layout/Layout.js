@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Avatar from '../Avatar/Avatar';
-import './Layout.css';
+import styles from './Layout.module.css';
 
 export const Layout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -13,12 +13,12 @@ export const Layout = ({ children }) => {
   };
 
   return (
-    <div className="layout-container">
-      <nav className="navbar">
-        <div className="navbar-brand" onClick={() => navigate('/')}>
+    <div className={styles['layout-container']}>
+      <nav className={styles.navbar}>
+        <div className={styles['navbar-brand']} onClick={() => navigate('/')}>
           Lojix
         </div>
-        <div className="navbar-links">
+        <div className={styles['navbar-links']}>
           <NavLink to="/">Dashboard</NavLink>
           {(user?.role === 'ADMIN' || user?.role === 'ESTOQUISTA') && (
             <>
@@ -34,17 +34,17 @@ export const Layout = ({ children }) => {
             <NavLink to="/clientes">Clientes</NavLink>
           )}
         </div>
-        <div className="navbar-user">
-          <div className="user-profile-btn" onClick={() => navigate('/perfil')} title="Meu Perfil">
+        <div className={styles['navbar-user']}>
+          <div className={styles['user-profile-btn']} onClick={() => navigate('/perfil')} title="Meu Perfil">
             <Avatar name={user?.name || user?.username} fotoUrl={user?.fotoUrl} size="small" />
             <span>Olá, {user?.name || user?.username}</span>
           </div>
-          <button onClick={handleLogout} className="logout-button">
+          <button onClick={handleLogout} className={styles['logout-button']}>
             Sair
           </button>
         </div>
       </nav>
-      <main className="main-content">
+      <main className={styles['main-content']}>
         {children}
       </main>
     </div>

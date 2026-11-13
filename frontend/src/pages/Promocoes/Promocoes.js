@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { listarPromocoes, criarPromocao, desativarPromocao } from '../../services/promocoesService';
 import { Modal } from '../../components/Modal/Modal';
 import { PromocaoForm } from './PromocaoForm';
-import './Promocoes.css';
+import styles from './Promocoes.module.css';
 
 export const Promocoes = () => {
   const [promocoes, setPromocoes] = useState([]);
@@ -74,16 +74,16 @@ export const Promocoes = () => {
   };
 
   return (
-    <div className="promocoes-container">
-      <div className="header-container">
+    <div className={styles['promocoes-container']}>
+      <div className={styles['header-container']}>
         <h2>Gestão de Promoções</h2>
-        <button className="btn-novo" onClick={handleOpenModal}>
+        <button className={styles['btn-novo']} onClick={handleOpenModal}>
           Nova Promoção
         </button>
       </div>
 
       {loading ? <p>Carregando...</p> : (
-        <table className="promocoes-tabela">
+        <table className={styles['promocoes-tabela']}>
           <thead>
             <tr>
               <th>Nome</th>
@@ -100,9 +100,9 @@ export const Promocoes = () => {
                 <td>{(promo.taxaDeDesconto).toFixed(0)}%</td>
                 <td>{formatarData(promo.inicio)}</td>
                 <td>{formatarData(promo.fim)}</td>
-                <td className="acoes">
+                <td className={styles.acoes}>
                   <button
-                    className="btn-remover"
+                    className={styles['btn-remover']}
                     onClick={() => handleDelete(promo.id)}
                   >
                     Desativar
