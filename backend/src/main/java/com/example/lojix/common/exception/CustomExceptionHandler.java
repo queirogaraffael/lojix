@@ -33,19 +33,11 @@ public class CustomExceptionHandler {
     }
 
     private void recordDatabaseError(Exception ex, HttpServletRequest request) {
-        if (meterRegistry == null) {
-            return;
-        }
-        String endpoint = "UNKNOWN";
-        String method = "UNKNOWN";
-        if (request != null) {
-            method = request.getMethod() != null ? request.getMethod() : "UNKNOWN";
-            Object bestMatchingPattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-            endpoint = bestMatchingPattern != null ? bestMatchingPattern.toString() : (request.getRequestURI() != null ? request.getRequestURI() : "UNKNOWN");
-        }
+        Object bestMatchingPattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        String endpoint = bestMatchingPattern != null ? bestMatchingPattern.toString() : request.getRequestURI();
         meterRegistry.counter("db.query.errors",
                 "exception", ex.getClass().getSimpleName(),
-                "method", method,
+                "method", request.getMethod(),
                 "endpoint", endpoint
         ).increment();
     }
@@ -138,7 +130,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
         recordDatabaseError(ex, request);
-        log.error("Violação de integridade no banco de dados na rota {}: {}", request != null ? request.getRequestURI() : "N/A", ex.getMessage(), ex);
+        log.error("Violação de integridade no banco de dados na rota {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
         String safeMessage = "Violação de integridade nos dados: registro duplicado ou chave referencial inválida.";
         ErrorResponse response = new ErrorResponse(
@@ -152,7 +144,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<Object> handleDataAccessException(DataAccessException ex, HttpServletRequest request) {
         recordDatabaseError(ex, request);
-        log.error("Erro de acesso ou comunicação no banco de dados na rota {}: {}", request != null ? request.getRequestURI() : "N/A", ex.getMessage(), ex);
+        log.error("Erro de acesso ou comunicação no banco de dados na rota {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
         String safeMessage = "Ocorreu uma falha na execução da operação no banco de dados.";
         ErrorResponse response = new ErrorResponse(
@@ -166,7 +158,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<Object> handleOptimisticLockingException(ObjectOptimisticLockingFailureException ex, HttpServletRequest request) {
         recordDatabaseError(ex, request);
-        log.warn("Conflito de concorrência detectado na rota {}: {}", request != null ? request.getRequestURI() : "N/A", ex.getMessage());
+        log.warn("Conflito de concorrência detectado na rota {}: {}", request.getRequestURI(), ex.getMessage());
 
         String msg = "Conflito de dados: Este registro foi modificado por outro usuário enquanto você o editava. Recarregue a página e tente novamente.";
         ErrorResponse response = new ErrorResponse(

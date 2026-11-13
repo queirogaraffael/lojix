@@ -31,7 +31,6 @@ class CustomExceptionHandlerTest {
     @DisplayName("Deve registrar métrica db.query.errors ao capturar DataIntegrityViolationException")
     void deveRegistrarMetricaAoCapturarDataIntegrityViolationException() {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/clientes");
-        request.setAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE, "/api/v1/clientes");
 
         DataIntegrityViolationException ex = new DataIntegrityViolationException("duplicate key value violates unique constraint");
 
