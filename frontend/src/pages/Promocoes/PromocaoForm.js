@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styles from './PromocaoForm.module.css';
 
 export const PromocaoForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -27,8 +28,8 @@ export const PromocaoForm = ({ onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="produto-form">
-      <div className="form-control">
+    <form onSubmit={handleSubmit} className={styles['promocao-form']}>
+      <div className={styles['form-control']}>
         <label htmlFor="nome">Nome da Promoção</label>
         <input
           type="text"
@@ -40,7 +41,7 @@ export const PromocaoForm = ({ onSave, onCancel }) => {
         />
       </div>
 
-      <div className="form-control">
+      <div className={styles['form-control']}>
         <label htmlFor="taxaDeDesconto">Taxa de Desconto (%)</label>
         <input
           type="number"
@@ -55,8 +56,8 @@ export const PromocaoForm = ({ onSave, onCancel }) => {
         />
       </div>
 
-      <div className="form-group">
-        <div className="form-control">
+      <div className={styles['form-group']}>
+        <div className={styles['form-control']}>
           <label htmlFor="inicio">Data Início</label>
           <input
             type="date"
@@ -67,7 +68,7 @@ export const PromocaoForm = ({ onSave, onCancel }) => {
             required
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="fim">Data Fim</label>
           <input
             type="date"
@@ -80,11 +81,11 @@ export const PromocaoForm = ({ onSave, onCancel }) => {
         </div>
       </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-cancel" onClick={onCancel}>
+      <div className={styles['form-actions']}>
+        <button type="button" className={styles['btn-cancel']} onClick={onCancel}>
           Cancelar
         </button>
-        <button type="submit" className="btn-save">
+        <button type="submit" className={styles['btn-save']}>
           Salvar
         </button>
       </div>

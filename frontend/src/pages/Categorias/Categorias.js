@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listarCategorias, criarCategoria, atualizarCategoria } from '../../services/categoriasService';
 import { Modal } from '../../components/Modal/Modal';
 import { CategoriaForm } from './CategoriaForm';
-import './Categorias.css';
+import styles from './Categorias.module.css';
 
 export const Categorias = () => {
   const [paginaAtual, setPaginaAtual] = useState(0);
@@ -57,32 +57,30 @@ export const Categorias = () => {
   const handleSave = (dadosCategoria) => mutationSalvar.mutate(dadosCategoria);
 
   return (
-    <div className="categorias-container">
-      <div className="header-container">
+    <div className={styles['categorias-container']}>
+      <div className={styles['header-container']}>
         <h2>Gestão de Categorias</h2>
-        <button className="btn-novo" onClick={() => handleOpenModal(null)}>
+        <button className={styles['btn-novo']} onClick={() => handleOpenModal(null)}>
           Nova Categoria
         </button>
       </div>
 
       {loading ? <p>Carregando...</p> : (
         <>
-        <table className="categorias-tabela">
+        <table className={styles['categorias-tabela']}>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nome</th>
+              <th>Nome da Categoria</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {categorias.map((cat) => (
               <tr key={cat.id}>
-                <td>{cat.id}</td>
                 <td>{cat.nome}</td>
-                <td className="acoes">
+                <td className={styles.acoes}>
                   <button
-                    className="btn-editar"
+                    className={styles['btn-editar']}
                     onClick={() => handleOpenModal(cat)}
                   >
                     Editar
@@ -92,7 +90,7 @@ export const Categorias = () => {
             ))}
           </tbody>
         </table>
-        <div className="paginacao-controles" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className={styles['paginacao-controles']} style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 
             onClick={() => setPaginaAtual(0)} 
             disabled={paginaAtual === 0 || categoriasQuery.isFetching}>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import "./Login.css";
+import styles from "./Login.module.css";
 
 export const Login = () => {
   const [username, setUsername] = useState('');
@@ -24,13 +24,13 @@ export const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleSubmit}>
+    <div className={styles['login-container']}>
+      <form className={styles['login-form']} onSubmit={handleSubmit}>
         <h1>Lojix</h1>
 
         {error && (
           <div
-            className="error-message"
+            className={styles['error-message']}
             style={{
               color: "#dc3545",
               marginBottom: "1rem",
@@ -43,7 +43,7 @@ export const Login = () => {
           </div>
         )}
 
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="username">E-mail, CPF ou Usuário</label>
           <input
             type="text"
@@ -55,7 +55,7 @@ export const Login = () => {
             placeholder="E-mail, CPF ou Usuário"
           />
         </div>
-        <div className="form-control">
+        <div className={styles['form-control']}>
           <label htmlFor="password">Senha</label>
           <input
             type="password"
@@ -66,10 +66,10 @@ export const Login = () => {
             disabled={isLoading}
           />
         </div>
-        <button type="submit" className="login-button" disabled={isLoading}>
+        <button type="submit" className={styles['login-button']} disabled={isLoading}>
           {isLoading ? "Entrando..." : "Entrar"}
         </button>
-        <p className="login-hint">
+        <p className={styles['login-hint']}>
           Usuário Padrão: <strong>Admin</strong><br/>
           Senha Padrão: <strong>Admin123</strong>
         </p>

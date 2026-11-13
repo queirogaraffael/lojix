@@ -6,6 +6,7 @@ import com.example.lojix.infrastructure.repository.ClienteRepository;
 import com.example.lojix.infrastructure.repository.UsuarioRepository;
 import com.example.lojix.dto.cliente.ClienteRequestDTO;
 import com.example.lojix.dto.cliente.ClienteResponseDTO;
+import com.example.lojix.dto.email.ClienteCadastradoEmailDTO;
 import com.example.lojix.common.exception.ResourceNotFoundException;
 import com.example.lojix.common.exception.UsuarioJaExisteException;
 import com.example.lojix.mapper.ClienteMapper;
@@ -29,6 +30,7 @@ public class ClienteService {
     private final UsuarioRepository usuarioRepository;
     private final StorageService storageService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
 
     public ClienteService(
@@ -36,13 +38,15 @@ public class ClienteService {
             ClienteMapper clienteMapper,
             UsuarioRepository usuarioRepository,
             StorageService storageService,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            EmailService emailService
     ) {
         this.clienteRepository = clienteRepository;
         this.clienteMapper = clienteMapper;
         this.usuarioRepository = usuarioRepository;
         this.storageService = storageService;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @CachePut(value = "clientesCache", key = "#result.id")
@@ -74,6 +78,15 @@ public class ClienteService {
         Cliente clienteSalvo = clienteRepository.save(cliente);
 
         log.info("Cliente criado com sucesso. ID: {}", clienteSalvo.getId());
+
+        if (clienteSalvo.getUsuario() != null && clienteSalvo.getUsuario().getEmail() != null) {
+            emailService.sendWelcomeEmailCliente(ClienteCadastradoEmailDTO.builder()
+                    .nomeCliente(clienteSalvo.getUsuario().getName())
+                    .email(clienteSalvo.getUsuario().getEmail())
+                    .cpf(MaskUtils.maskCpf(clienteSalvo.getUsuario().getCpf()))
+                    .membroDesde(clienteSalvo.getMembroDesde())
+                    .build());
+        }
 
         ClienteResponseDTO responseDTO = clienteMapper.entityToResponseDTO(clienteSalvo);
         if (clienteSalvo.getUsuario() != null && clienteSalvo.getUsuario().getFotoKey() != null) {

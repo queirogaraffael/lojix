@@ -1,0 +1,50 @@
+name: CI - Docker e Infraestrutura
+
+on:
+  push:
+    branches: ["main", "develop"]
+    paths:
+      - "docker-compose.yml"
+      - "nginx/**"
+      - "frontend/nginx.conf"
+      - ".github/workflows/docker-ci.yml"
+  pull_request:
+    branches: ["main", "develop"]
+    paths:
+      - "docker-compose.yml"
+      - "nginx/**"
+      - "frontend/nginx.conf"
+      - ".github/workflows/docker-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validar-infra:
+    name: Validar Compose e Nginx
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Validar schema do Docker Compose
+        run: docker compose config -q
+
+      - name: Validar sintaxe do Nginx Proxy
+        run: |
+          docker run --rm \
+            --add-host backend:127.0.0.1 \
+            --add-host frontend:127.0.0.1 \
+            --add-host grafana:127.0.0.1 \
+            -v "$PWD/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
+            nginx:alpine nginx -t
+
+      - name: Validar sintaxe do Nginx Frontend
+        run: |
+          docker run --rm \
+            -v "$PWD/frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
+            nginx:alpine nginx -t
+
